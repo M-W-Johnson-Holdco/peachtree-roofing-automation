@@ -1,4 +1,4 @@
-setWebhookStatus("Authenticating...","#<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -8,76 +8,75 @@ setWebhookStatus("Authenticating...","#<!DOCTYPE html>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Segoe UI',sans-serif;background:#5A9E2F;color:#e2e8f0;min-height:100vh}
   #pw-screen{position:fixed;inset:0;background:#5A9E2F;display:flex;align-items:center;justify-content:center;z-index:9999}
-  #pw-box{background:#1a1f2e;border:1px solid #2a3050;border-radius:16px;padding:40px;text-align:center;width:320px}
-  #pw-box h2{color:#e85d2f;font-size:1.1rem;margin-bottom:6px;font-weight:700}
-  #pw-box p{color:#64748b;font-size:0.8rem;margin-bottom:16px}
-  #pw-name{width:100%;background:#0f1117;border:1px solid #2a3050;border-radius:8px;padding:10px 14px;color:#e2e8f0;font-size:1rem;outline:none;text-align:center;margin-bottom:10px}
-  #pw-name:focus{border-color:#e85d2f}
-  #pw-input{width:100%;background:#0f1117;border:1px solid #2a3050;border-radius:8px;padding:10px 14px;color:#e2e8f0;font-size:1rem;outline:none;text-align:center;letter-spacing:0.1em;margin-bottom:12px}
-  #pw-input:focus{border-color:#e85d2f}
+  #pw-box{background:#2d5a1a;border:1px solid #4a8a26;border-radius:16px;padding:40px;text-align:center;width:320px}
+  #pw-box h2{color:#E8471C;font-size:1.1rem;margin-bottom:6px;font-weight:700}
+  #pw-box p{color:#c8e6b0;font-size:0.8rem;margin-bottom:16px}
+  #pw-name{width:100%;background:#1e3d10;border:1px solid #4a8a26;border-radius:8px;padding:10px 14px;color:#e2e8f0;font-size:1rem;outline:none;text-align:center;margin-bottom:10px}
+  #pw-name:focus{border-color:#E8471C}
+  #pw-input{width:100%;background:#1e3d10;border:1px solid #4a8a26;border-radius:8px;padding:10px 14px;color:#e2e8f0;font-size:1rem;outline:none;text-align:center;letter-spacing:0.1em;margin-bottom:12px}
+  #pw-input:focus{border-color:#E8471C}
   #pw-error{color:#fca5a5;font-size:0.78rem;margin-bottom:10px;display:none}
-  #pw-btn{width:100%;background:#e85d2f;color:#fff;border:none;border-radius:8px;padding:11px;font-weight:700;font-size:0.95rem;cursor:pointer}
-  #pw-btn:hover{background:#c94d22}
-  header{background:#1a1f2e;border-bottom:3px solid #e85d2f;padding:14px 28px;display:flex;align-items:center;gap:16px}
+  #pw-btn{width:100%;background:#E8471C;color:#fff;border:none;border-radius:8px;padding:11px;font-weight:700;font-size:0.95rem;cursor:pointer}
+  #pw-btn:hover{background:#c93a14}
+  header{background:#2d5a1a;border-bottom:3px solid #E8471C;padding:14px 28px;display:flex;align-items:center;gap:16px}
   header img{height:52px;width:auto;display:none}
-  #header-fallback{font-size:1.3rem;font-weight:800;color:#e85d2f}
-  #header-fallback span{color:#f5a623}
-  header .badge{background:#e85d2f;color:#fff;font-size:0.7rem;padding:3px 10px;border-radius:20px;font-weight:600;margin-left:auto}
+  #header-fallback{font-size:1.3rem;font-weight:800;color:#E8471C}
+  #header-fallback span{color:#F5A623}
+  header .badge{background:#E8471C;color:#fff;font-size:0.7rem;padding:3px 10px;border-radius:20px;font-weight:600;margin-left:auto}
   .container{max-width:960px;margin:0 auto;padding:28px 20px}
-  .card{background:#1a1f2e;border:1px solid #2a3050;border-radius:12px;padding:22px;margin-bottom:20px}
-  .card h2{font-size:0.95rem;font-weight:700;color:#e85d2f;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.05em}
+  .card{background:#2d5a1a;border:1px solid #4a8a26;border-radius:12px;padding:22px;margin-bottom:20px}
+  .card h2{font-size:0.95rem;font-weight:700;color:#E8471C;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.05em}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  label{display:block;font-size:0.78rem;color:#94a3b8;margin-bottom:5px;font-weight:600}
-  input,textarea{width:100%;background:#0f1117;border:1px solid #2a3050;border-radius:8px;padding:9px 12px;color:#e2e8f0;font-size:0.85rem;outline:none;transition:border 0.2s}
-  input:focus,textarea:focus{border-color:#e85d2f}
+  label{display:block;font-size:0.78rem;color:#c8e6b0;margin-bottom:5px;font-weight:600}
+  input,textarea{width:100%;background:#1e3d10;border:1px solid #4a8a26;border-radius:8px;padding:9px 12px;color:#e2e8f0;font-size:0.85rem;outline:none;transition:border 0.2s}
+  input:focus,textarea:focus{border-color:#E8471C}
   textarea{resize:vertical;font-family:monospace;font-size:0.8rem}
   .btn{padding:11px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:0.9rem;transition:all 0.2s}
-  .btn-primary{background:#e85d2f;color:#fff}.btn-primary:hover{background:#c94d22}
-  .btn-secondary{background:#1e2a3a;color:#e85d2f}.btn-secondary:hover{background:#253448}
+  .btn-primary{background:#E8471C;color:#fff}.btn-primary:hover{background:#c93a14}
+  .btn-secondary{background:#1e3d10;color:#E8471C}.btn-secondary:hover{background:#2d5a1a}
   .btn-danger{background:#7f1d1d;color:#fca5a5}
   .btn-warn{background:#78350f;color:#fcd34d}
   .btn-sm{padding:5px 12px;font-size:0.75rem}
   .btn:disabled{opacity:0.5;cursor:not-allowed}
   .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
-  .log-box{background:#0a0d14;border:1px solid #1e2640;border-radius:8px;padding:14px;height:260px;overflow-y:auto;font-family:monospace;font-size:0.78rem;line-height:1.6}
-  .log-entry{padding:2px 0;border-bottom:1px solid #1a1f2e}
-  .log-entry.success{color:#86efac}.log-entry.error{color:#fca5a5}.log-entry.info{color:#e85d2f}.log-entry.warn{color:#fcd34d}.log-entry.skip{color:#94a3b8}
+  .log-box{background:#1e3d10;border:1px solid #4a8a26;border-radius:8px;padding:14px;height:260px;overflow-y:auto;font-family:monospace;font-size:0.78rem;line-height:1.6}
+  .log-entry{padding:2px 0;border-bottom:1px solid #2d5a1a}
+  .log-entry.success{color:#5A9E2F}.log-entry.error{color:#fca5a5}.log-entry.info{color:#E8471C}.log-entry.warn{color:#fcd34d}.log-entry.skip{color:#c8e6b0}
   .status-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;font-size:0.82rem;margin-bottom:14px}
-  .status-bar.idle{background:#1e2640;color:#94a3b8}.status-bar.running{background:#2a1a0f;color:#e85d2f}.status-bar.done{background:#1a2a1f;color:#86efac}.status-bar.error{background:#2d1515;color:#fca5a5}
+  .status-bar.idle{background:#1e3d10;color:#c8e6b0}.status-bar.running{background:#1e3d10;color:#E8471C}.status-bar.done{background:#1e3d10;color:#5A9E2F}.status-bar.error{background:#2d1515;color:#fca5a5}
   .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
   .dot.pulse{animation:pulse 1.2s infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-  .stat{background:#1a1f2e;border:1px solid #2a3050;border-radius:10px;padding:14px;text-align:center}
-  .stat .num{font-size:1.8rem;font-weight:800;color:#e85d2f}
-  .stat .lbl{font-size:0.72rem;color:#64748b;margin-top:2px;text-transform:uppercase;letter-spacing:0.05em}
-  .template-item{background:#0f1117;border:1px solid #2a3050;border-radius:8px;padding:14px;margin-bottom:12px}
-  .template-item h3{font-size:0.85rem;color:#f5a623;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
-  .trigger-badge{display:inline-block;background:#2a1a0f;color:#e85d2f;font-size:0.68rem;padding:2px 8px;border-radius:10px;margin-bottom:8px}
-  .template-body{font-size:0.78rem;color:#94a3b8;line-height:1.6;white-space:pre-wrap}
+  .stat{background:#2d5a1a;border:1px solid #4a8a26;border-radius:10px;padding:14px;text-align:center}
+  .stat .num{font-size:1.8rem;font-weight:800;color:#E8471C}
+  .stat .lbl{font-size:0.72rem;color:#c8e6b0;margin-top:2px;text-transform:uppercase;letter-spacing:0.05em}
+  .template-item{background:#1e3d10;border:1px solid #4a8a26;border-radius:8px;padding:14px;margin-bottom:12px}
+  .template-item h3{font-size:0.85rem;color:#F5A623;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+  .trigger-badge{display:inline-block;background:#1e3d10;color:#E8471C;font-size:0.68rem;padding:2px 8px;border-radius:10px;margin-bottom:8px}
+  .template-body{font-size:0.78rem;color:#c8e6b0;line-height:1.6;white-space:pre-wrap}
   .template-edit-area{display:none;margin-top:10px}.template-edit-area.open{display:block}
   .var-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-  .var-chip{background:#2a1a0f;color:#e85d2f;font-size:0.7rem;padding:3px 8px;border-radius:10px;cursor:pointer;border:1px solid #e85d2f;font-family:monospace}
-  .var-chip:hover{background:#e85d2f;color:#fff}
+  .var-chip{background:#1e3d10;color:#E8471C;font-size:0.7rem;padding:3px 8px;border-radius:10px;cursor:pointer;border:1px solid #E8471C;font-family:monospace}
+  .var-chip:hover{background:#E8471C;color:#fff}
   .mms-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-  .img-upload-box{background:#0f1117;border:1px dashed #2a3050;border-radius:8px;padding:14px;text-align:center}
+  .img-upload-box{background:#1e3d10;border:1px dashed #4a8a26;border-radius:8px;padding:14px;text-align:center}
   .section-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-  .tab{padding:8px 18px;border-radius:20px;border:1px solid #2a3050;background:#1a1f2e;color:#94a3b8;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.2s}
-  .tab.active{background:#e85d2f;color:#fff;border-color:#e85d2f}
+  .tab{padding:8px 18px;border-radius:20px;border:1px solid #4a8a26;background:#2d5a1a;color:#c8e6b0;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.2s}
+  .tab.active{background:#E8471C;color:#fff;border-color:#E8471C}
   .section{display:none}.section.active{display:block}
   .alert{padding:10px 14px;border-radius:8px;font-size:0.82rem;margin-bottom:14px}
   .alert-warn{background:#2d2008;color:#fcd34d;border:1px solid #854d0e}
-  .alert-info{background:#1a0f08;color:#e85d2f;border:1px solid #7c2d12}
-  .schedule-indicator{display:flex;align-items:center;gap:8px;font-size:0.82rem;color:#94a3b8}
-  .next-run{color:#86efac;font-weight:600}
-  .small{font-size:0.75rem;color:#64748b;margin-top:4px}
-  hr{border:none;border-top:1px solid #2a3050;margin:16px 0}
+  .alert-info{background:#1e3d10;color:#E8471C;border:1px solid #4a8a26}
+  .schedule-indicator{display:flex;align-items:center;gap:8px;font-size:0.82rem;color:#c8e6b0}
+  .next-run{color:#5A9E2F;font-weight:600}
+  .small{font-size:0.75rem;color:#c8e6b0;margin-top:4px}
+  hr{border:none;border-top:1px solid #4a8a26;margin:16px 0}
   .modified-badge{background:#78350f;color:#fcd34d;font-size:0.65rem;padding:2px 6px;border-radius:8px;margin-left:6px}
 </style>
 </head>
 <body>
 
-<!-- PASSWORD SCREEN -->
 <div id="pw-screen">
   <div id="pw-box">
     <h2>Peachtree Roofing Automation</h2>
@@ -105,7 +104,6 @@ setWebhookStatus("Authenticating...","#<!DOCTYPE html>
     <div class="tab" data-tab="logs">Run Logs</div>
   </div>
 
-  <!-- DASHBOARD -->
   <div class="section active" id="tab-dashboard">
     <div class="stats">
       <div class="stat"><div class="num" id="stat-sent">0</div><div class="lbl">Texts Sent</div></div>
@@ -113,13 +111,10 @@ setWebhookStatus("Authenticating...","#<!DOCTYPE html>
       <div class="stat"><div class="num" id="stat-errors">0</div><div class="lbl">Errors</div></div>
       <div class="stat"><div class="num" id="stat-jobs">0</div><div class="lbl">Jobs Processed</div></div>
     </div>
-    <div class="status-bar idle" id="status-bar">
-      <div class="dot" id="status-dot"></div>
-      <span id="status-text">Ready — paste CSV and click Run Now</span>
-    </div>
+    <div class="status-bar idle" id="status-bar"><div class="dot" id="status-dot"></div><span id="status-text">Ready — paste CSV and click Run Now</span></div>
     <div class="card">
       <h2>Controls</h2>
-      <div class="alert alert-warn">⚠️ Paste your AccuLynx CSV data below before running.</div>
+      <div class="alert alert-warn">Paste your AccuLynx CSV data below before running.</div>
       <label>Paste AccuLynx CSV Data Here</label>
       <textarea id="csv-input" rows="6" placeholder="Paste full CSV content here (including header row)..."></textarea>
       <div class="small">Tip: Open CSV from AccuLynx email, Select All (Ctrl+A), Copy, Paste here.</div>
@@ -137,11 +132,10 @@ setWebhookStatus("Authenticating...","#<!DOCTYPE html>
     </div>
   </div>
 
-  <!-- WEATHER -->
   <div class="section" id="tab-weather">
     <div class="card">
       <h2>Weather Blast</h2>
-      <div class="alert alert-warn">⚠️ Sends immediately to all numbers plus fixed group. Double-check before sending.</div>
+      <div class="alert alert-warn">Sends immediately to all numbers plus fixed group. Double-check before sending.</div>
       <div class="status-bar idle" id="weather-status-bar"><div class="dot" id="weather-dot"></div><span id="weather-status-text">Ready</span></div>
       <label>Customer Phone Numbers</label>
       <div class="small" style="margin-bottom:8px;">One per line or comma separated.</div>
@@ -151,8 +145,8 @@ setWebhookStatus("Authenticating...","#<!DOCTYPE html>
       <label>Message (editable)</label>
       <textarea id="weather-msg-edit" rows="5" style="margin-bottom:8px;"></textarea>
       <div class="btn-row" style="margin-bottom:12px;">
-        <button class="btn btn-primary btn-sm" id="weather-save-msg-btn">💾 Save Message</button>
-        <button class="btn btn-secondary btn-sm" id="weather-reset-msg-btn">↩ Reset to Default</button>
+        <button class="btn btn-primary btn-sm" id="weather-save-msg-btn">Save Message</button>
+        <button class="btn btn-secondary btn-sm" id="weather-reset-msg-btn">Reset to Default</button>
       </div>
       <label>Also sending to:</label>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px;">
@@ -172,7 +166,6 @@ setWebhookStatus("Authenticating...","#<!DOCTYPE html>
     </div>
   </div>
 
-  <!-- TEMPLATES -->
   <div class="section" id="tab-templates">
     <div class="card">
       <h2>Text Templates &amp; Triggers</h2>
@@ -190,7 +183,6 @@ setWebhookStatus("Authenticating...","#<!DOCTYPE html>
     </div>
   </div>
 
-  <!-- CONFIG -->
   <div class="section" id="tab-config">
     <div class="card">
       <h2>Brand Logo</h2>
@@ -201,7 +193,7 @@ setWebhookStatus("Authenticating...","#<!DOCTYPE html>
     <div class="card">
       <h2>RingCentral Inbound SMS Webhook</h2>
       <div class="alert alert-info">Register your Cloudflare Worker to log inbound SMS replies to AccuLynx. Do once.</div>
-      <div id="webhook-status" class="small" style="margin-bottom:12px;color:#94a3b8;">Status: Unknown</div>
+      <div id="webhook-status" class="small" style="margin-bottom:12px;color:#c8e6b0;">Status: Unknown</div>
       <div class="btn-row">
         <button class="btn btn-primary btn-sm" id="register-webhook-btn">Register Webhook</button>
         <button class="btn btn-secondary btn-sm" id="check-webhook-btn">Check Status</button>
@@ -245,7 +237,6 @@ setWebhookStatus("Authenticating...","#<!DOCTYPE html>
     </div>
   </div>
 
-  <!-- LOGS -->
   <div class="section" id="tab-logs">
     <div class="card">
       <h2>Session Log</h2>
@@ -255,7 +246,6 @@ setWebhookStatus("Authenticating...","#<!DOCTYPE html>
 </div>
 
 <script>
-// PEACHTREE ROOFING AUTOMATION v1.0
 var PASSWORD = "hailyeah";
 var currentUser = "";
 
@@ -296,40 +286,32 @@ if(store.get("pw_unlocked") === "1"){
   document.getElementById("pw-name").focus();
 }
 
-// CONSTANTS
 var SALESPERSON_MAP = {
-  "Tim Bresko":"+17707124556",
-  "Alex Raffensperger":"+17703628125",
-  "Wells Walker":"+14705960020",
-  "Ahmed Alsinjary":"+16786345945",
-  "Erika Kight":"+14703044658",
-  "Dan Sinnott":"+17705009727",
-  "Tim Jones":"+14705960016",
-  "Kenneth Gutzler":"+14703044657",
-  "Scott Gunty":"+14708822601",
-  "Denerick Spaulding":"+14709364847",
-  "Shuwayne Agard":"+14709364845",
-  "Lavelle Westbrooks":"+14705271788",
-  "Cameron Black":"+17703171457",
-  "Rafael Berrios":"+14703302110"
+  "Tim Bresko":"+17707124556","Alex Raffensperger":"+17703628125",
+  "Wells Walker":"+14705960020","Ahmed Alsinjary":"+16786345945",
+  "Erika Kight":"+14703044658","Dan Sinnott":"+17705009727",
+  "Tim Jones":"+14705960016","Kenneth Gutzler":"+14703044657",
+  "Scott Gunty":"+14708822601","Denerick Spaulding":"+14709364847",
+  "Shuwayne Agard":"+14709364845","Lavelle Westbrooks":"+14705271788",
+  "Cameron Black":"+17703171457","Rafael Berrios":"+14703302110"
 };
 
 var FIXED_NUMBERS = ["+17704586405","+18448235776","+16782938467","+17702265514"];
 var PRODUCTION_PHONE = "(770) 226-5514";
 var ESTIMATING_EMAIL = "estimating@peachtreeroof.com";
-var ACCULYNX_PROXY = "https://acculynx-proxy.k-liss.workers.dev";
-var WEBHOOK_URL = "https://acculynx-sms-logger.k-liss.workers.dev/";
+var ACCULYNX_PROXY = "https://peachtree-acculynx-proxy.k-liss.workers.dev";
+var WEBHOOK_URL = "https://peachtree-sms-logger.k-liss.workers.dev/";
 var TEMPLATE_VARS = ["{{First Name}}","{{Last Name}}","{{Primary Salesperson}}","{{Salesperson Phone}}","{{Insurance Company}}","{{Job Number}}","{{Completed Date}}","{{Invoiced Date}}","{{WO Scheduled Date}}","{{Claim Number}}"];
-var WEATHER_MESSAGE_DEFAULT = "Mother Nature has other plans! Due to recent weather, we unfortunately need to delay your roof replacement to ensure a safe and high-quality build. We are closely monitoring the forecast and will reach out as soon as possible with your newly rescheduled build date. If you have immediate questions, please call Production at "+PRODUCTION_PHONE+". Thank you for your patience! - Peachtree Roofing & Exteriors";
+var WEATHER_MESSAGE_DEFAULT = "Mother Nature has other plans! Due to recent weather, we unfortunately need to delay your roof replacement to ensure a safe and high-quality build. We are closely monitoring the forecast and will reach out as soon as possible with your newly rescheduled build date. If you have immediate questions, please call Production at " + PRODUCTION_PHONE + ". Thank you for your patience! - Peachtree Roofing & Exteriors";
 
 var DEFAULT_BODIES = {
   T1: "Hi {{First Name}}, thank you for choosing Peachtree Roofing & Exteriors! We're excited to get started with you. Check out the image below for important contact information throughout the process. Text in this group message at any point throughout your project to reach your dedicated team.",
   T2: "This is an important message from Peachtree Roofing & Exteriors. We have an update on your insurance claim. Please reach out to {{Primary Salesperson}} at {{Salesperson Phone}} ASAP.",
   T3: "This is an important message from Peachtree Roofing & Exteriors. Your roof replacement has been scheduled. Please reach out to {{Primary Salesperson}} ASAP at {{Salesperson Phone}} to choose roof materials if haven't scheduled appointment already.",
-  T4: "Hi {{First Name}}! Congrats on your new roof! Do you have any questions or concerns regarding how your roof replacement went? Feel free to respond to this text or call Production directly at "+PRODUCTION_PHONE+". Our Estimating Dept is submitting supplemental documentation to {{Insurance Company}}, so please keep an eye out for any funds released.\n\nNext steps: If you haven't had your final walk-through and attic inspection please reach out to {{Primary Salesperson}} to schedule.",
-  T5: "Hi {{First Name}}! All work has now been completed with Peachtree Roofing! Do you have any questions or concerns regarding work recently completed? Feel free to respond to this text or call Production directly at "+PRODUCTION_PHONE+". Our Estimating Dept is submitting final documentation to {{Insurance Company}}, so please keep an eye out for any funds released.",
+  T4: "Hi {{First Name}}! Congrats on your new roof! Do you have any questions or concerns regarding how your roof replacement went? Feel free to respond to this text or call Production directly at " + PRODUCTION_PHONE + ". Our Estimating Dept is submitting supplemental documentation to {{Insurance Company}}, so please keep an eye out for any funds released.\n\nNext steps: If you haven't had your final walk-through and attic inspection please reach out to {{Primary Salesperson}} to schedule.",
+  T5: "Hi {{First Name}}! All work has now been completed with Peachtree Roofing! Do you have any questions or concerns regarding work recently completed? Feel free to respond to this text or call Production directly at " + PRODUCTION_PHONE + ". Our Estimating Dept is submitting final documentation to {{Insurance Company}}, so please keep an eye out for any funds released.",
   T6: "Peachtree Roofing & Exteriors has an important update regarding your claim. Settlement on your claim with {{Insurance Company}} has been reached.",
-  T7: "Your adjustment appointment with {{Insurance Company}} has completed. It typically takes about 7-10 days for the first insurance estimate to be released post-adjustment. Please make sure to forward any email communication to our estimating department at "+ESTIMATING_EMAIL+", so we can review and assist ASAP to keep your project moving. Feel free to respond to this text at any time with any questions. Thank you for choosing Peachtree Roofing & Exteriors!",
+  T7: "Your adjustment appointment with {{Insurance Company}} has completed. It typically takes about 7-10 days for the first insurance estimate to be released post-adjustment. Please make sure to forward any email communication to our estimating department at " + ESTIMATING_EMAIL + ", so we can review and assist ASAP to keep your project moving. Feel free to respond to this text at any time with any questions. Thank you for choosing Peachtree Roofing & Exteriors!",
   T8: "Hi {{First Name}}! EXCITING NEWS from Peachtree Roofing! Your Work Order is officially COMPLETED, which means you are on the final path to your brand-new roof! We can't wait to get started! Let us know if you have any questions!"
 };
 
@@ -432,7 +414,7 @@ function loadCredentials(){
 }
 
 function applyLogo(d){var l=document.getElementById("header-logo");var f=document.getElementById("header-fallback");l.src=d;l.style.display="block";f.style.display="none";}
-function renderLogoPreview(d){document.getElementById("logo-preview").innerHTML='<img src="'+d+'" style="max-height:60px;border-radius:6px;border:1px solid #2a3050;background:#0f1117;padding:6px;margin-top:8px;"><div class="small" style="margin-top:4px;">Logo saved</div><button class="btn btn-danger btn-sm" id="remove-logo-btn" style="margin-top:6px;">Remove</button>';var b=document.getElementById("remove-logo-btn");if(b)b.addEventListener("click",clearLogo);}
+function renderLogoPreview(d){document.getElementById("logo-preview").innerHTML='<img src="'+d+'" style="max-height:60px;border-radius:6px;border:1px solid #4a8a26;background:#1e3d10;padding:6px;margin-top:8px;"><div class="small" style="margin-top:4px;">Logo saved</div><button class="btn btn-danger btn-sm" id="remove-logo-btn" style="margin-top:6px;">Remove</button>';var b=document.getElementById("remove-logo-btn");if(b)b.addEventListener("click",clearLogo);}
 function clearLogo(){store.del("pt_brand_logo");var l=document.getElementById("header-logo");l.src="";l.style.display="none";document.getElementById("header-fallback").style.display="block";document.getElementById("logo-preview").innerHTML="";document.getElementById("logo-upload").value="";}
 function loadLogo(){var d=store.get("pt_brand_logo");if(d){applyLogo(d);renderLogoPreview(d);}}
 
@@ -519,30 +501,23 @@ function sendMMS(to,img){
 function logToAccuLynx(jobNum,msg,jobNumUrl,jobNameUrl,existingLog){
   var key=document.getElementById("acculynx-api-key").value;
   var guid=extractGuid(jobNumUrl)||extractGuid(jobNameUrl);
-  if(!guid){
-    addLog("warn","No GUID found for Job "+jobNum+" — skipping AccuLynx log");
-    return Promise.resolve({guid:"",messageId:""});
-  }
+  if(!guid){addLog("warn","No GUID found for Job "+jobNum);return Promise.resolve({guid:"",messageId:""});}
   var threadMessageId="";var threadGuid="";
   for(var i=0;i<existingLog.length;i++){
-    if(existingLog[i].jobNum===jobNum&&existingLog[i].messageId){
-      threadMessageId=existingLog[i].messageId;threadGuid=existingLog[i].jobGuid;break;
-    }
+    if(existingLog[i].jobNum===jobNum&&existingLog[i].messageId){threadMessageId=existingLog[i].messageId;threadGuid=existingLog[i].jobGuid;break;}
   }
   return fetch(ACCULYNX_PROXY+"/api/v2/jobs/"+guid,{headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"}})
   .then(function(r){if(!r.ok)throw new Error("Job fetch failed: "+r.status);return r.json();})
   .then(function(jobData){
     var apiGuid=jobData.id||guid;
     if(threadMessageId&&threadGuid){
-      addLog("info","Replying to existing AccuLynx thread for Job "+jobNum);
       return fetch(ACCULYNX_PROXY+"/api/v2/jobs/"+threadGuid+"/messages/"+threadMessageId+"/replies",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({message:"[Auto-Text Sent] "+msg})})
       .then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error("Reply failed: "+r.status+" "+t);});return r.json();})
       .then(function(){return{guid:apiGuid,messageId:threadMessageId};});
     }
-    addLog("info","Creating new AccuLynx thread for Job "+jobNum);
     return fetch(ACCULYNX_PROXY+"/api/v2/jobs/"+apiGuid+"/messages",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({message:"[Auto-Text Sent] "+msg})})
     .then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error("AccuLynx post failed: "+r.status+" "+t);});return r.json();})
-    .then(function(data){addLog("info","AccuLynx new thread — MsgID: "+(data.messageId||""));return{guid:apiGuid,messageId:data.messageId||""};});
+    .then(function(data){return{guid:apiGuid,messageId:data.messageId||""};});
   });
 }
 
@@ -554,7 +529,7 @@ function getExistingWebhook(){
     return null;
   });
 }
-function setWebhookStatus(msg,color){var el=document.getElementById("webhook-status");if(el){el.textContent="Status: "+msg;el.style.color=color||"#94a3b8";}}
+function setWebhookStatus(msg,color){var el=document.getElementById("webhook-status");if(el){el.textContent="Status: "+msg;el.style.color=color||"#c8e6b0";}}
 
 var stats={sent:0,skipped:0,errors:0,jobs:0};
 
@@ -589,13 +564,10 @@ function processRows(rows,log,today){
     var jobNum=row["Job Number"]||"";
     var fullName=((row["Primary Contact: First Name"]||"")+" "+(row["Primary Contact: Last Name"]||"")).trim();
     var custPhone=toE164(row["Phone Number"]||"");
-    if(!custPhone){addLog("warn","Job "+jobNum+" ("+fullName+") invalid phone, skipping");stats.errors++;return next();}
+    if(!custPhone){addLog("warn","Job "+jobNum+" invalid phone, skipping");stats.errors++;return next();}
     var prospectDate=pd(row["Submitted as Prospect Date"]);
     var cutoff=new Date("2026-04-06");cutoff.setHours(0,0,0,0);
-    if(!prospectDate||prospectDate<cutoff){
-      addLog("skip","Job "+jobNum+" ("+fullName+") — prospect before 4/6/2026, skipping");
-      stats.skipped++;return next();
-    }
+    if(!prospectDate||prospectDate<cutoff){addLog("skip","Job "+jobNum+" — prospect before 4/6/2026, skipping");stats.skipped++;return next();}
     return processTemplates(row,log,today,jobNum,fullName,custPhone,0).then(function(){updateStats();return next();});
   }
   return next();
@@ -616,7 +588,7 @@ function processTemplates(row,log,today,jobNum,fullName,custPhone,ti){
   var sendPromise;
   if(img){
     addLog("info","Sending "+tmpl.id+" text to "+fullName);
-    sendPromise=sendSMS(recips,msg).then(function(){return sleep(3000);}).then(function(){addLog("info","Sending "+tmpl.id+" image to "+fullName);return sendMMS(recips,img);});
+    sendPromise=sendSMS(recips,msg).then(function(){return sleep(3000);}).then(function(){return sendMMS(recips,img);});
   } else {
     addLog("info","Sending "+tmpl.id+" to "+fullName);
     sendPromise=sendSMS(recips,msg);
@@ -691,15 +663,15 @@ document.addEventListener("click",function(e){
   if(t.id==="save-gs-btn"){saveCred("gs_client_id",document.getElementById("gs-client-id").value);saveCred("gs_client_secret",document.getElementById("gs-client-secret").value);saveCred("gs_refresh_token",document.getElementById("gs-refresh-token").value);saveCred("gs_sheet_id",document.getElementById("gs-sheet-id").value);saveCred("gs_sheet_name",document.getElementById("gs-sheet-name").value);gsToken=null;alert("Google Sheets credentials saved!");return;}
   if(t.id==="save-al-btn"){saveCred("al_api_key",document.getElementById("acculynx-api-key").value);alert("AccuLynx credentials saved!");return;}
   if(t.id==="register-webhook-btn"){
-    setWebhookStatus("Authenticating...","#E8471C");e85d2f");
+    setWebhookStatus("Authenticating...","#E8471C");
     getRCToken().then(function(){return getExistingWebhook();}).then(function(ex){
-      if(ex){setWebhookStatus("Already registered — expires "+new Date(ex.expirationTime).toLocaleDateString(),"#86efac");return;}
+      if(ex){setWebhookStatus("Already registered — expires "+new Date(ex.expirationTime).toLocaleDateString(),"#5A9E2F");return;}
       return fetch("https://platform.ringcentral.com/restapi/v1.0/subscription",{method:"POST",headers:{Authorization:"Bearer "+rcToken,"Content-Type":"application/json"},body:JSON.stringify({eventFilters:["/restapi/v1.0/account/~/extension/~/message-store/instant?type=SMS"],deliveryMode:{transportType:"WebHook",address:WEBHOOK_URL},expiresIn:31536000})})
-      .then(function(r){return r.json();}).then(function(d){if(d.errorCode)throw new Error(JSON.stringify(d));setWebhookStatus("Registered! Expires "+new Date(d.expirationTime).toLocaleDateString(),"#86efac");});
+      .then(function(r){return r.json();}).then(function(d){if(d.errorCode)throw new Error(JSON.stringify(d));setWebhookStatus("Registered! Expires "+new Date(d.expirationTime).toLocaleDateString(),"#5A9E2F");});
     }).catch(function(e){setWebhookStatus("Failed: "+e.message,"#fca5a5");});return;
   }
-  if(t.id==="check-webhook-btn"){setWebhookStatus("Checking...","#e85d2f");getRCToken().then(function(){return getExistingWebhook();}).then(function(ex){if(ex){var exp=new Date(ex.expirationTime);setWebhookStatus("Active — expires in "+Math.floor((exp-new Date())/86400000)+" days","#86efac");}else{setWebhookStatus("Not registered","#fcd34d");}}).catch(function(e){setWebhookStatus("Error: "+e.message,"#fca5a5");});return;}
-  if(t.id==="delete-webhook-btn"){if(!confirm("Delete webhook?"))return;getRCToken().then(function(){return getExistingWebhook();}).then(function(ex){if(!ex){setWebhookStatus("None found","#fcd34d");return;}return fetch("https://platform.ringcentral.com/restapi/v1.0/subscription/"+ex.id,{method:"DELETE",headers:{Authorization:"Bearer "+rcToken}}).then(function(){setWebhookStatus("Deleted","#94a3b8");});}).catch(function(e){setWebhookStatus("Error: "+e.message,"#fca5a5");});return;}
+  if(t.id==="check-webhook-btn"){setWebhookStatus("Checking...","#E8471C");getRCToken().then(function(){return getExistingWebhook();}).then(function(ex){if(ex){var exp=new Date(ex.expirationTime);setWebhookStatus("Active — expires in "+Math.floor((exp-new Date())/86400000)+" days","#5A9E2F");}else{setWebhookStatus("Not registered","#fcd34d");}}).catch(function(e){setWebhookStatus("Error: "+e.message,"#fca5a5");});return;}
+  if(t.id==="delete-webhook-btn"){if(!confirm("Delete webhook?"))return;getRCToken().then(function(){return getExistingWebhook();}).then(function(ex){if(!ex){setWebhookStatus("None found","#fcd34d");return;}return fetch("https://platform.ringcentral.com/restapi/v1.0/subscription/"+ex.id,{method:"DELETE",headers:{Authorization:"Bearer "+rcToken}}).then(function(){setWebhookStatus("Deleted","#c8e6b0");});}).catch(function(e){setWebhookStatus("Error: "+e.message,"#fca5a5");});return;}
   if(t.dataset.edit){var id=t.dataset.edit;var area=document.getElementById("edit-area-"+id);var ta=document.getElementById("edit-ta-"+id);if(area&&ta){ta.value=templateBodies[id];area.classList.add("open");}return;}
   if(t.dataset.save){var sid=t.dataset.save;var sta=document.getElementById("edit-ta-"+sid);if(sta){saveTemplateBody(sid,sta.value);document.getElementById("edit-area-"+sid).classList.remove("open");renderTemplates();}return;}
   if(t.dataset.cancel){var ca=document.getElementById("edit-area-"+t.dataset.cancel);if(ca)ca.classList.remove("open");return;}
