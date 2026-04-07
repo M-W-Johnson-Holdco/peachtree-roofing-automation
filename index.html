@@ -691,7 +691,7 @@ document.addEventListener("click",function(e){
   if(t.id==="save-gs-btn"){saveCred("gs_client_id",document.getElementById("gs-client-id").value);saveCred("gs_client_secret",document.getElementById("gs-client-secret").value);saveCred("gs_refresh_token",document.getElementById("gs-refresh-token").value);saveCred("gs_sheet_id",document.getElementById("gs-sheet-id").value);saveCred("gs_sheet_name",document.getElementById("gs-sheet-name").value);gsToken=null;alert("Google Sheets credentials saved!");return;}
   if(t.id==="save-al-btn"){saveCred("al_api_key",document.getElementById("acculynx-api-key").value);alert("AccuLynx credentials saved!");return;}
   if(t.id==="register-webhook-btn"){
-    setWebhookStatus("Authenticating...","#e85d2f");
+    setWebhookStatus("Authenticating...","#E8471C");e85d2f");
     getRCToken().then(function(){return getExistingWebhook();}).then(function(ex){
       if(ex){setWebhookStatus("Already registered — expires "+new Date(ex.expirationTime).toLocaleDateString(),"#86efac");return;}
       return fetch("https://platform.ringcentral.com/restapi/v1.0/subscription",{method:"POST",headers:{Authorization:"Bearer "+rcToken,"Content-Type":"application/json"},body:JSON.stringify({eventFilters:["/restapi/v1.0/account/~/extension/~/message-store/instant?type=SMS"],deliveryMode:{transportType:"WebHook",address:WEBHOOK_URL},expiresIn:31536000})})
