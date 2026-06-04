@@ -3255,7 +3255,7 @@ function checkWarrantyEligibility() {
   if (!warrantySel) return;
   var warning = document.getElementById('warranty-warning');
   var current = warrantySel.value;
-  if (current === 'GAF Silver Pledge' || current === 'GAF Golden Pledge') {
+  if (current === 'GAF Silver Pledge' || current === 'GAF Golden Pledge' || current === "GAF President's Club") {
     var allGAF = isGAF('shingle-type') && isGAF('ridgecap-type') &&
                  isGAF('starter-type') && isGAF('underlayment-type') && isGAF('valley-type');
     if (!allGAF && warning) warning.style.display = 'inline';
@@ -3266,7 +3266,7 @@ function checkWarrantyEligibility() {
 }
 function validateWarrantySelection(sel) {
   var warning = document.getElementById('warranty-warning');
-  if (sel.value === 'GAF Silver Pledge' || sel.value === 'GAF Golden Pledge') {
+  if (sel.value === 'GAF Silver Pledge' || sel.value === 'GAF Golden Pledge' || sel.value === "GAF President's Club") {
     var allGAF = isGAF('shingle-type') && isGAF('ridgecap-type') &&
                  isGAF('starter-type') && isGAF('underlayment-type') && isGAF('valley-type');
     if (!allGAF) {
@@ -3644,7 +3644,7 @@ function checkWarrantyEligibility() {
   if (!warrantySel) return;
   var warning = document.getElementById('warranty-warning');
   var current = warrantySel.value;
-  if (current === 'GAF Silver Pledge' || current === 'GAF Golden Pledge') {
+  if (current === 'GAF Silver Pledge' || current === 'GAF Golden Pledge' || current === "GAF President's Club") {
     var allGAF = isGAF('shingle-type') && isGAF('ridgecap-type') &&
                  isGAF('starter-type') && isGAF('underlayment-type') && isGAF('valley-type');
     if (!allGAF && warning) warning.style.display = 'inline';
@@ -3655,7 +3655,7 @@ function checkWarrantyEligibility() {
 }
 function validateWarrantySelection(sel) {
   var warning = document.getElementById('warranty-warning');
-  if (sel.value === 'GAF Silver Pledge' || sel.value === 'GAF Golden Pledge') {
+  if (sel.value === 'GAF Silver Pledge' || sel.value === 'GAF Golden Pledge' || sel.value === "GAF President's Club") {
     var allGAF = isGAF('shingle-type') && isGAF('ridgecap-type') &&
                  isGAF('starter-type') && isGAF('underlayment-type') && isGAF('valley-type');
     if (!allGAF) {
