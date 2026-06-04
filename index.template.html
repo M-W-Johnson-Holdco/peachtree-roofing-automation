@@ -3215,7 +3215,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var el = document.getElementById(id);
     if (!el) return;
     var orig = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
-    Object.defineProperty(el, 'value', {
+    Object.defineProperty(el, 'value', { configurable: true,
       get: function() { return orig.get.call(this); },
       set: function(v) {
         orig.set.call(this, v);
@@ -3604,7 +3604,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var el = document.getElementById(id);
     if (!el) return;
     var orig = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
-    Object.defineProperty(el, 'value', {
+    Object.defineProperty(el, 'value', { configurable: true,
       get: function() { return orig.get.call(this); },
       set: function(v) {
         orig.set.call(this, v);
