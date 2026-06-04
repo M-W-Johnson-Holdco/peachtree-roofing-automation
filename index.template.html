@@ -787,165 +787,190 @@ document.addEventListener('DOMContentLoaded', function(){
   var app  = document.getElementById('s-app');
   if(auth){ auth.classList.remove('on'); auth.style.display='none'; }
   if(app){  app.classList.add('on');    app.style.display='flex';   }
-  me = 'admin'; myRole = 'admin';
+  var parentRole = (window.parent && window.parent.currentUserRole) || 'sales';
+  var parentName = (window.parent && window.parent.currentUser) || 'User';
+  me = 'user'; myRole = (parentRole === 'admin') ? 'admin' : 'sales';
   var chip = document.getElementById('role-chip');
-  if(chip){ chip.textContent='Admin'; chip.className='chip chip-green'; }
+  if(chip){ chip.textContent=myRole==='admin'?'Admin':'Sales Rep'; chip.className='chip '+(myRole==='admin'?'chip-green':'chip-gold'); }
   var ul = document.getElementById('user-lbl');
-  if(ul){ ul.textContent='Admin'; }
-  try{ buildNav(); }     catch(e){}
-  try{ initCalc(); }     catch(e){}
-  try{ loadState(); }    catch(e){}
+  if(ul){ ul.textContent=parentName; }
+  try{ buildNav(); }      catch(e){}
+  try{ initCalc(); }      catch(e){}
+  try{ loadState(); }     catch(e){}
   try{ renderHistory(); } catch(e){}
-  try{ buildAdminFields(); } catch(e){}
-  try{ renderAdminVers(); }  catch(e){}
-  try{ renderReps(); }       catch(e){}
+  if(myRole==='admin'){
+    try{ buildAdminFields(); } catch(e){}
+    try{ renderAdminVers(); }  catch(e){}
+    try{ renderReps(); }       catch(e){}
+  }
   try{ setPage('pg-calc'); } catch(e){}
 });
 
 
 const MATS=[
-  // upgDiff values = priceDiff * 1.08 (tax) per unit, keyed by existing tier
+  // upgDiff = pre-tax price diff per unit; 1.08 tax applied in getUpgradeCost
   {key:'shingle',name:'Shingles',unitType:'sq',unitLabel:'per square',
-    note:&quot;Camelot II = 4 bundles/sq. All others = 3 bundles/sq.&quot;,
+    note:&quot;Camelot II &amp; CT Landmark Premier AR = 4BD/sq; Grand Manor &amp; Carriage House = 5BD/sq; all others = 3BD/sq&quot;,
     existingOpts:[
-      {val:'3tab',   label:'3Tab — Royal Sovereign'},
-      {val:'arch1',  label:'Arch - Standard — Natural Shadow'},
-      {val:'arch2',  label:'Arch - Midgrade — HDZ / HDZ Bold'},
-      {val:'archir1',label:'Impact Resistant - Class 4 — UHDZ'},
-      {val:'archir2',label:'Impact Resistant - Premium — Armorshield II'},
-      {val:'des1',   label:'Designer - Premium — Slateline'},
-      {val:'des2',   label:'Designer - Top Tier — Camelot II'},
+      {val:'3tab',   label:'3Tab'},
+      {val:'arch1',  label:'Arch - Standard'},
+      {val:'arch2',  label:'Arch - Midgrade'},
+      {val:'archir1',label:'Impact Resistant - Class 4'},
+      {val:'des1',   label:'Designer - Premium'},
+      {val:'des2',   label:'Designer - Top Tier'},
+      {val:'desir1', label:'Designer - IR'},
+      {val:'desir2', label:'Designer - Premium IR'},
     ],
-    // upgDiff[tier][selIdx] = priceDiff/sq * 1.08
-    // opts order: Royal Sov(0), Natural Shadow(1), HDZ(2), UHDZ(3), Armorshield(4), Slateline(5), Camelot II(6)
-    // pre-tax price diff per SQ; ×1.08 applied in getUpgradeCost
-    // opts: Royal Sov(0), Nat Shadow(1), HDZ(2), UHDZ(3), Armorshield(4), Slateline(5), Camelot II(6)
+    // opts: 0:Royal Sovereign 1:Natural Shadow 2:HDZ&amp;HDZ Bold 3:UHDZ
+    //       4:Camelot II(4bd) 5:Slateline 6:CT XT25 AR 7:CT Landmark AR
+    //       8:CT Landmark Premier AR(4bd) 9:CT Landmark Pro AR
+    //       10:Certainteed Belmont(4bd) 11:Certainteed Grand Manor(5bd) 12:Certainteed Carriage House(5bd)
     upgDiff:{
-      '3tab':   [0, 0, 2.52,  24.00, 34.02, 130.89, 135.08],
-      'arch1':  [0, 0, 0,     21.48, 31.50, 128.37, 132.56],
-      'arch2':  [0, 0, 0,     0,     31.50, 128.37, 132.56],
-      'archir1':[0, 0, 0,     0,     10.02, 106.89, 111.08],
-      'archir2':[0, 0, 0,     0,     0,     96.87,  101.06],
-      'des1':   [0, 0, 0,     0,     0,     0,      4.19],
-      'des2':   [0, 0, 0,     0,     0,     0,      0],
+      '3tab':   [0, 0,    15.00, 32.49, 122.50, 130.50, 0,    16.50, 16.60, 21.00, 137.04, 194.00, 248.75],
+      'arch1':  [0, 0,    2.25,  19.74, 109.75, 117.75, 0,    0,     0.10,  4.50,  120.54, 177.50, 232.25],
+      'arch2':  [0, 0,    0,     17.49, 107.50, 115.50, 0,    0,     0,     4.40,  120.44, 177.40, 232.15],
+      'archir1':[0, 0,    0,     0,     90.01,  98.01,  0,    0,     0,     0,     103.05, 160.01, 214.76],
+      'des1':   [0, 0,    0,     0,     0,      8.00,   0,    0,     0,     0,     13.04,  70.00,  124.75],
+      'des2':   [0, 0,    0,     0,     0,      0,      0,    0,     0,     0,     5.04,   62.00,  116.75],
+      'desir1': [0, 0,    0,     0,     0,      0,      0,    0,     0,     0,     0,      0,      54.75],
+      'desir2': [0, 0,    0,     0,     0,      0,      0,    0,     0,     0,     0,      0,      0],
     },
     opts:[
-      {name:'GAF Royal Sovereign',    bdPerSq:3},
-      {name:'GAF Natural Shadow',     bdPerSq:3},
-      {name:'GAF HDZ &amp; HDZ Bold',     bdPerSq:3},
-      {name:'GAF UHDZ',               bdPerSq:3},
-      {name:'GAF Armorshield II',     bdPerSq:3},
-      {name:'GAF Slateline',          bdPerSq:3},
-      {name:'GAF Camelot II (4BD)',   bdPerSq:4},
+      {name:'GAF Royal Sovereign',              bdPerSq:3},
+      {name:'GAF Natural Shadow',               bdPerSq:3},
+      {name:'GAF HDZ &amp; HDZ Bold',               bdPerSq:3},
+      {name:'GAF UHDZ',                         bdPerSq:3},
+      {name:'GAF Camelot II (4BD)',              bdPerSq:4},
+      {name:'GAF Slateline',                    bdPerSq:3},
+      {name:'CT XT25 AR',                       bdPerSq:3},
+      {name:'CT Landmark AR',                   bdPerSq:3},
+      {name:'CT Landmark Premier AR (4BD)',      bdPerSq:4},
+      {name:'CT Landmark Pro AR',               bdPerSq:3},
+      {name:'Certainteed Belmont (4BD)',         bdPerSq:4},
+      {name:'Certainteed Grand Manor (5BD)',     bdPerSq:5},
+      {name:'Certainteed Carriage House (5BD)',  bdPerSq:5},
     ],
   },
   {key:'ridge',name:'Ridge Cap',unitType:'ridgehip',unitLabel:'per bundle',
     existingOpts:[
-      {val:'3tab',  label:'3-Tab Ridge (Royal Sov. Ridge)'},
-      {val:'tier1', label:'Standard Ridge Cap (Z Ridge)'},
-      {val:'tier2', label:'High-Profile Ridge Cap (SAR Armorshield)'},
-      {val:'tier3', label:'Premium Ridge Cap (Timbertex)'},
+      {val:'3tab',  label:'3-Tab Ridge'},
+      {val:'tier1', label:'Standard Ridge Cap'},
+      {val:'tier2', label:'Midgrade Ridge Cap'},
+      {val:'tier3', label:'High-Profile Ridge Cap'},
+      {val:'tier4', label:'Highgrade IR Ridge Cap'},
     ],
-    // upgDiffLF[tier][selIdx] = pre-tax price diff per LF (×1.08 applied in getUpgradeCost)
-    // formula: bundles * lfPerBd * diffPerLF * 1.08
-    // opts order: Royal Sov(0), Z Ridge(1), SAR Armorshield(2), Timbertex(3)
+    // opts: 0:GAF Royal Sov Ridge(30LF) 1:GAF Seal-A-Ridge(25LF) 2:GAF Timbertex(20LF)
+    //       3:CT XT25 AR(30LF) 4:CT Shadow Ridge(33LF) 5:CT Cedar Crest H&amp;R(20LF) 6:CT Shangle Ridge(9LF)
     upgDiffLF:{
-      '3tab':  [0, 1.39, 2.53, 2.83],
-      'tier1': [0, 0,    1.14, 1.44],
-      'tier2': [0, 0,    0,    0.30],
-      'tier3': [0, 0,    0,    0],
+      '3tab':  [0, 1.07, 3.02, 0, 0.69, 2.59, 8.37],
+      'tier1': [0, 0,    1.94, 0, 0,    1.90, 7.68],
+      'tier2': [0, 0,    0.45, 0, 0,    0,    5.78],
+      'tier3': [0, 0,    0,    0, 0,    0,    5.34],
+      'tier4': [0, 0,    0,    0, 0,    0,    0],
     },
     opts:[
-      {name:'GAF Royal Sov. Ridge (30LF)',   lfPerBd:30},
-      {name:'GAF Z Ridge (33LF)',            lfPerBd:33},
-      {name:'GAF SAR Armorshield II (25LF)', lfPerBd:25},
-      {name:'GAF Timbertex (20LF)',          lfPerBd:20},
+      {name:'GAF Royal Sov. Ridge (30LF)',  lfPerBd:30},
+      {name:'GAF Seal-A-Ridge (25LF)',      lfPerBd:25},
+      {name:'GAF Timbertex (20LF)',         lfPerBd:20},
+      {name:'CT XT25 AR Ridge (30LF)',      lfPerBd:30},
+      {name:'CT Shadow Ridge (33LF)',       lfPerBd:33},
+      {name:'CT Cedar Crest H&amp;R (20LF)',    lfPerBd:20},
+      {name:'CT Shangle Ridge (9LF)',       lfPerBd:9},
     ],
   },
   {key:'starter',name:'Starter Strip',unitType:'eave',unitLabel:'per bundle',
     existingOpts:[
-      {val:'tier1', label:'Standard Starter (Pro Start)'},
-      {val:'tier2', label:'Premium Starter (Weatherblocker)'},
+      {val:'tier1', label:'Standard Starter'},
+      {val:'tier2', label:'Premium Starter'},
     ],
-    // pre-tax price diff per LF; formula: bundles * lfPerBd * diff * 1.08
     upgDiffLF:{
-      'tier1': [0, 0.65],
-      'tier2': [0, 0],
+      'tier1': [0, 0.11, 0],
+      'tier2': [0, 0.11, 0],
     },
     opts:[
       {name:'GAF Pro Start (120LF)',      lfPerBd:120},
       {name:'GAF Weatherblocker (100LF)', lfPerBd:100},
+      {name:'CT Swiftstart (116LF)',      lfPerBd:116},
     ],
   },
   {key:'under',name:'Underlayment',unitType:'under',unitLabel:'per 10-sq roll',
     existingOpts:[
-      {val:'tier1', label:'Felt/Basic Synthetic (Secure Grip)'},
-      {val:'tier2', label:'Mid-Grade Synthetic (Feltbuster)'},
-      {val:'tier3', label:'Premium Synthetic/Peel &amp; Stick (Tiger Paw)'},
+      {val:'tier1', label:'Felt/Basic Synthetic'},
+      {val:'tier2', label:'Mid-Grade Synthetic'},
+      {val:'tier3', label:'Premium Synthetic/Peel &amp; Stick'},
+      {val:'tier4', label:'Top-Tier Synthetic'},
     ],
-    // pre-tax price diff per roll; ×1.08 applied in getUpgradeCost
     upgDiffRl:{
-      'tier1': [0, 18.55,  190.85],
-      'tier2': [0, 0,      172.30],
-      'tier3': [0, 0,      0],
+      'tier1': [0, 28.50, 118.50, 271.00, 25.50],
+      'tier2': [0, 0,     90.00,  242.50, 0],
+      'tier3': [0, 0,     0,      152.50, 0],
+      'tier4': [0, 0,     0,      0,      0],
     },
     opts:[
-      {name:'Secure Grip Synthetic'},
+      {name:'Supplier Underlayment'},
       {name:'GAF Feltbuster'},
       {name:'GAF Tiger Paw'},
+      {name:'GAF Deck-Armour'},
+      {name:'CT RoofRunner'},
     ],
   },
   {key:'valley',name:'Valley / Ice &amp; Water',unitType:'valley',unitLabel:'per unit',
     existingOpts:[
       {val:'tier1', label:'Ice &amp; Water Shield'},
-      {val:'tier2', label:'Self-Adhering Underlayment (Stormguard)'},
-      {val:'tier3', label:'W Metal/Open Valley'},
+      {val:'tier2', label:'Mid-Grade Ice &amp; Water Shield'},
+      {val:'tier3', label:'Self-Adhering Underlayment'},
+      {val:'tier4', label:'Premium Self-Adhering I&amp;W'},
+      {val:'tier5', label:'W Metal/Open Valley'},
     ],
-    // upgDiffLF[tier][selIdx] = pre-tax price diff per LF (×1.08 applied in getUpgradeCost)
-    // formula: units * lfPerUnit * diffPerLF * 1.08
-    // opts order: Ice&amp;Water(0), Stormguard(1), W Metal(2)
+    // opts: 0:Supplier I&amp;W(62LF) 1:GAF Weatherwatch(62LF) 2:GAF Stormguard(62LF)
+    //       3:W Metal(10LF) 4:CT Winterguard(62LF) 5:CT Grace Vycor(60LF)
     upgDiffLF:{
-      'tier1': [0, 0.44, 5.50],
-      'tier2': [0, 0,    5.07],
-      'tier3': [0, 0,    0],
+      'tier1': [0, 0.26, 0.50, 2.69, 0.11, 1.29],
+      'tier2': [0, 0,    0.24, 2.43, 0,    1.18],
+      'tier3': [0, 0,    0,    2.19, 0,    0.79],
+      'tier4': [0, 0,    0,    0,    0,    1.18],
+      'tier5': [0, 0,    0,    0,    0,    0],
     },
     opts:[
-      {name:'Ice &amp; Water Shield (62LF)', lfPerUnit:62},
-      {name:'GAF Stormguard (62LF)',     lfPerUnit:62},
-      {name:'W Metal Valley (10LF)',     lfPerUnit:10},
+      {name:'Supplier Valley / I&amp;W (62LF)', lfPerUnit:62},
+      {name:'GAF Weatherwatch (62LF)',       lfPerUnit:62},
+      {name:'GAF Stormguard (62LF)',         lfPerUnit:62},
+      {name:'W Metal Valley (10LF)',         lfPerUnit:10},
+      {name:'CT Winterguard (62LF)',         lfPerUnit:62},
+      {name:'CT Grace Vycor (60LF)',         lfPerUnit:60},
     ],
   },
   {key:'boot',name:'Pipe Boots',unitType:'count',unitLabel:'per boot',
     existingOpts:[
       {val:'tier1', label:'3n1 Neoprene'},
-      {val:'tier2', label:'Lead Pipeboot'},
+      {val:'tier2', label:'Silicone Lifetime'},
     ],
-    // pre-tax price diff per ea; ×1.08 applied in getUpgradeCost
     upgDiffEa:{
-      'tier1': [0, 23.95],
+      'tier1': [0, 55.55],
       'tier2': [0, 0],
     },
     opts:[
       {name:'3-in-1 Neoprene'},
-      {name:'Lead Pipe Boot'},
+      {name:'Silicone Lifetime'},
     ],
   },
   {key:'vent',name:'Ventilation',unitType:'vent',unitLabel:'mixed units',opts:[
-    {name:'Ridge Vent',       costEa:17.70, unit:'LF', lfPer:4},
-    {name:'Box Vents',        costEa:20.60, unit:'ea'},
-    {name:'Power Vents',      costEa:187.10,unit:'ea'},
-    {name:'Solar Power Vent', costEa:455.00,unit:'ea'},
-    {name:'Turbine',          costEa:92.75, unit:'ea'},
-    {name:'Dome Vents',       costEa:36.15, unit:'ea'},
+    {name:'Ridge Vent',       costEa:10.25,  unit:'LF', lfPer:4},
+    {name:'Box Vents',        costEa:16.50,  unit:'ea'},
+    {name:'Power Vents',      costEa:239.99, unit:'ea'},
+    {name:'Solar Power Vent', costEa:438.00, unit:'ea'},
+    {name:'Turbine',          costEa:107.25, unit:'ea'},
   ]},
   {key:'warr',name:'Warranty',unitType:'warr',opts:[
-    {name:'No Warranty / GAF Lim. Lifetime (incl.)',std:true, costPerSq:0, flatLte50:0,   flatGt50:0},
-    {name:'GAF Silver Pledge',                       std:false,costPerSq:5, flatLte50:170, flatGt50:340},
-    {name:'GAF Golden Pledge',                       std:false,costPerSq:8, flatLte50:0,   flatGt50:0},
+    {name:'No Warranty / GAF Lim. Lifetime (incl.)', std:true,  costPerSq:0},
+    {name:'GAF Silver Pledge',                        std:false, costPerSq:7},
+    {name:'GAF Golden Pledge',                        std:false, costPerSq:10},
+    {name:&quot;GAF President's Club&quot;,                    std:false, costPerSq:8},
+    {name:'CT 3 Star Surestart Plus',                 std:false, costPerSq:3},
   ]},
 ];
 
-let VERSIONS=[{id:'v1',label:'May 26, 2026 – Present',eff:'2026-05-26',exp:null,by:'admin'}];
+let VERSIONS=[{id:'v1',label:'July 2025 – Present',eff:'2025-07-01',exp:null,by:'admin'}];
 let vidx=2;
 
 const USERS={
@@ -976,7 +1001,7 @@ let upgradeAmtOverride={};
 let lastUpgCost={};
 let existingTier={};
 let upgradesDiscount=0;
-let ventCounts={ridge:{exist:0,desiredExist:0,desired:0},box:{exist:0,desiredExist:0,desired:0},power:{exist:0,desiredExist:0,desired:0,coverRR:0},solar:{exist:0,desiredExist:0,desired:0},turbine:{exist:0,desiredExist:0,desired:0},dome:{exist:0,desiredExist:0,desired:0}};
+let ventCounts={ridge:{exist:0,desiredExist:0,desired:0},box:{exist:0,desiredExist:0,desired:0},power:{exist:0,desiredExist:0,desired:0,coverRR:0},solar:{exist:0,desiredExist:0,desired:0},turbine:{exist:0,desiredExist:0,desired:0}};
 let bootCount=0;
 
 // AUTH
@@ -1011,7 +1036,7 @@ function getVer(d){const date=d||new Date().toISOString().slice(0,10);return [..
 function initCalc(){
   document.getElementById('fc-date').value=new Date().toISOString().slice(0,10);
   MATS.forEach(m=>{matSel[m.key]=0;sliderPct[m.key]=0;existingTier[m.key]=(m.existingOpts&amp;&amp;m.existingOpts[0].val)||'tier1';delete upgradeAmtOverride[m.key];delete lastUpgCost[m.key];});
-  ventCounts={ridge:{exist:0,desiredExist:0,desired:0},box:{exist:0,desiredExist:0,desired:0},power:{exist:0,desiredExist:0,desired:0,coverRR:0},solar:{exist:0,desiredExist:0,desired:0},turbine:{exist:0,desiredExist:0,desired:0},dome:{exist:0,desiredExist:0,desired:0}};
+  ventCounts={ridge:{exist:0,desiredExist:0,desired:0},box:{exist:0,desiredExist:0,desired:0},power:{exist:0,desiredExist:0,desired:0,coverRR:0},solar:{exist:0,desiredExist:0,desired:0},turbine:{exist:0,desiredExist:0,desired:0}};
   bootCount=0;claimMode='full';hoOverride=false;upgradesDiscount=0;
   activeVer=getVer();updateBanner();buildMatUI();calc();
 }
@@ -1034,14 +1059,7 @@ function unitStr(mat){if(mat.key==='shingle')return'/sq';if(mat.key==='ridge')re
 // Silver Pledge = (sq * 5 + flat) * 1.08  where flat = $170 if sq<=50, $340 if sq>50
 function warrantyJobCost(opt, sq){
   if(!opt||opt.std) return 0;
-  if(opt.costPerSq===8){
-    // Golden Pledge
-    return sq * 8 * 1.08;
-  } else {
-    // Silver Pledge
-    const flat = sq <= 50 ? 170 : 340;
-    return (sq * 5 + flat) * 1.08;
-  }
+  return sq * opt.costPerSq * 1.08;
 }
 
 // getUpgradeCost: returns the minimum upgrade cost for a material selection
@@ -1114,14 +1132,12 @@ function goldenEligibility(){
   const underIdx   = matSel['under']||0;
   const valleyIdx  = matSel['valley']||0;
   const issues=[];
-  // Shingle: cannot be Royal Sovereign (0) or Natural Shadow (1) — must be HDZ or better
-  if(shingleIdx<=1) issues.push('Shingle must be HDZ or better (not Royal Sovereign or Natural Shadow)');
-  // Ridge cap: all GAF — always passes
-  // Starter: all GAF — always passes
-  // Underlayment: must be Feltbuster (1) or Tiger Paw (2)
-  if(underIdx===0) issues.push('Underlayment must be GAF Feltbuster or Tiger Paw');
-  // Valley: must be GAF Stormguard (1) or W Metal (2)
-  if(valleyIdx===0) issues.push('Valley must be GAF Stormguard or W Metal Valley');
+  // Shingle: must be GAF HDZ (idx 2) through GAF Slateline (idx 5)
+  if(shingleIdx<2||shingleIdx>5) issues.push('Shingle must be GAF HDZ or better (not Royal Sovereign, Natural Shadow, or CertainTeed)');
+  // Underlayment: must be GAF Feltbuster (1) or Tiger Paw (2)
+  if(underIdx!==1&&underIdx!==2) issues.push('Underlayment must be GAF Feltbuster or Tiger Paw');
+  // Valley: must be GAF Stormguard (2) or W Metal Valley (3) or better
+  if(valleyIdx<2) issues.push('Valley must be GAF Stormguard or W Metal Valley');
   return issues;
 }
 
@@ -1198,7 +1214,6 @@ function buildVentUI(){
     {k:'power',lbl:'Power Vents',sub:'count, upgrade'},
     {k:'solar',lbl:'Solar Power Vent',sub:'count, upgrade'},
     {k:'turbine',lbl:'Turbine',sub:'count, upgrade'},
-    {k:'dome',lbl:'Dome Vents',sub:'count, upgrade'},
   ];
   return `<div class=&quot;mat-row&quot; id=&quot;mr-vent&quot;>
     <div class=&quot;mat-hd&quot;><span class=&quot;mat-hd-name&quot;>Ventilation</span><span class=&quot;mat-hd-cost&quot; id=&quot;mhc-vent&quot;></span></div>
@@ -1437,7 +1452,7 @@ function calc(){try{
   // VENTILATION — upgrade cost: Existing, Desired Existing, Desired New columns
   let ventUpgradeCost=0;
   const ventM=MATS.find(m=>m.key==='vent');
-  ['ridge','box','power','solar','turbine','dome'].forEach((k,i)=>{
+  ['ridge','box','power','solar','turbine'].forEach((k,i)=>{
     const opt=ventM.opts[i];
     const existing=ventCounts[k].exist||0;
     const desiredExist=ventCounts[k].desiredExist||0;
@@ -1572,7 +1587,7 @@ function clearState(){if(!me)return;try{localStorage.removeItem(storageKey());}c
 
 function resetCalc(){
   MATS.forEach(m=>{matSel[m.key]=0;sliderPct[m.key]=0;existingTier[m.key]=(m.existingOpts&amp;&amp;m.existingOpts[0].val)||'tier1';delete upgradeAmtOverride[m.key];delete lastUpgCost[m.key];});
-  ventCounts={ridge:{exist:0,desiredExist:0,desired:0},box:{exist:0,desiredExist:0,desired:0},power:{exist:0,desiredExist:0,desired:0,coverRR:0},solar:{exist:0,desiredExist:0,desired:0},turbine:{exist:0,desiredExist:0,desired:0},dome:{exist:0,desiredExist:0,desired:0}};
+  ventCounts={ridge:{exist:0,desiredExist:0,desired:0},box:{exist:0,desiredExist:0,desired:0},power:{exist:0,desiredExist:0,desired:0,coverRR:0},solar:{exist:0,desiredExist:0,desired:0},turbine:{exist:0,desiredExist:0,desired:0}};
   bootCount=0;claimMode='full';hoOverride=false;upgradesDiscount=0;
   const discInp=document.getElementById('upgrades-discount');if(discInp)discInp.value='';
   ['fc-wo','fc-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
@@ -1614,7 +1629,7 @@ const ADMIN_CATS=[
   {key:'boot',label:'Pipe Boots (per ea)',pk:'costTaxEa'},
   {key:'warr',label:'Warranty (flat fee / per-sq)',pk:'costFlat50'},
 ];
-const VENT_CATS=[{k:'ridge',label:'Ridge Vent (per LF)',pk:'costTaxLf'},{k:'box',label:'Box Vents (per ea)',pk:'costTaxEa'},{k:'power',label:'Power Vents (per ea)',pk:'costTaxEa'},{k:'solar',label:'Solar Power Vent (per ea)',pk:'costTaxEa'},{k:'turbine',label:'Turbine (per ea)',pk:'costTaxEa'},{k:'dome',label:'Dome Vents (per ea)',pk:'costTaxEa'}];
+const VENT_CATS=[{k:'ridge',label:'Ridge Vent (per LF)',pk:'costTaxLf'},{k:'box',label:'Box Vents (per ea)',pk:'costTaxEa'},{k:'power',label:'Power Vents (per ea)',pk:'costTaxEa'},{k:'solar',label:'Solar Power Vent (per ea)',pk:'costTaxEa'},{k:'turbine',label:'Turbine (per ea)',pk:'costTaxEa'}];
 function buildAdminFields(){
   let html='';
   ADMIN_CATS.forEach(cat=>{
@@ -1694,7 +1709,6 @@ async function fetchJobData(){
     ventCounts.power.exist=Math.max(0,parseInt(match[3])||0);
     ventCounts.solar.exist=Math.max(0,parseInt(match[4])||0);
     ventCounts.turbine.exist=Math.max(0,parseInt(match[5])||0);
-    ventCounts.dome.exist=Math.max(0,parseInt(match[6])||0);
     ventCounts.box.exist=Math.max(0,parseInt(match[7])||0);
     // Pipe boots
     bootCount=Math.max(0,(parseInt(match[8])||0)+(parseInt(match[9])||0)+(parseInt(match[10])||0)+(parseInt(match[11])||0));
