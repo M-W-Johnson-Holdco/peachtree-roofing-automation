@@ -2097,8 +2097,8 @@ async function fetchJobData(){
         <option>Retail</option>
         <option>Commercial</option>
       </select>
-      &nbsp; Insurance: <textarea id="wo-f6" class="fi xl" rows="1"></textarea></div>
-    <div class="row">Mortgage: <textarea id="wo-f7" class="fi md" rows="1"></textarea> &nbsp; Loan #: <textarea id="wo-f8" class="fi sm" rows="1"></textarea> &nbsp; Preferred Communication:
+      <span id="wo-ins-field">&nbsp; Insurance: <textarea id="wo-f6" class="fi xl" rows="1"></textarea></span></div>
+    <div class="row"><span id="wo-mort-loan-fields">Mortgage: <textarea id="wo-f7" class="fi md" rows="1"></textarea> &nbsp; Loan #: <textarea id="wo-f8" class="fi sm" rows="1"></textarea> &nbsp; </span>Preferred Communication:
       <select id="wo-f9" class="sm">
         <option value="">Select...</option>
         <option>Phone</option>
@@ -6804,7 +6804,7 @@ function woClear() {
 
 function woJobTypeChange(val) {
   var isRetail = val === 'Retail';
-  var ids = ['wo-insurance-upgrades','wo-retail-section','wo-page-3','wo-page-4','wo-ins-warning','wo-ins-initials'];
+  var ids = ['wo-insurance-upgrades','wo-retail-section','wo-page-3','wo-page-4','wo-ins-warning','wo-ins-initials','wo-ins-field','wo-mort-loan-fields'];
   ids.forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.style.display = isRetail ? 'none' : '';
