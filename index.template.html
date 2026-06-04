@@ -1659,12 +1659,13 @@ function toast(msg){const el=document.getElementById('toast');el.textContent=msg
 // GOOGLE SHEETS INTEGRATION
 const _SHEET_ID='1QHp6Fz-5mDUAQSo6foyk-EcocdGTC5xANwjAuAGSxFo';
 const _SHEETS_KEY='AIzaSyB4MHXIECaHntKScXhU7p6FOCpIxrOAGGM';
-// Column indices (0-based):
-// 0:Job# 1:Timestamp 2:RidgeVentFT 3:PowerVents 4:SolarVents 5:Turbine
-// 6:DomeVents 7:BoxVents 8:PipeBoots 9:SatDishes 10-22:pitches
-// 23:TotalAreaSQ 24:MetalSQ 25:RidgesFT 26:HipsFT 27:ValleysFT
-// 28:RakesFT 29:EavesFT 30:FlashingFT 31:StepFlashingFT 32:HighRoofSQ
-// 33:Facets 34:TransitionsFT 35:GeneralNotes
+// Column indices (0-based) - PT Form Responses 1:
+// 0:Timestamp 1:Job# 2:RidgeVentFT 3:PowerVents 4:SolarPowerVents 5:Turbine
+// 6:DomeVents 7:BoxVents 8:Boots1.5in 9:Boots2in 10:Boots3in 11:Boots4in
+// 12:SatDishes 13-25:pitches(1/12-12+/12)
+// 26:TotalAreaSQ 27:MetalSQ 28:RidgesFT 29:HipsFT 30:ValleysFT
+// 31:RakesFT 32:EavesFT 33:FlashingFT 34:StepFlashingFT 35:HighRoofSQ
+// 36:Facets 37:TransitionsFT 38:Notes
 async function fetchJobData(){
   const jobNum=(document.getElementById('fc-wo').value||'').trim();
   const status=document.getElementById('fetch-status');
@@ -1673,21 +1674,21 @@ async function fetchJobData(){
   btn.disabled=true;btn.style.opacity='.5';btn.textContent='Loading…';
   status.style.color='var(--txt3)';status.textContent='Fetching from Google Sheets…';
   try{
-    const url=`https://sheets.googleapis.com/v4/spreadsheets/${_SHEET_ID}/values/Form%20Responses%201!A%3AAJ?key=${_SHEETS_KEY}`;
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${_SHEET_ID}/values/Form%20Responses%201!A%3AAM?key=${_SHEETS_KEY}`;
     const res=await fetch(url);
     if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${res.status}`);}
     const data=await res.json();
     const rows=(data.values||[]).slice(1);
-    const match=rows.find(r=>(r[0]||'').trim().toLowerCase()===jobNum.toLowerCase());
+    const match=rows.find(r=>(r[1]||'').trim().toLowerCase()===jobNum.toLowerCase());
     if(!match){status.style.color='var(--red)';status.textContent=`No record found for job &quot;${jobNum}&quot;.`;return;}
     const n=(i)=>parseFloat(match[i])||0;
     // Geometry
-    document.getElementById('g-sq').value=n(23)||'';
-    document.getElementById('g-rdg').value=n(25)||'';
-    document.getElementById('g-hip').value=n(26)||'';
-    document.getElementById('g-val').value=n(27)||'';
-    document.getElementById('g-rak').value=n(28)||'';
-    document.getElementById('g-eav').value=n(29)||'';
+    document.getElementById('g-sq').value=n(26)||'';
+    document.getElementById('g-rdg').value=n(28)||'';
+    document.getElementById('g-hip').value=n(29)||'';
+    document.getElementById('g-val').value=n(30)||'';
+    document.getElementById('g-rak').value=n(31)||'';
+    document.getElementById('g-eav').value=n(32)||'';
     // Ventilation existing counts from sheet
     ventCounts.ridge.exist=Math.max(0,parseFloat(match[2])||0);
     ventCounts.power.exist=Math.max(0,parseInt(match[3])||0);
@@ -1696,9 +1697,9 @@ async function fetchJobData(){
     ventCounts.dome.exist=Math.max(0,parseInt(match[6])||0);
     ventCounts.box.exist=Math.max(0,parseInt(match[7])||0);
     // Pipe boots
-    bootCount=Math.max(0,parseInt(match[8])||0);
+    bootCount=Math.max(0,(parseInt(match[8])||0)+(parseInt(match[9])||0)+(parseInt(match[10])||0)+(parseInt(match[11])||0));
     // Notes
-    const notes=(match[35]||'').trim();
+    const notes=(match[38]||'').trim();
     if(notes)document.getElementById('fc-notes').value=notes;
     // Rebuild and recalc
     buildMatUI();calc();saveState();
