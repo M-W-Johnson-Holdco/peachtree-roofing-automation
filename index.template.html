@@ -810,7 +810,7 @@ document.addEventListener('DOMContentLoaded', function(){
 const MATS=[
   // upgDiff = pre-tax price diff per unit; 1.08 tax applied in getUpgradeCost
   {key:'shingle',name:'Shingles',unitType:'sq',unitLabel:'per square',
-    note:&quot;Camelot II &amp; CT Landmark Premier AR = 4BD/sq; Grand Manor &amp; Carriage House = 5BD/sq; all others = 3BD/sq&quot;,
+    note:&quot;Camelot II &amp; Certainteed Belmont = 4BD/sq; Grand Manor &amp; Carriage House = 5BD/sq; all others = 3BD/sq&quot;,
     existingOpts:[
       {val:'3tab',   label:'3Tab'},
       {val:'arch1',  label:'Arch - Standard'},
@@ -823,17 +823,17 @@ const MATS=[
     ],
     // opts: 0:Royal Sovereign 1:Natural Shadow 2:HDZ&amp;HDZ Bold 3:UHDZ
     //       4:Camelot II(4bd) 5:Slateline 6:CT XT25 AR 7:CT Landmark AR
-    //       8:CT Landmark Premier AR(4bd) 9:CT Landmark Pro AR
-    //       10:Certainteed Belmont(4bd) 11:Certainteed Grand Manor(5bd) 12:Certainteed Carriage House(5bd)
+    //       8:CT Landmark Pro AR
+    //       9:Certainteed Belmont(4bd) 10:Certainteed Grand Manor(5bd) 11:Certainteed Carriage House(5bd)
     upgDiff:{
-      '3tab':   [0, 0,    15.00, 32.49, 122.50, 130.50, 0,    16.50, 16.60, 21.00, 137.04, 194.00, 248.75],
-      'arch1':  [0, 0,    2.25,  19.74, 109.75, 117.75, 0,    0,     0.10,  4.50,  120.54, 177.50, 232.25],
-      'arch2':  [0, 0,    0,     17.49, 107.50, 115.50, 0,    0,     0,     4.40,  120.44, 177.40, 232.15],
-      'archir1':[0, 0,    0,     0,     90.01,  98.01,  0,    0,     0,     0,     103.05, 160.01, 214.76],
-      'des1':   [0, 0,    0,     0,     0,      8.00,   0,    0,     0,     0,     13.04,  70.00,  124.75],
-      'des2':   [0, 0,    0,     0,     0,      0,      0,    0,     0,     0,     5.04,   62.00,  116.75],
-      'desir1': [0, 0,    0,     0,     0,      0,      0,    0,     0,     0,     0,      0,      54.75],
-      'desir2': [0, 0,    0,     0,     0,      0,      0,    0,     0,     0,     0,      0,      0],
+      '3tab':   [0, 0,    15.00, 32.49, 122.50, 130.50, 0,    16.50, 21.00, 137.04, 194.00, 248.75],
+      'arch1':  [0, 0,    2.25,  19.74, 109.75, 117.75, 0,    0,     4.50,  120.54, 177.50, 232.25],
+      'arch2':  [0, 0,    0,     17.49, 107.50, 115.50, 0,    0,     4.40,  120.44, 177.40, 232.15],
+      'archir1':[0, 0,    0,     0,     90.01,  98.01,  0,    0,     0,     103.05, 160.01, 214.76],
+      'des1':   [0, 0,    0,     0,     0,      8.00,   0,    0,     0,     13.04,  70.00,  124.75],
+      'des2':   [0, 0,    0,     0,     0,      0,      0,    0,     0,     5.04,   62.00,  116.75],
+      'desir1': [0, 0,    0,     0,     0,      0,      0,    0,     0,     0,      0,      54.75],
+      'desir2': [0, 0,    0,     0,     0,      0,      0,    0,     0,     0,      0,      0],
     },
     opts:[
       {name:'GAF Royal Sovereign',              bdPerSq:3},
@@ -844,7 +844,6 @@ const MATS=[
       {name:'GAF Slateline',                    bdPerSq:3},
       {name:'CT XT25 AR',                       bdPerSq:3},
       {name:'CT Landmark AR',                   bdPerSq:3},
-      {name:'CT Landmark Premier AR (4BD)',      bdPerSq:4},
       {name:'CT Landmark Pro AR',               bdPerSq:3},
       {name:'Certainteed Belmont (4BD)',         bdPerSq:4},
       {name:'Certainteed Grand Manor (5BD)',     bdPerSq:5},
@@ -2147,7 +2146,6 @@ async function fetchJobData(){
             <option>GAF Slateline</option>
             <option>CT XT25 AR</option>
             <option>CT Landmark AR</option>
-            <option>CT Landmark Premier AR</option>
             <option>CT Landmark Pro AR</option>
             <option>Certainteed Belmont</option>
             <option>Certainteed Grand Manor</option>
@@ -3109,13 +3107,18 @@ function calcTotalBalance() {
 <script>
 // ── SHINGLE COLOR DEPENDENT DROPDOWN ──
 var shingleColors = {
-  'GAF Royal Sovereign': ['Charcoal','Weathered Wood'],
-  'GAF Natural Shadow': ['Charcoal','Weathered Wood'],
-  'GAF HDZ & HDZ Bold': ['Barkwood','Charcoal','Hickory','Hunter Green','Mission Brown','Pewter Gray','Shakewood','Slate','Weathered Wood','Cliffside','Midnight Mesa','Sierra Sand'],
-  'GAF UHDZ': ['Barkwood','Charcoal','Pewter Gray','Shakewood','Slate','Weathered Wood'],
-  'GAF Armorshield II': ['Barkwood','Charcoal','Hickory','Pewter Gray','Shakewood','Slate','Weathered Wood'],
-  'GAF Camelot II': ['Antique Slate','Barkwood','Charcoal','Weathered Timber','Weathered Wood'],
-  'GAF Slateline': ['Antique Slate','English Gray','Royal Slate','Weathered Slate']
+  'GAF Royal Sovereign': ['Weathered Gray','Charcoal'],
+  'GAF Natural Shadow': ['Charcoal','Barkwood','Pewter Gray','Weathered Wood'],
+  'GAF HDZ & HDZ Bold': ['Midnight Mesa','Chestnut Valley','Mission Brown','Barkwood','Oyster Gray','Birchwood','Hickory','Slate','Cliffside','Hunter Green','Sierra Sand','Charcoal','Pewter Gray','Shakewood','Weathered Wood'],
+  'GAF UHDZ': ['Pewter Gray','Weathered Wood','Shakewood','Barkwood','Slate','Charcoal'],
+  'GAF Camelot II': ['Weathered Timber','Barkwood','Royal Slate','Charcoal','Antique Slate'],
+  'GAF Slateline': ['Royal Slate','Antique Slate','Weathered Slate','English Gray'],
+  'CT XT25 AR': ['Dove Gray','Moire Black','Timber Blend','Weathered Wood'],
+  'CT Landmark AR': ['Black Walnut','Burnt Sienna','Charcoal Black','Cinder Black','Cobblestone Gray','Colonial Slate','Driftwood','Georgetown Gray','Granite Gray','Heather Blend','Moire Black','Mojave Tan','Painted Desert','Pewter','Pewterwood','Resawn Shake','Silver Birch','Sunrise Cedar','Terra Cotta','Thunderstorm Gray','Weathered Wood'],
+  'CT Landmark Pro AR': ['Cinder Black','Max Def Birchwood','Max Def Black Walnut','Max Def Burnt Sienna','Max Def Charcoal Black','Max Def Coastal Blue','Max Def Cobblestone Gray','Max Def Colonial Slate','Max Def Driftwood','Max Def Espresso','Max Def Evergreen','Max Def Georgetown Gray','Max Def Granite Gray','Max Def Heather Blend','Max Def Moire Black','Max Def Mojave Tan','Max Def Pewter','Max Def Pewterwood','Max Def Prairie Wood','Max Def Red Oak','Max Def Resawn Shake','Max Def Shenandoah','Max Def Weathered Wood','Silver Birch'],
+  'Certainteed Belmont': ['Black Granite','Colonial Slate','Shenandoah','Stonegate Gray','Weathered Wood'],
+  'Certainteed Grand Manor': ['Black Pearl','Brownstone','Chestnut','Colonial Slate','Gatehouse Slate','Georgian Brick','Sherwood Forest','Stonegate Gray','Weathered Wood'],
+  'Certainteed Carriage House': ['Black Pearl','Brownstone','Chestnut','Colonial Slate','Gatehouse Slate','Georgian Brick','Sherwood Forest','Stonegate Gray','Victorian Blue']
 };
 function updateShingleColors() {
   var type = document.getElementById('shingle-type').value;
@@ -3499,13 +3502,18 @@ function calcTotalBalance() {
 
 // ── SHINGLE COLOR DEPENDENT DROPDOWN ──
 var shingleColors = {
-  'GAF Royal Sovereign': ['Charcoal','Weathered Wood'],
-  'GAF Natural Shadow': ['Charcoal','Weathered Wood'],
-  'GAF HDZ & HDZ Bold': ['Barkwood','Charcoal','Hickory','Hunter Green','Mission Brown','Pewter Gray','Shakewood','Slate','Weathered Wood','Cliffside','Midnight Mesa','Sierra Sand'],
-  'GAF UHDZ': ['Barkwood','Charcoal','Pewter Gray','Shakewood','Slate','Weathered Wood'],
-  'GAF Armorshield II': ['Barkwood','Charcoal','Hickory','Pewter Gray','Shakewood','Slate','Weathered Wood'],
-  'GAF Camelot II': ['Antique Slate','Barkwood','Charcoal','Weathered Timber','Weathered Wood'],
-  'GAF Slateline': ['Antique Slate','English Gray','Royal Slate','Weathered Slate']
+  'GAF Royal Sovereign': ['Weathered Gray','Charcoal'],
+  'GAF Natural Shadow': ['Charcoal','Barkwood','Pewter Gray','Weathered Wood'],
+  'GAF HDZ & HDZ Bold': ['Midnight Mesa','Chestnut Valley','Mission Brown','Barkwood','Oyster Gray','Birchwood','Hickory','Slate','Cliffside','Hunter Green','Sierra Sand','Charcoal','Pewter Gray','Shakewood','Weathered Wood'],
+  'GAF UHDZ': ['Pewter Gray','Weathered Wood','Shakewood','Barkwood','Slate','Charcoal'],
+  'GAF Camelot II': ['Weathered Timber','Barkwood','Royal Slate','Charcoal','Antique Slate'],
+  'GAF Slateline': ['Royal Slate','Antique Slate','Weathered Slate','English Gray'],
+  'CT XT25 AR': ['Dove Gray','Moire Black','Timber Blend','Weathered Wood'],
+  'CT Landmark AR': ['Black Walnut','Burnt Sienna','Charcoal Black','Cinder Black','Cobblestone Gray','Colonial Slate','Driftwood','Georgetown Gray','Granite Gray','Heather Blend','Moire Black','Mojave Tan','Painted Desert','Pewter','Pewterwood','Resawn Shake','Silver Birch','Sunrise Cedar','Terra Cotta','Thunderstorm Gray','Weathered Wood'],
+  'CT Landmark Pro AR': ['Cinder Black','Max Def Birchwood','Max Def Black Walnut','Max Def Burnt Sienna','Max Def Charcoal Black','Max Def Coastal Blue','Max Def Cobblestone Gray','Max Def Colonial Slate','Max Def Driftwood','Max Def Espresso','Max Def Evergreen','Max Def Georgetown Gray','Max Def Granite Gray','Max Def Heather Blend','Max Def Moire Black','Max Def Mojave Tan','Max Def Pewter','Max Def Pewterwood','Max Def Prairie Wood','Max Def Red Oak','Max Def Resawn Shake','Max Def Shenandoah','Max Def Weathered Wood','Silver Birch'],
+  'Certainteed Belmont': ['Black Granite','Colonial Slate','Shenandoah','Stonegate Gray','Weathered Wood'],
+  'Certainteed Grand Manor': ['Black Pearl','Brownstone','Chestnut','Colonial Slate','Gatehouse Slate','Georgian Brick','Sherwood Forest','Stonegate Gray','Weathered Wood'],
+  'Certainteed Carriage House': ['Black Pearl','Brownstone','Chestnut','Colonial Slate','Gatehouse Slate','Georgian Brick','Sherwood Forest','Stonegate Gray','Victorian Blue']
 };
 function updateShingleColors() {
   var type = document.getElementById('shingle-type').value;
