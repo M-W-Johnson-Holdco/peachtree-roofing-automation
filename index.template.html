@@ -553,6 +553,19 @@ input,select,textarea,button{font-family:'Karla',sans-serif;font-size:15px}
   .badge{print-color-adjust:exact;-webkit-print-color-adjust:exact}
   .comm-detail{border:1px solid #ccc}.comm-row{border-bottom:1px solid #ddd}
 }
+@media print {
+  body.wo-print-mode .topbar,
+  body.wo-print-mode .bnav,
+  body.wo-print-mode #s-auth,
+  body.wo-print-mode .section:not(#tab-workorder),
+  body.wo-print-mode #tab-workorder > .card,
+  body.wo-print-mode .no-print { display: none !important; }
+  body.wo-print-mode #s-app { display: block !important; padding: 0 !important; margin: 0 !important; }
+  body.wo-print-mode #tab-workorder { display: block !important; padding: 0 !important; }
+  body.wo-print-mode #pg-calc { display: none !important; }
+  body.wo-print-mode .wo-frame-wrap .page { display: flex !important; }
+  body.wo-print-mode .wo-frame-wrap { background: #fff !important; }
+}
 /* ── MARGIN SLIDER ── */
 .slider-wrap{margin-top:8px}
 .slider-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
@@ -3300,23 +3313,22 @@ function toggleMaskedFields() {
 
 // ── PRINT WITH VIEWPORT FIX FOR MOBILE ──
 function printDoc() {
+  document.body.classList.add('wo-print-mode');
   var meta = document.querySelector('meta[name="viewport"]');
   var orig = meta ? meta.getAttribute('content') : null;
-  // Force layout at design width before printing
   if (meta) meta.setAttribute('content', 'width=816, initial-scale=1.0');
-  // Small delay lets the browser re-render at new viewport before print dialog
+  function restore() {
+    document.body.classList.remove('wo-print-mode');
+    if (meta && orig) meta.setAttribute('content', orig);
+  }
   setTimeout(function() {
     window.print();
-    // Restore viewport after print dialog closes
-    window.addEventListener('afterprint', function restore() {
-      if (meta && orig) meta.setAttribute('content', orig);
-      window.removeEventListener('afterprint', restore);
+    window.addEventListener('afterprint', function onAfter() {
+      restore();
+      window.removeEventListener('afterprint', onAfter);
     });
-    // Fallback restore in case afterprint doesn't fire (iOS Safari)
-    setTimeout(function() {
-      if (meta && orig) meta.setAttribute('content', orig);
-    }, 2000);
-  }, 100);
+    setTimeout(restore, 3000);
+  }, 150);
 }
 </script>
 <!-- ════════════════════════════════════════════ PAGE 7 – PAYMENT PLAN ════ -->
@@ -3694,23 +3706,22 @@ function toggleMaskedFields() {
 
 // ── PRINT WITH VIEWPORT FIX FOR MOBILE ──
 function printDoc() {
+  document.body.classList.add('wo-print-mode');
   var meta = document.querySelector('meta[name="viewport"]');
   var orig = meta ? meta.getAttribute('content') : null;
-  // Force layout at design width before printing
   if (meta) meta.setAttribute('content', 'width=816, initial-scale=1.0');
-  // Small delay lets the browser re-render at new viewport before print dialog
+  function restore() {
+    document.body.classList.remove('wo-print-mode');
+    if (meta && orig) meta.setAttribute('content', orig);
+  }
   setTimeout(function() {
     window.print();
-    // Restore viewport after print dialog closes
-    window.addEventListener('afterprint', function restore() {
-      if (meta && orig) meta.setAttribute('content', orig);
-      window.removeEventListener('afterprint', restore);
+    window.addEventListener('afterprint', function onAfter() {
+      restore();
+      window.removeEventListener('afterprint', onAfter);
     });
-    // Fallback restore in case afterprint doesn't fire (iOS Safari)
-    setTimeout(function() {
-      if (meta && orig) meta.setAttribute('content', orig);
-    }, 2000);
-  }, 100);
+    setTimeout(restore, 3000);
+  }, 150);
 }
 
 </script>
