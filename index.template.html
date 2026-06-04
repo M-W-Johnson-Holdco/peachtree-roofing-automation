@@ -2130,7 +2130,7 @@ async function fetchJobData(){
         <th style="width:130px">CLASSIFICATION</th>
         <th class="italic" style="width:260px">TYPE</th>
         <th class="italic" style="width:130px">COLOR</th>
-        <th class="italic" style="width:188px; text-align:right">UPGRADE COST</th>
+        <th class="italic wo-upg-col" style="width:188px; text-align:right">UPGRADE COST</th>
       </tr>
     </thead>
     <tbody>
@@ -2159,7 +2159,7 @@ async function fetchJobData(){
             <option value="">Choose...</option>
           </select>
         </td>
-        <td style="text-align:right"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
+        <td style="text-align:right" class="wo-upg-col"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
       </tr>
       <tr>
         <td>Ridge Cap</td>
@@ -2176,7 +2176,7 @@ async function fetchJobData(){
           </select>
         </td>
         <td></td>
-        <td style="text-align:right"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
+        <td style="text-align:right" class="wo-upg-col"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
       </tr>
       <tr>
         <td>Starter</td>
@@ -2189,7 +2189,7 @@ async function fetchJobData(){
           </select>
         </td>
         <td></td>
-        <td style="text-align:right"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
+        <td style="text-align:right" class="wo-upg-col"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
       </tr>
       <tr>
         <td>Underlayment</td>
@@ -2204,7 +2204,7 @@ async function fetchJobData(){
           </select>
         </td>
         <td></td>
-        <td style="text-align:right"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
+        <td style="text-align:right" class="wo-upg-col"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
       </tr>
       <tr>
         <td>Valley</td>
@@ -2220,7 +2220,7 @@ async function fetchJobData(){
           </select>
         </td>
         <td></td>
-        <td style="text-align:right"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
+        <td style="text-align:right" class="wo-upg-col"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
       </tr>
       <tr>
         <td>Gutter Apron</td>
@@ -2235,7 +2235,7 @@ async function fetchJobData(){
             <option>Almond</option>
           </select>
         </td>
-        <td style="text-align:right"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
+        <td style="text-align:right" class="wo-upg-col"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
       </tr>
       <tr>
         <td>Pipe-Boots</td>
@@ -2247,13 +2247,13 @@ async function fetchJobData(){
           </select>
         </td>
         <td></td>
-        <td style="text-align:right"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
+        <td style="text-align:right" class="wo-upg-col"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
       </tr>
       <tr>
         <td>Miscellaneous</td>
         <td><textarea id="wo-f14" class="fi" rows="1" style="width:180px;border:1px solid #000;"></textarea></td>
         <td><textarea id="wo-f15" class="fi sm" rows="1"></textarea></td>
-        <td style="text-align:right"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
+        <td style="text-align:right" class="wo-upg-col"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
       </tr>
     </tbody>
   </table>
@@ -2265,7 +2265,7 @@ async function fetchJobData(){
       <button type="button" onclick="woSyncVentFromCalc()" style="font-size:9px;padding:1px 6px;cursor:pointer;border:1px solid #aaa;border-radius:2px;background:#f0f0f0;color:#555;" title="Copy existing counts from Commissions Calculator">⟳ Sync from Calc</button>
     </div>
     <!-- unified grid: label | exist | des-exist | R&R cover | des-new | color | spacer | upgrade-cost -->
-    <div style="display:grid;grid-template-columns:120px 58px 80px 70px 90px 1fr 188px;gap:4px;align-items:center;width:100%;">
+    <div id="wo-vent-grid" style="display:grid;grid-template-columns:120px 58px 80px 70px 90px 1fr 188px;gap:4px;align-items:center;width:100%;">
       <!-- header row -->
       <div></div>
       <div style="font-style:italic;font-size:10px;text-align:center;">EXISTING</div>
@@ -2273,7 +2273,7 @@ async function fetchJobData(){
       <div style="font-style:italic;font-size:10px;text-align:center;">DESIRED NEW</div>
       <div style="font-style:italic;font-size:10px;text-align:center;">COLOR</div>
       <div></div>
-      <div style="font-style:italic;font-size:10px;text-align:center;">UPGRADE COST</div>
+      <div class="wo-upg-col" style="font-style:italic;font-size:10px;text-align:center;">UPGRADE COST</div>
 
       <!-- Ridge Vent -->
       <span style="font-size:11px;">Ridge Vent (FT)</span>
@@ -2289,7 +2289,7 @@ async function fetchJobData(){
         <option>Shingle Match</option>
       </select>
       <div></div>
-      <textarea id="wo-f29" class="fi upgrade-cost currency" rows="1" style="width:100%;box-sizing:border-box;" oninput="calcUpgradesTotal()"></textarea>
+      <textarea id="wo-f29" class="fi upgrade-cost currency wo-upg-col" rows="1" style="width:100%;box-sizing:border-box;" oninput="calcUpgradesTotal()"></textarea>
 
       <!-- Box Vents -->
       <span style="font-size:11px;">Box Vents</span>
@@ -2298,7 +2298,7 @@ async function fetchJobData(){
       <textarea id="wo-f20" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <div></div>
       <div></div>
-      <textarea id="wo-f30" class="fi upgrade-cost currency" rows="1" style="width:100%;box-sizing:border-box;" oninput="calcUpgradesTotal()"></textarea>
+      <textarea id="wo-f30" class="fi upgrade-cost currency wo-upg-col" rows="1" style="width:100%;box-sizing:border-box;" oninput="calcUpgradesTotal()"></textarea>
 
 
       <!-- Power Vents -->
@@ -2308,7 +2308,7 @@ async function fetchJobData(){
       <textarea id="wo-f24" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <div></div>
       <div></div>
-      <textarea id="wo-f32" class="fi upgrade-cost currency" rows="1" style="width:100%;box-sizing:border-box;" oninput="calcUpgradesTotal()"></textarea>
+      <textarea id="wo-f32" class="fi upgrade-cost currency wo-upg-col" rows="1" style="width:100%;box-sizing:border-box;" oninput="calcUpgradesTotal()"></textarea>
 
       <!-- Solar Power Vents -->
       <span style="font-size:11px;">Solar Power Vents</span>
@@ -2317,7 +2317,7 @@ async function fetchJobData(){
       <textarea id="wo-f26" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <div></div>
       <div></div>
-      <textarea id="wo-f33" class="fi upgrade-cost currency" rows="1" style="width:100%;box-sizing:border-box;" oninput="calcUpgradesTotal()"></textarea>
+      <textarea id="wo-f33" class="fi upgrade-cost currency wo-upg-col" rows="1" style="width:100%;box-sizing:border-box;" oninput="calcUpgradesTotal()"></textarea>
 
       <!-- Turbine -->
       <span style="font-size:11px;">Turbine</span>
@@ -2326,7 +2326,7 @@ async function fetchJobData(){
       <textarea id="wo-f28" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <div></div>
       <div></div>
-      <textarea id="wo-f34" class="fi upgrade-cost currency" rows="1" style="width:100%;box-sizing:border-box;" oninput="calcUpgradesTotal()"></textarea>
+      <textarea id="wo-f34" class="fi upgrade-cost currency wo-upg-col" rows="1" style="width:100%;box-sizing:border-box;" oninput="calcUpgradesTotal()"></textarea>
     </div>
   </div>
 <div id="wo-insurance-upgrades">
@@ -2344,7 +2344,7 @@ async function fetchJobData(){
           <option>Lifetime Workmanship</option>
         </select>
         <span style="flex:1;"></span>
-        <textarea id="wo-f36" class="fi upgrade-cost currency" rows="1" style="width:90px;" oninput="calcUpgradesTotal()"></textarea>
+        <textarea id="wo-f36" class="fi upgrade-cost currency wo-upg-col" rows="1" style="width:90px;" oninput="calcUpgradesTotal()"></textarea>
       </div>
       <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;">
         <span style="font-size:11px;min-width:190px;">Manufacturer Warranty</span>
@@ -2358,7 +2358,7 @@ async function fetchJobData(){
         </select>
         <span id="warranty-warning" style="color:red;font-size:10px;font-weight:700;display:none;margin-left:6px;">&#9888; Requirements not met for warranty</span>
         <span style="flex:1;"></span>
-        <textarea id="wo-f37" class="fi upgrade-cost currency" rows="1" style="width:90px;" oninput="calcUpgradesTotal()"></textarea>
+        <textarea id="wo-f37" class="fi upgrade-cost currency wo-upg-col" rows="1" style="width:90px;" oninput="calcUpgradesTotal()"></textarea>
       </div>
     </div>
   </div>
@@ -6809,6 +6809,16 @@ function woJobTypeChange(val) {
     var el = document.getElementById(id);
     if (el) el.style.display = isRetail ? 'none' : '';
   });
+  // Hide/show upgrade cost column in materials table and ventilation grid
+  document.querySelectorAll('.wo-upg-col').forEach(function(el) {
+    el.style.display = isRetail ? 'none' : '';
+  });
+  var ventGrid = document.getElementById('wo-vent-grid');
+  if (ventGrid) {
+    ventGrid.style.gridTemplateColumns = isRetail
+      ? '120px 58px 80px 70px 90px 1fr'
+      : '120px 58px 80px 70px 90px 1fr 188px';
+  }
 }
 function woApplyRole(role) {
   var isAdmin = (role === 'admin');
