@@ -1,6 +1,7 @@
 // =====================================================================
 // Peachtree Roofing — Day-Before Appointment Reminder Worker
-// Cloudflare Worker with cron trigger: 0 15 * * * (10am ET / 11am EDT = 15:00 UTC)
+// Cloudflare Worker with cron trigger: 0 14 * * * (10am EDT = 14:00 UTC, summer)
+// NOTE: In winter (EST), change to 0 15 * * * to stay at 10am ET
 //
 // SETUP:
 // 1. Create a new Cloudflare Worker named "peachtree-reminder-worker"
