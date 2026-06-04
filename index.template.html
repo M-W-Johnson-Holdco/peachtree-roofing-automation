@@ -2113,9 +2113,10 @@ async function fetchJobData(){
         <option>Arch - Standard</option>
         <option>Arch - Midgrade</option>
         <option>Impact Resistant - Class 4</option>
-        <option>Impact Resistant - Premium</option>
-        <option>Designer - Top Tier</option>
         <option>Designer - Premium</option>
+        <option>Designer - Top Tier</option>
+        <option>Designer - IR</option>
+        <option>Designer - Premium IR</option>
       </select>
       &nbsp;&nbsp; HOA Approval Required? <span class="cb"></span></div>
     <div class="row">HOA Approval Plan: <textarea id="wo-f-hoa-plan" class="fi xl" rows="1" style="width:380px;"></textarea></div>
@@ -2142,9 +2143,15 @@ async function fetchJobData(){
             <option>GAF Natural Shadow</option>
             <option>GAF HDZ &amp; HDZ Bold</option>
             <option>GAF UHDZ</option>
-            <option>GAF Armorshield II</option>
             <option>GAF Camelot II</option>
             <option>GAF Slateline</option>
+            <option>CT XT25 AR</option>
+            <option>CT Landmark AR</option>
+            <option>CT Landmark Premier AR</option>
+            <option>CT Landmark Pro AR</option>
+            <option>Certainteed Belmont</option>
+            <option>Certainteed Grand Manor</option>
+            <option>Certainteed Carriage House</option>
           </select>
         </td>
         <td>
@@ -2160,9 +2167,12 @@ async function fetchJobData(){
           <select id="ridgecap-type" class="lg" onchange="checkRidgeCapEligibility(this); checkWarrantyEligibility()">
             <option value="">Choose...</option>
             <option>GAF Royal Sovereign Ridge</option>
-            <option>GAF Z Ridge</option>
-            <option>GAF SAR Armorshield II</option>
+            <option>GAF Seal-A-Ridge</option>
             <option>GAF Timbertex</option>
+            <option>CT XT25 AR Ridge</option>
+            <option>CT Shadow Ridge</option>
+            <option>CT Cedar Crest H&amp;R</option>
+            <option>CT Shangle Ridge</option>
           </select>
         </td>
         <td></td>
@@ -2175,6 +2185,7 @@ async function fetchJobData(){
             <option value="">Choose...</option>
             <option>GAF Pro Start</option>
             <option>GAF Weatherblocker</option>
+            <option>CT Swiftstart</option>
           </select>
         </td>
         <td></td>
@@ -2188,6 +2199,8 @@ async function fetchJobData(){
             <option>Supplier Underlayment</option>
             <option>GAF Feltbuster</option>
             <option>GAF Tiger Paw</option>
+            <option>GAF Deck-Armour</option>
+            <option>CT RoofRunner</option>
           </select>
         </td>
         <td></td>
@@ -2198,9 +2211,12 @@ async function fetchJobData(){
         <td>
           <select id="valley-type" class="lg" onchange="checkWarrantyEligibility()">
             <option value="">Choose...</option>
-            <option>Ice &amp; Water Shield</option>
+            <option>Supplier Valley / I&amp;W</option>
+            <option>GAF Weatherwatch</option>
             <option>GAF Stormguard</option>
             <option>W Metal Valley</option>
+            <option>CT Winterguard</option>
+            <option>CT Grace Vycor</option>
           </select>
         </td>
         <td></td>
@@ -2227,7 +2243,7 @@ async function fetchJobData(){
           <select id="wo-f13" class="lg">
             <option value="">Choose...</option>
             <option>3n1 Neoprene</option>
-            <option>Lead Pipeboot</option>
+            <option>Silicone Lifetime</option>
           </select>
         </td>
         <td></td>
@@ -2249,12 +2265,11 @@ async function fetchJobData(){
       <button type="button" onclick="woSyncVentFromCalc()" style="font-size:9px;padding:1px 6px;cursor:pointer;border:1px solid #aaa;border-radius:2px;background:#f0f0f0;color:#555;" title="Copy existing counts from Commissions Calculator">⟳ Sync from Calc</button>
     </div>
     <!-- unified grid: label | exist | des-exist | R&R cover | des-new | color | spacer | upgrade-cost -->
-    <div style="display:grid;grid-template-columns:120px 58px 80px 70px 70px 90px 1fr 188px;gap:4px;align-items:center;width:100%;">
+    <div style="display:grid;grid-template-columns:120px 58px 80px 70px 90px 1fr 188px;gap:4px;align-items:center;width:100%;">
       <!-- header row -->
       <div></div>
       <div style="font-style:italic;font-size:10px;text-align:center;">EXISTING</div>
       <div style="font-style:italic;font-size:10px;text-align:center;">DESIRED EXISTING</div>
-      <div style="font-style:italic;font-size:10px;text-align:center;">DESIRED EXISTING R&amp;R COVER</div>
       <div style="font-style:italic;font-size:10px;text-align:center;">DESIRED NEW</div>
       <div style="font-style:italic;font-size:10px;text-align:center;">COLOR</div>
       <div></div>
@@ -2264,7 +2279,6 @@ async function fetchJobData(){
       <span style="font-size:11px;">Ridge Vent (FT)</span>
       <textarea id="wo-f16" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <textarea id="wo-vent-de-ridge" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
-      <div></div>
       <textarea id="wo-f17" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <select id="wo-f18" class="color-sel" style="width:100%;font-size:10px;">
         <option value="">Color...</option>
@@ -2281,27 +2295,16 @@ async function fetchJobData(){
       <span style="font-size:11px;">Box Vents</span>
       <textarea id="wo-f19" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <textarea id="wo-vent-de-box" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
-      <div></div>
       <textarea id="wo-f20" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <div></div>
       <div></div>
       <textarea id="wo-f30" class="fi upgrade-cost currency" rows="1" style="width:100%;box-sizing:border-box;" oninput="calcUpgradesTotal()"></textarea>
 
-      <!-- Dome Vents -->
-      <span style="font-size:11px;">Dome Vents</span>
-      <textarea id="wo-f21" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
-      <textarea id="wo-vent-de-dome" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
-      <div></div>
-      <textarea id="wo-f22" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
-      <div></div>
-      <div></div>
-      <textarea id="wo-f31" class="fi upgrade-cost currency" rows="1" style="width:100%;box-sizing:border-box;" oninput="calcUpgradesTotal()"></textarea>
 
       <!-- Power Vents -->
       <span style="font-size:11px;">Power Vents</span>
       <textarea id="wo-f23" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <textarea id="wo-vent-de-power" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
-      <textarea id="wo-vent-de-power-cover" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <textarea id="wo-f24" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <div></div>
       <div></div>
@@ -2311,7 +2314,6 @@ async function fetchJobData(){
       <span style="font-size:11px;">Solar Power Vents</span>
       <textarea id="wo-f25" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <textarea id="wo-vent-de-solar" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
-      <div></div>
       <textarea id="wo-f26" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <div></div>
       <div></div>
@@ -2321,7 +2323,6 @@ async function fetchJobData(){
       <span style="font-size:11px;">Turbine</span>
       <textarea id="wo-f27" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <textarea id="wo-vent-de-turbine" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
-      <div></div>
       <textarea id="wo-f28" class="fi" rows="1" style="width:100%;box-sizing:border-box;"></textarea>
       <div></div>
       <div></div>
@@ -2351,6 +2352,8 @@ async function fetchJobData(){
           <option>GAF Limited Lifetime Warranty</option>
           <option>GAF Silver Pledge</option>
           <option>GAF Golden Pledge</option>
+          <option>GAF President's Club</option>
+          <option>CT 3 Star Surestart Plus</option>
         </select>
         <span id="warranty-warning" style="color:red;font-size:10px;font-weight:700;display:none;margin-left:6px;">&#9888; Requirements not met for warranty</span>
         <span style="flex:1;"></span>
