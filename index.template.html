@@ -1657,8 +1657,8 @@ let _tt;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('on'),2800);}
 
 // GOOGLE SHEETS INTEGRATION
-const _SHEET_ID='1pgp5aW8e24JuYGDZGO9Wt5koer-sSU7FrBlwL55jevU';
-const _SHEETS_KEY='AIzaSyAmRLupl4GwVHbnb509Sm5QhWbsqVdjG2g';
+const _SHEET_ID='1QHp6Fz-5mDUAQSo6foyk-EcocdGTC5xANwjAuAGSxFo';
+const _SHEETS_KEY='AIzaSyB4MHXIECaHntKScXhU7p6FOCpIxrOAGGM';
 // Column indices (0-based):
 // 0:Job# 1:Timestamp 2:RidgeVentFT 3:PowerVents 4:SolarVents 5:Turbine
 // 6:DomeVents 7:BoxVents 8:PipeBoots 9:SatDishes 10-22:pitches
@@ -1673,7 +1673,7 @@ async function fetchJobData(){
   btn.disabled=true;btn.style.opacity='.5';btn.textContent='Loading…';
   status.style.color='var(--txt3)';status.textContent='Fetching from Google Sheets…';
   try{
-    const url=`https://sheets.googleapis.com/v4/spreadsheets/${_SHEET_ID}/values/A%3AAJ?key=${_SHEETS_KEY}`;
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${_SHEET_ID}/values/Form%20Responses%201!A%3AAJ?key=${_SHEETS_KEY}`;
     const res=await fetch(url);
     if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${res.status}`);}
     const data=await res.json();
