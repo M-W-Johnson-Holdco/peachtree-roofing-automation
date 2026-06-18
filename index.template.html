@@ -1466,7 +1466,7 @@ function calc(){try{
   ['ridge','box','power','solar','turbine'].forEach((k,i)=>{
     const opt=ventM.opts[i];
     const existing=ventCounts[k].exist||0;
-    const desiredExist=ventCounts[k].desiredExist||0;
+    const desiredExist=Math.min(ventCounts[k].desiredExist||0,existing);
     const desiredNew=ventCounts[k].desired||0;
     const removed=Math.max(0,existing-desiredExist);
     const netRemoved=Math.max(0,removed-desiredNew);
@@ -1480,7 +1480,7 @@ function calc(){try{
       existingCost=existing*(opt.costEa||0)*1.08;
     }
     let cost=totalCost-existingCost;
-    if(netRemoved>0&&(k==='box'||k==='turbine'||k==='power')){
+    if(netRemoved>0&&(k==='box'||k==='turbine'||k==='power'||k==='solar')){
       cost+=netRemoved*35;
     }
     if(desiredNew>0&&(k==='power'||k==='solar')){
@@ -1503,7 +1503,7 @@ function calc(){try{
   showSliderResult('vent',ventUpgradeCost,ventPct);
   totUpgradeCost+=ventUpgradeCost;
 
-  const ventTotal=Object.values(ventCounts).reduce((a,v)=>a+v.desired,0);
+  const ventTotal=Object.values(ventCounts).reduce((a,v)=>a+v.desiredExist+v.desired,0);
   rows.push({name:'Ventilation',selName:'Mixed (see counts)',upgCost:ventUpgradeCost,hoCharge:finalVentHO,comm:finalVentComm,qty:ventTotal+' units',isStd:ventUpgradeCost===0});
 
   // Discount — only subtracts from total price charged (not from upgrade cost)
