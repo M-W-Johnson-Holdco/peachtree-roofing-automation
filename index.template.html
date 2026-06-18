@@ -3314,22 +3314,71 @@ function toggleMaskedFields() {
 
 // ── PRINT WITH VIEWPORT FIX FOR MOBILE ──
 function printDoc() {
-  document.body.classList.add('wo-print-mode');
-  var meta = document.querySelector('meta[name="viewport"]');
-  var orig = meta ? meta.getAttribute('content') : null;
-  if (meta) meta.setAttribute('content', 'width=816, initial-scale=1.0');
-  function restore() {
-    document.body.classList.remove('wo-print-mode');
-    if (meta && orig) meta.setAttribute('content', orig);
-  }
-  setTimeout(function() {
-    window.print();
-    window.addEventListener('afterprint', function onAfter() {
-      restore();
-      window.removeEventListener('afterprint', onAfter);
+  var wrap = document.querySelector('.wo-frame-wrap');
+  if (!wrap) { window.print(); return; }
+
+  var wrapClone = wrap.cloneNode(true);
+
+  // Sync live input/textarea values into clone
+  var liveInputs = wrap.querySelectorAll('input, textarea');
+  var cloneInputs = wrapClone.querySelectorAll('input, textarea');
+  liveInputs.forEach(function(orig, i) {
+    var cl = cloneInputs[i]; if (!cl) return;
+    if (orig.tagName === 'TEXTAREA') { cl.textContent = orig.value; }
+    else { cl.setAttribute('value', orig.value); }
+  });
+
+  // Sync select values into clone
+  var liveSelects = wrap.querySelectorAll('select');
+  var cloneSelects = wrapClone.querySelectorAll('select');
+  liveSelects.forEach(function(orig, i) {
+    var cl = cloneSelects[i]; if (!cl) return;
+    Array.from(cl.options).forEach(function(opt) {
+      if (opt.value === orig.value || opt.text === orig.options[orig.selectedIndex] && orig.options[orig.selectedIndex] && opt.text === orig.options[orig.selectedIndex].text) {
+        opt.setAttribute('selected', 'selected');
+      } else {
+        opt.removeAttribute('selected');
+      }
     });
-    setTimeout(restore, 3000);
-  }, 150);
+  });
+
+  // Collect all <style> tags from parent document
+  var styles = Array.from(document.querySelectorAll('style')).map(function(s){ return s.outerHTML; }).join('');
+
+  var win = window.open('', '_blank');
+  if (!win) { window.print(); return; }
+  win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8">');
+  win.document.write(styles);
+  win.document.write('<style>');
+  win.document.write('@page{size:8.5in 11in;margin:0;}');
+  win.document.write('html,body{margin:0!important;padding:0!important;background:#fff!important;}');
+  win.document.write('.wo-frame-wrap{background:#fff!important;padding:0!important;margin:0!important;}');
+  win.document.write('.page{margin:0!important;padding:0.4in 0.5625in 0.35in!important;width:8.5in!important;height:11in!important;overflow:clip!important;break-after:page;page-break-after:always;box-shadow:none!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;position:relative!important;}');
+  win.document.write('.page:last-child{break-after:avoid!important;page-break-after:avoid!important;}');
+  win.document.write('button,.no-print{display:none!important;}');
+  win.document.write('input,textarea,select{color:#000!important;background:#fff!important;border-color:#000!important;}');
+  win.document.write('.info-rows{margin-bottom:6px!important;line-height:1.7!important;}');
+  win.document.write('.info-rows .row{margin-bottom:1px!important;}');
+  win.document.write('.section-center{margin:4px 0 3px!important;}');
+  win.document.write('.mat-table{margin-bottom:6px!important;}');
+  win.document.write('.mat-table td{padding:2px 4px!important;}');
+  win.document.write('.vent-section{margin-bottom:6px!important;}');
+  win.document.write('.total-row{margin:3px 0!important;}');
+  win.document.write('canvas{border:1px solid #000!important;}');
+  win.document.write('</style></head><body>');
+  win.document.write(wrapClone.outerHTML);
+  win.document.write('</body></html>');
+  win.document.close();
+  win.focus();
+  setTimeout(function() {
+    try {
+      win.print();
+      win.addEventListener('afterprint', function(){ try{ win.close(); }catch(e){} });
+      setTimeout(function(){ try{ win.close(); }catch(e){} }, 4000);
+    } catch(e) {
+      try{ win.close(); }catch(ce){}
+    }
+  }, 250);
 }
 </script>
 <!-- ════════════════════════════════════════════ PAGE 7 – PAYMENT PLAN ════ -->
@@ -3703,22 +3752,71 @@ function toggleMaskedFields() {
 
 // ── PRINT WITH VIEWPORT FIX FOR MOBILE ──
 function printDoc() {
-  document.body.classList.add('wo-print-mode');
-  var meta = document.querySelector('meta[name="viewport"]');
-  var orig = meta ? meta.getAttribute('content') : null;
-  if (meta) meta.setAttribute('content', 'width=816, initial-scale=1.0');
-  function restore() {
-    document.body.classList.remove('wo-print-mode');
-    if (meta && orig) meta.setAttribute('content', orig);
-  }
-  setTimeout(function() {
-    window.print();
-    window.addEventListener('afterprint', function onAfter() {
-      restore();
-      window.removeEventListener('afterprint', onAfter);
+  var wrap = document.querySelector('.wo-frame-wrap');
+  if (!wrap) { window.print(); return; }
+
+  var wrapClone = wrap.cloneNode(true);
+
+  // Sync live input/textarea values into clone
+  var liveInputs = wrap.querySelectorAll('input, textarea');
+  var cloneInputs = wrapClone.querySelectorAll('input, textarea');
+  liveInputs.forEach(function(orig, i) {
+    var cl = cloneInputs[i]; if (!cl) return;
+    if (orig.tagName === 'TEXTAREA') { cl.textContent = orig.value; }
+    else { cl.setAttribute('value', orig.value); }
+  });
+
+  // Sync select values into clone
+  var liveSelects = wrap.querySelectorAll('select');
+  var cloneSelects = wrapClone.querySelectorAll('select');
+  liveSelects.forEach(function(orig, i) {
+    var cl = cloneSelects[i]; if (!cl) return;
+    Array.from(cl.options).forEach(function(opt) {
+      if (opt.value === orig.value || opt.text === orig.options[orig.selectedIndex] && orig.options[orig.selectedIndex] && opt.text === orig.options[orig.selectedIndex].text) {
+        opt.setAttribute('selected', 'selected');
+      } else {
+        opt.removeAttribute('selected');
+      }
     });
-    setTimeout(restore, 3000);
-  }, 150);
+  });
+
+  // Collect all <style> tags from parent document
+  var styles = Array.from(document.querySelectorAll('style')).map(function(s){ return s.outerHTML; }).join('');
+
+  var win = window.open('', '_blank');
+  if (!win) { window.print(); return; }
+  win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8">');
+  win.document.write(styles);
+  win.document.write('<style>');
+  win.document.write('@page{size:8.5in 11in;margin:0;}');
+  win.document.write('html,body{margin:0!important;padding:0!important;background:#fff!important;}');
+  win.document.write('.wo-frame-wrap{background:#fff!important;padding:0!important;margin:0!important;}');
+  win.document.write('.page{margin:0!important;padding:0.4in 0.5625in 0.35in!important;width:8.5in!important;height:11in!important;overflow:clip!important;break-after:page;page-break-after:always;box-shadow:none!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;position:relative!important;}');
+  win.document.write('.page:last-child{break-after:avoid!important;page-break-after:avoid!important;}');
+  win.document.write('button,.no-print{display:none!important;}');
+  win.document.write('input,textarea,select{color:#000!important;background:#fff!important;border-color:#000!important;}');
+  win.document.write('.info-rows{margin-bottom:6px!important;line-height:1.7!important;}');
+  win.document.write('.info-rows .row{margin-bottom:1px!important;}');
+  win.document.write('.section-center{margin:4px 0 3px!important;}');
+  win.document.write('.mat-table{margin-bottom:6px!important;}');
+  win.document.write('.mat-table td{padding:2px 4px!important;}');
+  win.document.write('.vent-section{margin-bottom:6px!important;}');
+  win.document.write('.total-row{margin:3px 0!important;}');
+  win.document.write('canvas{border:1px solid #000!important;}');
+  win.document.write('</style></head><body>');
+  win.document.write(wrapClone.outerHTML);
+  win.document.write('</body></html>');
+  win.document.close();
+  win.focus();
+  setTimeout(function() {
+    try {
+      win.print();
+      win.addEventListener('afterprint', function(){ try{ win.close(); }catch(e){} });
+      setTimeout(function(){ try{ win.close(); }catch(e){} }, 4000);
+    } catch(e) {
+      try{ win.close(); }catch(ce){}
+    }
+  }, 250);
 }
 
 </script>
