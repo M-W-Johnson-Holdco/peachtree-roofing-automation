@@ -1424,7 +1424,7 @@ function calc(){try{
       // Warranty eligibility warning
       const eligEl=document.getElementById('warr-elig');
       if(eligEl){
-        const isUpgradeWarr=selIdx===1||selIdx===2;
+        const isUpgradeWarr=selIdx===1||selIdx===2||selIdx===3;
         if(isUpgradeWarr){
           const issues=goldenEligibility();
           if(issues.length>0){eligEl.style.display='block';eligEl.style.background='var(--red-bg)';eligEl.style.borderColor='var(--red-bdr)';eligEl.style.color='var(--red)';eligEl.innerHTML='⚠️ <strong>Warranty requirements not met:</strong><br>'+issues.map(i=>'• '+i).join('<br>');}
