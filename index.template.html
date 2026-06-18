@@ -3313,6 +3313,98 @@ function toggleMaskedFields() {
 
 
 // ── PRINT WITH VIEWPORT FIX FOR MOBILE ──
+
+var MAX_ROWS_PAGE3 = 10;
+var MAX_ROWS_CONT  = 17;
+
+function safeTradeBreak(rows, limit) {
+  if (limit >= rows.length) return rows.length;
+  var i = limit;
+  while (i > 0 && rows[i] && rows[i].getAttribute('data-merged') === '1') { i--; }
+  return i > 0 ? i : limit;
+}
+
+function splitPage3Trades(wrapClone) {
+  var page3 = wrapClone.querySelector('#wo-page-3');
+  if (!page3) return;
+  var tbody = page3.querySelector('#wo-trades-tbody');
+  if (!tbody) return;
+  var allRows = Array.from(tbody.querySelectorAll('tr'));
+  if (allRows.length <= MAX_ROWS_PAGE3) return;
+
+  var p3Break = safeTradeBreak(allRows, MAX_ROWS_PAGE3);
+  var overflowRows = allRows.slice(p3Break);
+  overflowRows.forEach(function(r) { tbody.removeChild(r); });
+
+  var tfoot = page3.querySelector('#wo-trades-table tfoot');
+  if (tfoot) tfoot.style.display = 'none';
+  page3.querySelectorAll('p').forEach(function(p) { p.style.display = 'none'; });
+
+  var chunks = [];
+  var rem = overflowRows.slice();
+  while (rem.length > 0) {
+    var breakAt = safeTradeBreak(rem, MAX_ROWS_CONT);
+    chunks.push(rem.splice(0, breakAt));
+  }
+
+  var logoBlock = page3.querySelector('.logo-block');
+  var logoHTML  = logoBlock ? logoBlock.outerHTML : '';
+  var footerEl  = page3.querySelector('.page-footer');
+  var footerHTML = footerEl ? footerEl.outerHTML : '';
+
+  var origTable = page3.querySelector('#wo-trades-table');
+  var colgroupHTML = '', theadHTML = '';
+  if (origTable) {
+    var cg = origTable.querySelector('colgroup');
+    if (cg) colgroupHTML = cg.outerHTML;
+    var th = origTable.querySelector('thead');
+    if (th) theadHTML = th.outerHTML;
+  }
+  var tfootHTML = tfoot ? tfoot.outerHTML.replace('style="display: none;"','').replace('style="display:none"','') : '';
+
+  var instrHTML = '';
+  page3.querySelectorAll('p').forEach(function(p) {
+    instrHTML += p.outerHTML.replace(/style="[^"]*display:\s*none[^"]*"/g, '');
+  });
+
+  var p3Span = page3.querySelector('.page-number');
+  var p3Num  = p3Span ? parseInt(p3Span.textContent) || 3 : 3;
+
+  var page4 = wrapClone.querySelector('#wo-page-4');
+  var insertBefore = page4 || null;
+
+  chunks.forEach(function(chunk, idx) {
+    var isLast = idx === chunks.length - 1;
+    var pageNum = p3Num + idx + 1;
+
+    var contDiv = document.createElement('div');
+    contDiv.className = 'page';
+    contDiv.id = 'wo-page3-cont-' + (idx + 1);
+
+    var inner = logoHTML;
+    inner += '<div style="font-size:11px;font-weight:700;color:#555;margin-bottom:6px;margin-top:56px;">ADDITIONAL TRADES (CONTINUED)</div>';
+    inner += '<table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;">';
+    inner += colgroupHTML + theadHTML;
+    inner += '<tbody>';
+    chunk.forEach(function(r) { inner += r.outerHTML; });
+    inner += '</tbody>';
+    if (isLast) inner += tfootHTML;
+    inner += '</table>';
+    if (isLast) inner += instrHTML;
+    inner += footerHTML;
+    inner += '<span class="page-number">' + pageNum + '</span>';
+
+    contDiv.innerHTML = inner;
+    wrapClone.insertBefore(contDiv, insertBefore);
+  });
+
+  var shift = chunks.length;
+  wrapClone.querySelectorAll('.page-number').forEach(function(sp) {
+    var n = parseInt(sp.textContent);
+    if (!isNaN(n) && n > p3Num) sp.textContent = n + shift;
+  });
+}
+
 function printDoc() {
   var wrap = document.querySelector('.wo-frame-wrap');
   if (!wrap) { window.print(); return; }
@@ -3341,6 +3433,9 @@ function printDoc() {
       }
     });
   });
+
+  // Split page 3 trades into continuation pages if needed
+  splitPage3Trades(wrapClone);
 
   // Collect all <style> tags from parent document
   var styles = Array.from(document.querySelectorAll('style')).map(function(s){ return s.outerHTML; }).join('');
@@ -3779,6 +3874,9 @@ function printDoc() {
       }
     });
   });
+
+  // Split page 3 trades into continuation pages if needed
+  splitPage3Trades(wrapClone);
 
   // Collect all <style> tags from parent document
   var styles = Array.from(document.querySelectorAll('style')).map(function(s){ return s.outerHTML; }).join('');
