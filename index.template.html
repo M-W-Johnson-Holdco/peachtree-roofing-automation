@@ -1016,6 +1016,7 @@ let existingTier={};
 let upgradesDiscount=0;
 let ventCounts={ridge:{exist:0,desiredExist:0,desired:0},box:{exist:0,desiredExist:0,desired:0},power:{exist:0,desiredExist:0,desired:0},solar:{exist:0,desiredExist:0,desired:0},turbine:{exist:0,desiredExist:0,desired:0}};
 let bootCount=0;
+let satCount=0;
 
 // AUTH
 function setTab(t){authTab=t;document.getElementById('t-sales').classList.toggle('on',t==='sales');document.getElementById('t-admin').classList.toggle('on',t==='admin');document.getElementById('aerr').textContent='';}
@@ -1050,7 +1051,7 @@ function initCalc(){
   document.getElementById('fc-date').value=new Date().toISOString().slice(0,10);
   MATS.forEach(m=>{matSel[m.key]=0;sliderPct[m.key]=0;existingTier[m.key]=(m.existingOpts&amp;&amp;m.existingOpts[0].val)||'tier1';delete upgradeAmtOverride[m.key];delete lastUpgCost[m.key];});
   ventCounts={ridge:{exist:0,desiredExist:0,desired:0},box:{exist:0,desiredExist:0,desired:0},power:{exist:0,desiredExist:0,desired:0},solar:{exist:0,desiredExist:0,desired:0},turbine:{exist:0,desiredExist:0,desired:0}};
-  bootCount=0;claimMode='full';hoOverride=false;upgradesDiscount=0;
+  bootCount=0;satCount=0;claimMode='full';hoOverride=false;upgradesDiscount=0;
   activeVer=getVer();updateBanner();buildMatUI();calc();
 }
 function onDateChange(){const nv=getVer(document.getElementById('fc-date').value);if(nv.id!==activeVer.id){activeVer=nv;updateBanner();buildMatUI();}calc();}
@@ -1561,7 +1562,7 @@ function saveState(){
   const fields=['fc-wo','fc-notes','fc-date','g-sq','g-rdg','g-hip','g-val','g-rak','g-eav'];
   const fieldVals={};
   fields.forEach(id=>{const el=document.getElementById(id);if(el)fieldVals[id]=el.value;});
-  const state={fieldVals,matSel:Object.assign({},matSel),sliderPct:Object.assign({},sliderPct),existingTier:Object.assign({},existingTier),ventCounts:JSON.parse(JSON.stringify(ventCounts)),bootCount,claimMode,hoOverride,savedAt:new Date().toISOString()};
+  const state={fieldVals,matSel:Object.assign({},matSel),sliderPct:Object.assign({},sliderPct),existingTier:Object.assign({},existingTier),ventCounts:JSON.parse(JSON.stringify(ventCounts)),bootCount,satCount,claimMode,hoOverride,savedAt:new Date().toISOString()};
   try{localStorage.setItem(storageKey(),JSON.stringify(state));}catch(e){}
 }
 function loadState(){
@@ -1574,6 +1575,7 @@ function loadState(){
   if(state.existingTier)Object.assign(existingTier,state.existingTier);
   if(state.ventCounts)ventCounts=state.ventCounts;
   if(typeof state.bootCount==='number')bootCount=state.bootCount;
+  if(typeof state.satCount==='number')satCount=state.satCount;
   if(typeof state.hoOverride==='boolean')hoOverride=state.hoOverride;
   buildMatUI();
   if(state.claimMode){claimMode=state.claimMode;document.getElementById('mode-full').className='mode-btn full '+(state.claimMode==='full'?'on':'off');document.getElementById('mode-dap').className='mode-btn dap '+(state.claimMode==='dap'?'on':'off');}
@@ -1720,6 +1722,7 @@ async function fetchJobData(){
     ventCounts.box.exist=Math.max(0,parseInt(match[7])||0);
     // Pipe boots
     bootCount=Math.max(0,(parseInt(match[8])||0)+(parseInt(match[9])||0)+(parseInt(match[10])||0)+(parseInt(match[11])||0));
+    satCount=Math.max(0,parseInt(match[12])||0);
     // Notes
     const notes=(match[38]||'').trim();
     if(notes)document.getElementById('fc-notes').value=notes;
@@ -6883,8 +6886,16 @@ function woSyncVentFromCalc() {
       var val = vc[pair[1]] && vc[pair[1]].exist;
       if (el && val) { el.value = val; synced++; }
     });
-    if (synced > 0) woStatus('✓ Synced ' + synced + ' vent counts from calculator', true);
-    else woStatus('No non-zero vent counts found in calculator.', false);
+    // Satellite dish count
+    try {
+      var sat = iframe.contentWindow.satCount;
+      if (typeof sat === 'number' && sat > 0) {
+        var satEl = document.getElementById('wo-f42');
+        if (satEl) { satEl.value = sat; synced++; }
+      }
+    } catch(se) {}
+    if (synced > 0) woStatus('✓ Synced ' + synced + ' vent/satellite counts from calculator', true);
+    else woStatus('No non-zero vent/satellite counts found in calculator.', false);
   } catch(e) { woStatus('Sync error: ' + e.message, false); }
 }
 function woLoad() {
