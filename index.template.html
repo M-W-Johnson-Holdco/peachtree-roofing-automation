@@ -6529,6 +6529,9 @@ function woGetAllFields() {
     if (el.tagName === 'SELECT') data[id] = el.value;
     else data[id] = el.value || '';
   });
+  // Capture checkbox (.cb span) states by index
+  var cbEls = document.querySelectorAll('#tab-workorder .wo-frame-wrap .cb');
+  data['_cb_states'] = Array.from(cbEls).map(function(cb) { return cb.classList.contains('checked') ? 1 : 0; });
   // Capture canvas signatures as base64
   WO_SIG_IDS.forEach(function(id) {
     var canvas = document.getElementById(id);
@@ -6569,6 +6572,15 @@ function woSetAllFields(data) {
     img.src = data[key];
   });
   if (data['wo-trades-data']) woDeserializeTrades(data['wo-trades-data']);
+  // Restore checkbox (.cb span) states
+  if (data['_cb_states']) {
+    var cbEls = document.querySelectorAll('#tab-workorder .wo-frame-wrap .cb');
+    cbEls.forEach(function(cb, i) {
+      var on = data['_cb_states'][i];
+      cb.classList.toggle('checked', !!on);
+      cb.textContent = on ? '✓' : '';
+    });
+  }
 }
 
 // ── INSURANCE ESTIMATE TRADES TABLE ──────────────────────────────────────
