@@ -3958,20 +3958,20 @@ var currentUser = "";
 // =====================================================================
 // HARDCODED CREDENTIALS — fill these in when editing in GitHub
 // =====================================================================
-var CRED_RC_CLIENT_ID     = "%%RC_CLIENT_ID%%";
-var CRED_RC_CLIENT_SECRET = "%%RC_CLIENT_SECRET%%";
-var CRED_RC_JWT           = "%%RC_JWT%%";
-var CRED_RC_FROM          = "%%RC_FROM%%";       // e.g. +12145551234
+var CRED_RC_CLIENT_ID     = "";
+var CRED_RC_CLIENT_SECRET = "";
+var CRED_RC_JWT           = "";
+var CRED_RC_FROM          = "";       // e.g. +12145551234
 
-var CRED_GS_CLIENT_ID     = "%%GS_CLIENT_ID%%";
-var CRED_GS_CLIENT_SECRET = "%%GS_CLIENT_SECRET%%";
-var CRED_GS_REFRESH_TOKEN = "%%GS_REFRESH_TOKEN%%";
-var CRED_GS_SHEET_ID      = "%%GS_SHEET_ID%%";
-var CRED_GS_SHEET_NAME    = "%%GS_SHEET_NAME%%";         // e.g. Log 2026
+var CRED_GS_CLIENT_ID     = "";
+var CRED_GS_CLIENT_SECRET = "";
+var CRED_GS_REFRESH_TOKEN = "";
+var CRED_GS_SHEET_ID      = "";
+var CRED_GS_SHEET_NAME    = "";         // e.g. Log 2026
 var CRED_GS_TMPL_TAB      = "ReminderTemplates";
 
-var CRED_AL_API_KEY           = "%%AL_API_KEY%%";
-var CRED_GOOGLE_OAUTH_CLIENT_ID = "%%GOOGLE_OAUTH_CLIENT_ID%%"; // for login
+var CRED_AL_API_KEY           = "";
+var CRED_GOOGLE_OAUTH_CLIENT_ID = ""; // for login
 var CRED_GS_PERMS_TAB         = "UserPermissions"; // sheet tab for user roles
 // =====================================================================
 
@@ -4632,27 +4632,27 @@ setInterval(updateNextRun,60000);
 // =====================================================================
 
 // ---- HARDCODED CREDENTIALS (fill these in GitHub) ----
-var GCAL_CLIENT_ID     = "%%GCAL_CLIENT_ID%%";
-var GCAL_CLIENT_SECRET = "%%GCAL_CLIENT_SECRET%%";
-var GCAL_REFRESH_TOKEN = "%%GCAL_REFRESH_TOKEN%%";
+var GCAL_CLIENT_ID     = "";
+var GCAL_CLIENT_SECRET = "";
+var GCAL_REFRESH_TOKEN = "";
 
 // ---- Per-appointment-type Calendar IDs ----
 // Each appointment type can route to a different Google Calendar.
 // Replace each placeholder with the Calendar ID for that type.
 // If a type isn't listed here it falls back to GCAL_CALENDAR_DEFAULT.
-var GCAL_CALENDAR_DEFAULT = "%%GCAL_CALENDAR_DEFAULT%%";
+var GCAL_CALENDAR_DEFAULT = "";
 var GCAL_CALENDAR_MAP = {
-  "Re-inspection Adjustment":           "%%GCAL_ID_RE_INSPECTION%%",
-  "Insurance Adjustment":               "%%GCAL_ID_INSURANCE_ADJUSTMENT%%",
-  "Interior Only Insurance Adjustment": "%%GCAL_ID_INTERIOR_INS_ADJ%%",
-  "Forensic Inspection":                "%%GCAL_ID_FORENSIC%%",
-  "Engineer Inspection":                "%%GCAL_ID_ENGINEER%%",
-  "On-Roof Inspection":                 "%%GCAL_ID_ON_ROOF%%",
-  "Interior Only Inspection":           "%%GCAL_ID_INTERIOR_INSP%%",
-  "Shingle Pull":                       "%%GCAL_ID_SHINGLE_PULL%%",
-  "Video Repair":                       "%%GCAL_ID_VIDEO_REPAIR%%",
-  "2nd Video Repair":                   "%%GCAL_ID_2ND_VIDEO_REPAIR%%",
-  "Leak Source":                        "%%GCAL_ID_LEAK_SOURCE%%"
+  "Re-inspection Adjustment":           "",
+  "Insurance Adjustment":               "",
+  "Interior Only Insurance Adjustment": "",
+  "Forensic Inspection":                "",
+  "Engineer Inspection":                "",
+  "On-Roof Inspection":                 "",
+  "Interior Only Inspection":           "",
+  "Shingle Pull":                       "",
+  "Video Repair":                       "",
+  "2nd Video Repair":                   "",
+  "Leak Source":                        ""
 };
 
 function getCalendarId(apptType) {
