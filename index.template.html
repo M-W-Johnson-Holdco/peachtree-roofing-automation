@@ -6600,6 +6600,8 @@ function woMakeTradeRow(isMerged) {
   rcvIn.type = "text"; rcvIn.value = "$0.00"; rcvIn.style.cssText = inS;
   rcvIn.className = "wo-trade-field wo-currency"; rcvIn.setAttribute("data-col","rcv");
   rcvIn.addEventListener("input", function() { woRowCalc(this.closest("tr")); woCalcTotals(); });
+  rcvIn.addEventListener("focus", function() { if (this.value === '$0.00' || this.value === '$0') this.value = ''; });
+  rcvIn.addEventListener("blur",  function() { var n = parseFloat(this.value.replace(/[^0-9.-]/g,''))||0; this.value = '$'+n.toFixed(2); woRowCalc(this.closest("tr")); woCalcTotals(); });
   rcvTd.appendChild(rcvIn);
   tr.appendChild(rcvTd);
 
@@ -6610,6 +6612,8 @@ function woMakeTradeRow(isMerged) {
   depIn.type = "text"; depIn.value = "$0.00"; depIn.style.cssText = inS;
   depIn.className = "wo-trade-field wo-currency"; depIn.setAttribute("data-col","dep");
   depIn.addEventListener("input", function() { woRowCalc(this.closest("tr")); woCalcTotals(); });
+  depIn.addEventListener("focus", function() { if (this.value === '$0.00' || this.value === '$0') this.value = ''; });
+  depIn.addEventListener("blur",  function() { var n = parseFloat(this.value.replace(/[^0-9.-]/g,''))||0; this.value = '$'+n.toFixed(2); woRowCalc(this.closest("tr")); woCalcTotals(); });
   depTd.appendChild(depIn);
   tr.appendChild(depTd);
 
@@ -6694,9 +6698,12 @@ function woAddTradeRow() {
 function woCalcTotals() {
   var rcv = 0, dep = 0, acv = 0;
   document.querySelectorAll('#wo-trades-tbody tr').forEach(function(tr) {
-    rcv += parseFloat((tr.querySelector('[data-col="rcv"]')||{}).value||'0') || 0;
-    dep += parseFloat((tr.querySelector('[data-col="dep"]')||{}).value||'0') || 0;
-    acv += parseFloat((tr.querySelector('[data-col="acv"]')||{}).value||'0') || 0;
+    var rv = (tr.querySelector('[data-col="rcv"]')||{}).value||'0';
+    var dv = (tr.querySelector('[data-col="dep"]')||{}).value||'0';
+    var av = (tr.querySelector('[data-col="acv"]')||{}).value||'0';
+    rcv += parseFloat(rv.replace(/[^0-9.-]/g,'')) || 0;
+    dep += parseFloat(dv.replace(/[^0-9.-]/g,'')) || 0;
+    acv += parseFloat(av.replace(/[^0-9.-]/g,'')) || 0;
   });
   var fmt = function(n) { return '$' + n.toFixed(2); };
   var r = document.getElementById('wo-rcv-total'); if (r) r.textContent = fmt(rcv);
