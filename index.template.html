@@ -1163,6 +1163,27 @@ function goldenEligibility(){
   return issues;
 }
 
+// President's Club eligibility check
+// Shingle: UHDZ (3), Camelot II (4), or Slateline (5)
+// Ridgecap: Timbertex (2)
+// Starter: Weatherblocker (1)
+// Underlayment: Deck-Armour (3) or Tiger Paw (2)
+// Valley: Weatherwatch (1) or Stormguard (2)
+function presidentsClubEligibility(){
+  const shingleIdx = matSel['shingle']||0;
+  const ridgeIdx   = matSel['ridge']||0;
+  const starterIdx = matSel['starter']||0;
+  const underIdx   = matSel['under']||0;
+  const valleyIdx  = matSel['valley']||0;
+  const issues=[];
+  if(shingleIdx!==3&&shingleIdx!==4&&shingleIdx!==5) issues.push('Shingle must be GAF UHDZ, Camelot II, or Slateline');
+  if(ridgeIdx!==2) issues.push('Ridge cap must be GAF Timbertex');
+  if(starterIdx!==1) issues.push('Starter must be GAF Weatherblocker');
+  if(underIdx!==2&&underIdx!==3) issues.push('Underlayment must be GAF Deck-Armour or Tiger Paw');
+  if(valleyIdx!==1&&valleyIdx!==2) issues.push('Valley must be GAF Weatherwatch or Stormguard');
+  return issues;
+}
+
 // MARGIN SLIDER SECTION
 // 0% = charge our cost (zero margin), 100% = charge 2× our cost (100% markup)
 // Charge = ourCost + (pct/100) * ourCost = ourCost * (1 + pct/100)
@@ -1436,7 +1457,7 @@ function calc(){try{
       if(eligEl){
         const isUpgradeWarr=selIdx===1||selIdx===2||selIdx===3;
         if(isUpgradeWarr){
-          const issues=goldenEligibility();
+          const issues=selIdx===3?presidentsClubEligibility():goldenEligibility();
           if(issues.length>0){eligEl.style.display='block';eligEl.style.background='var(--red-bg)';eligEl.style.borderColor='var(--red-bdr)';eligEl.style.color='var(--red)';eligEl.innerHTML='⚠️ <strong>Warranty requirements not met:</strong><br>'+issues.map(i=>'• '+i).join('<br>');}
           else{eligEl.style.display='block';eligEl.style.background='var(--green-bg)';eligEl.style.borderColor='var(--green-bdr)';eligEl.style.color='var(--green)';eligEl.innerHTML='✅ All warranty requirements met';}
         } else {eligEl.style.display='none';}
@@ -3309,12 +3330,27 @@ function isGAF(selectId) {
   if (!el || !el.value) return false;
   return el.value.toLowerCase().indexOf('gaf') === 0;
 }
+function isPresidentsClubMet() {
+  var shingle = (document.getElementById('shingle-type')||{}).value||'';
+  var ridge   = (document.getElementById('ridgecap-type')||{}).value||'';
+  var starter = (document.getElementById('starter-type')||{}).value||'';
+  var under   = (document.getElementById('underlayment-type')||{}).value||'';
+  var valley  = (document.getElementById('valley-type')||{}).value||'';
+  return (shingle==='GAF UHDZ'||shingle==='GAF Camelot II'||shingle==='GAF Slateline') &&
+         ridge==='GAF Timbertex' &&
+         starter==='GAF Weatherblocker' &&
+         (under==='GAF Deck-Armour'||under==='GAF Tiger Paw') &&
+         (valley==='GAF Weatherwatch'||valley==='GAF Stormguard');
+}
 function checkWarrantyEligibility() {
   var warrantySel = document.getElementById('warranty-sel');
   if (!warrantySel) return;
   var warning = document.getElementById('warranty-warning');
   var current = warrantySel.value;
-  if (current === 'GAF Silver Pledge' || current === 'GAF Golden Pledge' || current === "GAF President's Club") {
+  if (current === "GAF President's Club") {
+    if (!isPresidentsClubMet() && warning) warning.style.display = 'inline';
+    else if (warning) warning.style.display = 'none';
+  } else if (current === 'GAF Silver Pledge' || current === 'GAF Golden Pledge') {
     var allGAF = isGAF('shingle-type') && isGAF('ridgecap-type') &&
                  isGAF('starter-type') && isGAF('underlayment-type') && isGAF('valley-type');
     if (!allGAF && warning) warning.style.display = 'inline';
@@ -3325,7 +3361,13 @@ function checkWarrantyEligibility() {
 }
 function validateWarrantySelection(sel) {
   var warning = document.getElementById('warranty-warning');
-  if (sel.value === 'GAF Silver Pledge' || sel.value === 'GAF Golden Pledge' || sel.value === "GAF President's Club") {
+  if (sel.value === "GAF President's Club") {
+    if (!isPresidentsClubMet()) {
+      if (warning) warning.style.display = 'inline';
+      sel.value = '';
+      return;
+    }
+  } else if (sel.value === 'GAF Silver Pledge' || sel.value === 'GAF Golden Pledge') {
     var allGAF = isGAF('shingle-type') && isGAF('ridgecap-type') &&
                  isGAF('starter-type') && isGAF('underlayment-type') && isGAF('valley-type');
     if (!allGAF) {
@@ -3772,12 +3814,27 @@ function isGAF(selectId) {
   if (!el || !el.value) return false;
   return el.value.toLowerCase().indexOf('gaf') === 0;
 }
+function isPresidentsClubMet() {
+  var shingle = (document.getElementById('shingle-type')||{}).value||'';
+  var ridge   = (document.getElementById('ridgecap-type')||{}).value||'';
+  var starter = (document.getElementById('starter-type')||{}).value||'';
+  var under   = (document.getElementById('underlayment-type')||{}).value||'';
+  var valley  = (document.getElementById('valley-type')||{}).value||'';
+  return (shingle==='GAF UHDZ'||shingle==='GAF Camelot II'||shingle==='GAF Slateline') &&
+         ridge==='GAF Timbertex' &&
+         starter==='GAF Weatherblocker' &&
+         (under==='GAF Deck-Armour'||under==='GAF Tiger Paw') &&
+         (valley==='GAF Weatherwatch'||valley==='GAF Stormguard');
+}
 function checkWarrantyEligibility() {
   var warrantySel = document.getElementById('warranty-sel');
   if (!warrantySel) return;
   var warning = document.getElementById('warranty-warning');
   var current = warrantySel.value;
-  if (current === 'GAF Silver Pledge' || current === 'GAF Golden Pledge' || current === "GAF President's Club") {
+  if (current === "GAF President's Club") {
+    if (!isPresidentsClubMet() && warning) warning.style.display = 'inline';
+    else if (warning) warning.style.display = 'none';
+  } else if (current === 'GAF Silver Pledge' || current === 'GAF Golden Pledge') {
     var allGAF = isGAF('shingle-type') && isGAF('ridgecap-type') &&
                  isGAF('starter-type') && isGAF('underlayment-type') && isGAF('valley-type');
     if (!allGAF && warning) warning.style.display = 'inline';
@@ -3788,7 +3845,13 @@ function checkWarrantyEligibility() {
 }
 function validateWarrantySelection(sel) {
   var warning = document.getElementById('warranty-warning');
-  if (sel.value === 'GAF Silver Pledge' || sel.value === 'GAF Golden Pledge' || sel.value === "GAF President's Club") {
+  if (sel.value === "GAF President's Club") {
+    if (!isPresidentsClubMet()) {
+      if (warning) warning.style.display = 'inline';
+      sel.value = '';
+      return;
+    }
+  } else if (sel.value === 'GAF Silver Pledge' || sel.value === 'GAF Golden Pledge') {
     var allGAF = isGAF('shingle-type') && isGAF('ridgecap-type') &&
                  isGAF('starter-type') && isGAF('underlayment-type') && isGAF('valley-type');
     if (!allGAF) {
