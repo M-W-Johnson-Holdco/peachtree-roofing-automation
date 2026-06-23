@@ -184,7 +184,7 @@
         <button class="btn btn-secondary" id="clear-log-btn">Clear Log</button>
       </div>
       <br>
-      <div class="schedule-indicator">Texting window: 8:00 AM to 8:00 PM CST &nbsp;|&nbsp; Next 8am: <span class="next-run" id="next-run-time">--</span></div>
+      <div class="schedule-indicator">Texting window: 8:00 AM to 8:00 PM EST &nbsp;|&nbsp; Next 8am: <span class="next-run" id="next-run-time">--</span></div>
     </div>
     <div class="card">
       <h2>Live Log</h2>
@@ -4313,9 +4313,9 @@ var TEMPLATES = [
 function pd(v){if(!v||!v.trim())return null;var d=new Date(v);return isNaN(d.getTime())?null:d;}
 function sd(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
 function wc(t,today,days){var a=new Date(t);a.setHours(0,0,0,0);var b=new Date(today);b.setHours(0,0,0,0);var diff=Math.floor((b-a)/86400000);return diff>=0&&diff<=days;}
-function getCSTHour(){var c=new Date(new Date().toLocaleString("en-US",{timeZone:"America/Chicago"}));return c.getHours()+c.getMinutes()/60;}
+function getCSTHour(){var c=new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"}));return c.getHours()+c.getMinutes()/60;}
 function isWithinTextingHours(){var h=getCSTHour();return h>=8&&h<20;}
-function getTodayCST(){return new Date(new Date().toLocaleString("en-US",{timeZone:"America/Chicago"}));}
+function getTodayCST(){return new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"}));}
 function toE164(p){if(!p)return null;var d=p.replace(/\D/g,"");if(d.length===10)return"+1"+d;if(d.length===11&&d[0]==="1")return"+"+d;return null;}
 function extractGuid(url){if(!url)return null;var m=url.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);return m?m[0]:null;}
 
@@ -4519,7 +4519,7 @@ function setWebhookStatus(msg,color){var el=document.getElementById("webhook-sta
 var stats={sent:0,skipped:0,errors:0,jobs:0};
 
 function runAutomation(){
-  if(!isWithinTextingHours()){addLog("warn","Outside 8am-8pm CST. Hour: "+getCSTHour().toFixed(1));return;}
+  if(!isWithinTextingHours()){addLog("warn","Outside 8am-8pm EST. Hour: "+getCSTHour().toFixed(1));return;}
   var csv=document.getElementById("csv-input").value.trim();
   if(!csv){addLog("error","No CSV pasted.");return;}
   var btn=document.getElementById("run-btn");btn.disabled=true;
@@ -4628,7 +4628,7 @@ function updateWeatherPreview(){
   var c=document.getElementById("weather-count");if(c)c.textContent=nums.length>0?nums.length+" valid numbers detected":"";
 }
 function sendWeatherBlast(){
-  if(!isWithinTextingHours()){addWeatherLog("warn","Outside 8am-8pm CST");return;}
+  if(!isWithinTextingHours()){addWeatherLog("warn","Outside 8am-8pm EST");return;}
   var nums=parseWeatherNums(document.getElementById("weather-numbers").value||"");
   if(!nums.length){addWeatherLog("error","No valid numbers.");return;}
   var weatherMsg=document.getElementById("weather-msg-edit").value||getWeatherMessage();
@@ -4656,7 +4656,7 @@ function addLog(type,msg){
 }
 function setStatus(state,text){var bar=document.getElementById("status-bar");var dot=document.getElementById("status-dot");var txt=document.getElementById("status-text");if(bar)bar.className="status-bar "+state;if(dot)dot.className="dot"+(state==="running"?" pulse":"");if(txt)txt.textContent=text;}
 function updateStats(){document.getElementById("stat-sent").textContent=stats.sent;document.getElementById("stat-skipped").textContent=stats.skipped;document.getElementById("stat-errors").textContent=stats.errors;document.getElementById("stat-jobs").textContent=stats.jobs;}
-function updateNextRun(){var cst=new Date(new Date().toLocaleString("en-US",{timeZone:"America/Chicago"}));var next=new Date(cst);next.setHours(8,5,0,0);if(cst>=next)next.setDate(next.getDate()+1);var diff=next-cst,h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000);var el=document.getElementById("next-run-time");if(el)el.textContent="in "+h+"h "+m+"m";}
+function updateNextRun(){var cst=new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"}));var next=new Date(cst);next.setHours(8,5,0,0);if(cst>=next)next.setDate(next.getDate()+1);var diff=next-cst,h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000);var el=document.getElementById("next-run-time");if(el)el.textContent="in "+h+"h "+m+"m";}
 
 document.addEventListener("click",function(e){
   var t=e.target;
@@ -5006,7 +5006,7 @@ function formatTimeNice(t) {
   var h = parseInt(parts[0]), m = parseInt(parts[1]);
   var ampm = h >= 12 ? "PM" : "AM";
   h = h % 12 || 12;
-  return h + ":" + (m < 10 ? "0" + m : m) + " " + ampm + " CST";
+  return h + ":" + (m < 10 ? "0" + m : m) + " " + ampm + " EST";
 }
 
 // -- Time Window Helper --
@@ -5223,7 +5223,7 @@ function apptWindowLabel(prefix, key) {
 
   function fmtTime(dtStr) {
     if (!dtStr) return '';
-    return new Date(dtStr).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' });
+    return new Date(dtStr).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/New_York' });
   }
 
   function buildByDay(events) {
@@ -5341,8 +5341,8 @@ function apptWindowLabel(prefix, key) {
     if (statusEl) statusEl.textContent = 'Loading…';
     if (gridEl)   gridEl.innerHTML = '';
 
-    var timeMin = cachedMonday.toISOString().slice(0,10) + 'T00:00:00-06:00';
-    var timeMax = saturday.toISOString().slice(0,10) + 'T23:59:59-06:00';
+    var timeMin = cachedMonday.toISOString().slice(0,10) + 'T00:00:00-05:00';
+    var timeMax = saturday.toISOString().slice(0,10) + 'T23:59:59-05:00';
 
     getGCalToken().then(function(tok) {
       var calIds = typeof getAllCalendarIds === 'function' ? getAllCalendarIds() : [];
@@ -5444,8 +5444,8 @@ function createCalendarEvent(jobKey, isReschedule, oldEventId) {
     summary: title,
     description: calEvBody,
     location: location,
-    start: { dateTime: startDt, timeZone: "America/Chicago" },
-    end: { dateTime: endDt, timeZone: "America/Chicago" }
+    start: { dateTime: startDt, timeZone: "America/New_York" },
+    end: { dateTime: endDt, timeZone: "America/New_York" }
   };
   if (attendees.length) {
     eventBody.attendees = attendees;
@@ -5605,17 +5605,17 @@ function loadExistingEventsForJob(jobKey, name) {
       var start = ev.start && ev.start.dateTime ? new Date(ev.start.dateTime) : null;
       var end   = ev.end   && ev.end.dateTime   ? new Date(ev.end.dateTime)   : null;
       var timeStr = start ? start.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}) + " " +
-        start.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/Chicago"}) +
-        " – " + (end ? end.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/Chicago"}) : "") + " CST" : "All day";
+        start.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"}) +
+        " – " + (end ? end.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"}) : "") + " EST" : "All day";
 
       // Pre-fill values from original event
       var origType = "";
       for (var ai = 0; ai < APPT_TYPES.length; ai++) {
         if ((ev.summary||"").indexOf(APPT_TYPES[ai]) > -1) { origType = APPT_TYPES[ai]; break; }
       }
-      var origDate  = start ? start.toLocaleDateString("en-CA",{timeZone:"America/Chicago"}) : ""; // YYYY-MM-DD
-      var origStart = start ? start.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",timeZone:"America/Chicago"}) : "";
-      var origEnd   = end   ? end.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",timeZone:"America/Chicago"})   : "";
+      var origDate  = start ? start.toLocaleDateString("en-CA",{timeZone:"America/New_York"}) : ""; // YYYY-MM-DD
+      var origStart = start ? start.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",timeZone:"America/New_York"}) : "";
+      var origEnd   = end   ? end.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",timeZone:"America/New_York"})   : "";
       var origLocation = ev.location || "";
       var origNotes = ev.description ? ev.description.split("\n")[0] : "";
       var origEmails = ev.attendees ? ev.attendees.map(function(a){ return a.email; }).join(", ") : "";
@@ -6072,8 +6072,8 @@ function runBulkSchedule() {
       summary: item.type + " — " + ctx.name + " (Job " + ctx.jobKey + ")",
       description: bulkCalEvBody,
       location: item.location || "",
-      start: { dateTime: item.date + "T" + item.start + ":00", timeZone: "America/Chicago" },
-      end:   { dateTime: item.date + "T" + item.end   + ":00", timeZone: "America/Chicago" }
+      start: { dateTime: item.date + "T" + item.start + ":00", timeZone: "America/New_York" },
+      end:   { dateTime: item.date + "T" + item.end   + ":00", timeZone: "America/New_York" }
     };
     var bulkAttendees = (item.emailsRaw||"").split(",").map(function(e){ return e.trim(); })
       .filter(function(e){ return e.indexOf("@") > -1; })
@@ -6401,7 +6401,7 @@ function renderAllEvents() {
   var order  = [];
   items.forEach(function(ev){
     var dt = ev.start && ev.start.dateTime ? new Date(ev.start.dateTime) : null;
-    var dateKey = dt ? dt.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric",timeZone:"America/Chicago"}) : "All Day";
+    var dateKey = dt ? dt.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric",timeZone:"America/New_York"}) : "All Day";
     if (!groups[dateKey]) { groups[dateKey] = []; order.push(dateKey); }
     groups[dateKey].push(ev);
   });
@@ -6412,8 +6412,8 @@ function renderAllEvents() {
       var start = ev.start && ev.start.dateTime ? new Date(ev.start.dateTime) : null;
       var end   = ev.end   && ev.end.dateTime   ? new Date(ev.end.dateTime)   : null;
       var timeStr = start
-        ? start.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/Chicago"}) +
-          (end ? " – " + end.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/Chicago"}) : "") + " CST"
+        ? start.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"}) +
+          (end ? " – " + end.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"}) : "") + " EST"
         : "All day";
 
       // Extract appointment type from summary (format: "Type — Name (Job X)")
@@ -6429,9 +6429,9 @@ function renderAllEvents() {
       var attendeeCount = ev.attendees ? ev.attendees.length : 0;
 
       // Pre-fill values from original event
-      var origDate  = start ? start.toLocaleDateString("en-CA",{timeZone:"America/Chicago"}) : "";
-      var origStart = start ? start.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",timeZone:"America/Chicago"}) : "";
-      var origEnd   = end   ? end.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",timeZone:"America/Chicago"})   : "";
+      var origDate  = start ? start.toLocaleDateString("en-CA",{timeZone:"America/New_York"}) : "";
+      var origStart = start ? start.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",timeZone:"America/New_York"}) : "";
+      var origEnd   = end   ? end.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",timeZone:"America/New_York"})   : "";
 
       return '<div class="cal-event-row" id="all-ev-row-' + ev.id + '">' +
         '<div class="ev-info" style="flex:1;">' +
@@ -6580,8 +6580,8 @@ document.addEventListener("click", function(e){
       summary: newTitle,
       description: calEvBody2,
       location: newLocation,
-      start: { dateTime: startDt, timeZone: "America/Chicago" },
-      end:   { dateTime: endDt,   timeZone: "America/Chicago" }
+      start: { dateTime: startDt, timeZone: "America/New_York" },
+      end:   { dateTime: endDt,   timeZone: "America/New_York" }
     };
     if (attendees2.length) { newEventBody.attendees = attendees2; newEventBody.sendUpdates = "all"; }
 
@@ -6873,7 +6873,7 @@ function markReminderSent(evId, date) {
 (function(){
   var inp = document.getElementById("reminder-date");
   if (!inp) return;
-  var cst = new Date(new Date().toLocaleString("en-US",{timeZone:"America/Chicago"}));
+  var cst = new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"}));
   cst.setDate(cst.getDate() + 1);
   inp.value = cst.toLocaleDateString("en-CA"); // YYYY-MM-DD
 })();
@@ -6944,7 +6944,7 @@ function runReminderCheck(previewOnly) {
         var custMatch = (ev.summary||"").match(/—\s*(.+?)\s*\(Job\s*([^)]+)\)/);
         var custName = custMatch ? custMatch[1] : (ev.summary||"");
         var start = ev.start&&ev.start.dateTime ? new Date(ev.start.dateTime) : null;
-        var timeStr = start ? start.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/Chicago"}) + " CST" : "";
+        var timeStr = start ? start.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"}) + " EST" : "";
         var previewMsg = buildReminderSms(apptType, custName.split(" ")[0], formatDateNice(dateVal), timeStr, "", "", "");
         return '<div class="bulk-job-row ' + (alreadySent?"notfound":"found") + '" style="margin-bottom:8px;">' +
           '<div class="bjr-header">' +
@@ -6995,7 +6995,7 @@ function runReminderCheck(previewOnly) {
         var custName = custMatch ? custMatch[1].trim() : "";
 
         var start = ev.start&&ev.start.dateTime ? new Date(ev.start.dateTime) : null;
-        var timeStr = start ? start.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/Chicago"}) + " CST" : "";
+        var timeStr = start ? start.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"}) + " EST" : "";
 
         // Try to find job in sheet for full context (phone, salesperson etc)
         var entries = jobKey ? findEntriesForKey(allRows, jobKey) : [];
