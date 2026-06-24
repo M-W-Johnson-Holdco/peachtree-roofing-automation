@@ -5569,7 +5569,7 @@ function createCalendarEvent(jobKey, isReschedule, oldEventId) {
 
         // Log to AccuLynx
         var existingLog = ctx.logEntries || [];
-        return logToAccuLynx(ctx.jobKey, smsMsg, "", "", existingLog).then(function(alRes){
+        return logToAccuLynx(ctx.jobKey, smsMsg, ctx.jobGuid || "", "", existingLog).then(function(alRes){
           schedLog("success", "AccuLynx updated — MsgID: " + (alRes.messageId || "n/a"));
         }).catch(function(e){
           schedLog("warn", "AccuLynx log failed: " + e.message);
@@ -6180,7 +6180,7 @@ function runBulkSchedule() {
       return sendSMS(recips, smsMsg).then(function(d){
         var convId = (d&&d.conversation&&d.conversation.id)||"";
         schedLog("success","SMS sent — "+ctx.name);
-        return logToAccuLynx(ctx.jobKey,smsMsg,"","",ctx.logEntries||[])
+        return logToAccuLynx(ctx.jobKey,smsMsg,ctx.jobGuid||"","",ctx.logEntries||[])
           .catch(function(e){ schedLog("warn","AccuLynx failed "+ctx.jobKey+": "+e.message); return{}; })
           .then(function(){
             return appendSheetLog({
