@@ -4500,9 +4500,11 @@ function sendMMS(to,img){
 function logToAccuLynx(jobKey,msg,jobNumUrl,jobNameUrl,existingLog){
   var key=CRED_AL_API_KEY;
   var guid=extractGuid(jobNumUrl)||extractGuid(jobNameUrl);
+  // Fall back to scanning existing log entries for a stored GUID
+  if(!guid&&existingLog){for(var ei=0;ei<existingLog.length;ei++){var eg=extractGuid(existingLog[ei].jobGuid||"");if(eg){guid=eg;break;}}}
   if(!guid){addLog("warn","No GUID found for Job "+jobKey+" — skipping AccuLynx log");return Promise.resolve({guid:"",messageId:""});}
   var threadMessageId="";var threadGuid="";
-  var jobGuidForThread=extractGuid(jobNumUrl)||extractGuid(jobNameUrl);
+  var jobGuidForThread=guid;
   for(var i=0;i<existingLog.length;i++){
     var entry=existingLog[i];
     if(entry.messageId){
