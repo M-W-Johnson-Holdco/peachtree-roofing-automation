@@ -5075,6 +5075,16 @@ function apptWindowLabel(prefix, key) {
 
 
 // -- Week Calendar Preview --
+var ATTENDEE_MAP = {
+  'r.orellana@peachtreeroof.com':'Rony','irbin@peachtreeroof.com':'Irbin',
+  'j.vega@peachtreeroof.com':'Vega','w.gray@peachtreeroof.com':'Wes',
+  'jonah@peachtreeroof.com':'Jonah','adrian@peachtreeroof.com':'Adrian',
+  'walter@peachtreeroof.com':'Wally',
+  'r.orellana@peachtreerestorations.com':'Rony','irbin@peachtreerestorations.com':'Irbin',
+  'j.vega@peachtreerestorations.com':'Vega','w.gray@peachtreerestorations.com':'Wes',
+  'jonah@peachtreerestorations.com':'Jonah','adrian@peachtreerestorations.com':'Adrian',
+  'walter@peachtreerestorations.com':'Wally'
+};
 function isPto(summary) {
   return (summary || '').toUpperCase().indexOf('PTO') > -1;
 }
@@ -5288,9 +5298,22 @@ function isInTheField(summary) {
               return fmtTime(evStart);
             })();
             var label = (ev.summary || 'Event').replace(/\s*\(Job[^)]*\)/,'');
+            var attendeeChips = (function() {
+              var seen = {}, names = [];
+              ((ev.attendees)||[]).forEach(function(a) {
+                var n = ATTENDEE_MAP[(a.email||'').toLowerCase()];
+                if (n && !seen[n]) { seen[n] = true; names.push(n); }
+              });
+              if (!names.length) return '';
+              return '<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px;pointer-events:none;">' +
+                names.map(function(n){
+                  return '<span style="background:rgba(74,144,217,0.2);color:#4A90D9;font-size:0.6rem;padding:1px 5px;border-radius:8px;font-weight:700;letter-spacing:0.02em;">' + n + '</span>';
+                }).join('') + '</div>';
+            })();
             return '<div data-wcpop-id="' + (ev.id||'').replace(/"/g,'') + '" style="background:' + color + '22;border-left:3px solid ' + color + ';border-radius:4px;padding:3px 5px;margin-bottom:4px;font-size:0.7rem;line-height:1.3;overflow:hidden;cursor:pointer;">' +
               (timeLabel ? '<div style="font-weight:700;color:' + color + ';pointer-events:none;">' + timeLabel + '</div>' : '') +
               '<div style="color:var(--txt);word-break:break-word;pointer-events:none;" title="' + (ev.summary||'').replace(/"/g,'&quot;') + '">' + label + '</div>' +
+              attendeeChips +
             '</div>';
           }).join('')
         : '<div style="font-size:0.72rem;color:var(--txt3);text-align:center;padding:8px 0;">—</div>';
