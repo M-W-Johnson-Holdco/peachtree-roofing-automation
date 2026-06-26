@@ -117,6 +117,48 @@
   .cal-var-chip{background:#1a2a3f;color:#4A90D9;font-size:0.7rem;padding:3px 8px;border-radius:10px;cursor:pointer;border:1px solid #4A90D9;font-family:monospace}
   .cal-var-chip:hover{background:#4A90D9;color:#fff}
 
+  /* Scheduler — mobile responsive */
+  @media (max-width: 640px) {
+    /* Search row: stack vertically */
+    .sched-search-row { flex-direction: column; align-items: stretch; }
+    .sched-search-row input, .sched-search-row button { width: 100% !important; }
+    /* Cal form: single column */
+    .grid3 { grid-template-columns: 1fr !important; }
+    /* Cal event rows: stack info + actions */
+    .cal-event-row { flex-direction: column; align-items: stretch; }
+    .cal-event-row .ev-actions { justify-content: flex-start; flex-wrap: wrap; }
+    .cal-event-row .ev-title { white-space: normal; }
+    /* All-events filter row: stack */
+    #tab-scheduler .card > div[style*="display:flex"][style*="gap:10px"] { flex-direction: column; align-items: stretch !important; }
+    #all-events-from, #all-events-to { width: 100% !important; }
+    /* Reminder section: stack */
+    #tab-scheduler .card #reminder-date { width: 100% !important; }
+    /* Bulk scheduler fields: 2-col grid */
+    .bulk-job-row .bjr-fields { grid-template-columns: 1fr 1fr !important; }
+    .bulk-job-row .bjr-fields > :first-child { grid-column: 1 / -1; } /* appt type spans full width */
+    /* Bulk copy bar: stack */
+    .bulk-copy-bar { flex-direction: column; align-items: stretch; }
+    .bulk-copy-bar select, .bulk-copy-bar input { width: 100% !important; }
+    /* Buttons full-width where grouped */
+    .btn-row { flex-direction: column; align-items: stretch; }
+    .btn-row .btn { width: 100%; text-align: center; }
+    /* Week calendar: smaller, scrollable */
+    #week-cal-card > div:first-child { flex-direction: column; align-items: stretch; }
+    #week-cal-card > div:first-child > div { flex-direction: row; flex-wrap: wrap; }
+    /* Appt type select full-width */
+    .appt-type-select { font-size: 1rem; padding: 11px 12px; }
+    /* Larger touch targets for inputs */
+    #tab-scheduler input[type=date],
+    #tab-scheduler input[type=time],
+    #tab-scheduler input[type=text] { font-size: 1rem; padding: 11px 12px; }
+    #tab-scheduler select { font-size: 1rem; padding: 11px 12px; }
+    /* Job result card meta: single column */
+    .job-result-card .meta { flex-direction: column; gap: 4px; }
+    /* Bigger buttons for thumbs */
+    #tab-scheduler .btn { min-height: 44px; font-size: 0.95rem; }
+    #tab-scheduler .btn-sm { min-height: 38px; font-size: 0.85rem; }
+  }
+
   #tab-workorder .wo-frame-wrap input, #tab-workorder .wo-frame-wrap textarea, #tab-workorder .wo-frame-wrap select { color: #000 !important; background: #fff !important; border-color: #000 !important; }
   #comm-app-wrapper input, #comm-app-wrapper textarea, #comm-app-wrapper select { all: revert; }
 
