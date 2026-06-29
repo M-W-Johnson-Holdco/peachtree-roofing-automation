@@ -1578,6 +1578,7 @@ function calc(){try{
 
   // VENTILATION — upgrade cost: Existing, Desired Existing, Desired New columns
   let ventUpgradeCost=0;
+  const ventTypeCosts={};
   const ventM=MATS.find(m=>m.key==='vent');
   ['ridge','box','power','solar','turbine'].forEach((k,i)=>{
     const opt=ventM.opts[i];
@@ -1602,6 +1603,7 @@ function calc(){try{
     if(desiredNew>0&&(k==='power'||k==='solar')){
       cost+=desiredNew*50;
     }
+    ventTypeCosts[k]=cost;
     ventUpgradeCost+=cost;
   });
   ventUpgradeCost=Math.max(0,ventUpgradeCost);
@@ -1616,7 +1618,7 @@ function calc(){try{
     finalVentComm=finalVentHO-ventUpgradeCost;
   }
   totHOCharge+=finalVentHO;totComm+=finalVentComm;
-  lastCalcData['vent']={hoCharge:finalVentHO};
+  lastCalcData['vent']={hoCharge:finalVentHO,upgCost:ventUpgradeCost,perType:ventTypeCosts};
   showSliderResult('vent',ventUpgradeCost,ventPct);
   totUpgradeCost+=ventUpgradeCost;
 
@@ -7882,11 +7884,28 @@ window.receiveCalcData = function(d) {
         solar:   {e:'wo-f25', de:'wo-vent-de-solar',    dn:'wo-f26'},
         turbine: {e:'wo-f27', de:'wo-vent-de-turbine',  dn:'wo-f28'},
       };
+      var ventEntry = d.vent || {};
+      var ventUpg = ventEntry.upgCost || 0;
+      var ventHO  = ventEntry.hoCharge || 0;
+      var ratio   = ventUpg > 0 ? ventHO / ventUpg : (ventHO > 0 ? 1 : 0);
+      var perType = ventEntry.perType || {};
+      var ventCostMap = {ridge:'wo-f29', box:'wo-f30', power:'wo-f32', solar:'wo-f33', turbine:'wo-f34'};
       Object.keys(vm).forEach(function(k) {
         var f = vm[k], c = vc[k]; if (!c) return;
         function sv(id,val){var el=document.getElementById(id);if(el&&val){el.value=val;}}
         sv(f.e, c.exist); sv(f.de, c.desiredExist); sv(f.dn, c.desired);
+        var typeCost = perType[k] || 0;
+        if (typeCost > 0 && ventCostMap[k]) {
+          var typeHO = ventUpg > 0 ? typeCost * ratio : 0;
+          sv(ventCostMap[k], typeHO.toFixed(2));
+          var upgEl = document.getElementById(ventCostMap[k]);
+          if (upgEl) upgEl.dispatchEvent(new Event('input'));
+        }
       });
+      if (ventUpg === 0 && ventHO > 0) {
+        var el = document.getElementById('wo-f29');
+        if (el) { el.value = ventHO.toFixed(2); el.dispatchEvent(new Event('input')); }
+      }
     }
   }
   function switchToWO() {
