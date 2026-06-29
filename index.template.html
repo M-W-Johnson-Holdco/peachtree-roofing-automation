@@ -1230,8 +1230,8 @@ function goldenEligibility(){
   const issues=[];
   if(shingleIdx<2||shingleIdx>5) issues.push('Shingle must be GAF HDZ or better (not Royal Sovereign, Natural Shadow, or CertainTeed)');
   if(underIdx!==1&&underIdx!==2) issues.push('Underlayment must be GAF Feltbuster or Tiger Paw');
-  // Golden Pledge: requires GAF Stormguard (2) only
-  if(valleyIdx!==2) issues.push('Valley must be GAF Stormguard for Golden Pledge');
+  // Golden Pledge: GAF Weatherwatch (1) or GAF Stormguard (2)
+  if(valleyIdx!==1&&valleyIdx!==2) issues.push('Valley must be GAF Weatherwatch or GAF Stormguard for Golden Pledge');
   return issues;
 }
 
@@ -3435,7 +3435,7 @@ function checkWarrantyEligibility() {
     else if (warning) warning.style.display = 'none';
   } else if (current === 'GAF Golden Pledge') {
     var coreGAF = isGAF('shingle-type') && isGAF('ridgecap-type') && isGAF('starter-type') && isGAF('underlayment-type');
-    var validValley = (valley === 'GAF Stormguard');
+    var validValley = (valley === 'GAF Weatherwatch' || valley === 'GAF Stormguard');
     if ((!coreGAF || !validValley) && warning) warning.style.display = 'inline';
     else if (warning) warning.style.display = 'none';
   } else if (current === 'GAF Silver Pledge') {
@@ -3458,7 +3458,7 @@ function validateWarrantySelection(sel) {
     }
   } else if (sel.value === 'GAF Golden Pledge') {
     var coreGAF = isGAF('shingle-type') && isGAF('ridgecap-type') && isGAF('starter-type') && isGAF('underlayment-type');
-    var validValley = (valley === 'GAF Stormguard');
+    var validValley = (valley === 'GAF Weatherwatch' || valley === 'GAF Stormguard');
     if (!coreGAF || !validValley) {
       if (warning) { warning.style.display = 'inline'; }
       sel.value = '';
@@ -3934,7 +3934,7 @@ function checkWarrantyEligibility() {
     else if (warning) warning.style.display = 'none';
   } else if (current === 'GAF Golden Pledge') {
     var coreGAF = isGAF('shingle-type') && isGAF('ridgecap-type') && isGAF('starter-type') && isGAF('underlayment-type');
-    var validValley = (valley === 'GAF Stormguard');
+    var validValley = (valley === 'GAF Weatherwatch' || valley === 'GAF Stormguard');
     if ((!coreGAF || !validValley) && warning) warning.style.display = 'inline';
     else if (warning) warning.style.display = 'none';
   } else if (current === 'GAF Silver Pledge') {
@@ -3957,7 +3957,7 @@ function validateWarrantySelection(sel) {
     }
   } else if (sel.value === 'GAF Golden Pledge') {
     var coreGAF = isGAF('shingle-type') && isGAF('ridgecap-type') && isGAF('starter-type') && isGAF('underlayment-type');
-    var validValley = (valley === 'GAF Stormguard');
+    var validValley = (valley === 'GAF Weatherwatch' || valley === 'GAF Stormguard');
     if (!coreGAF || !validValley) {
       if (warning) { warning.style.display = 'inline'; }
       sel.value = '';
