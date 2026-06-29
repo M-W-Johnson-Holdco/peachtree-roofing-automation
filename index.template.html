@@ -831,6 +831,7 @@ input[type=range].margin-slider::-moz-range-thumb{width:22px;height:22px;border-
           <button class=&quot;btn&quot; style=&quot;flex:1;font-size:12px&quot; onclick=&quot;setPage('pg-hist')&quot;>📋 History</button>
         </div>
         <button id=&quot;save-payroll-btn&quot; class=&quot;btn&quot; style=&quot;width:100%;margin-top:7px;background:#2a7a4f;color:#fff;font-weight:700&quot; onclick=&quot;saveToPayrollSheet()&quot;>💾 Save to Payroll Sheet</button>
+        <button id=&quot;save-wo-btn&quot; class=&quot;btn&quot; style=&quot;width:100%;margin-top:7px;background:#1a5276;color:#fff;font-weight:700&quot; onclick=&quot;saveToWO()&quot;>📋 Save to Work Order</button>
       </div>
     </div>
 
@@ -1085,6 +1086,7 @@ let matSel={};
 let sliderPct={};
 let upgradeAmtOverride={};
 let lastUpgCost={};
+let lastCalcData={};
 let existingTier={};
 let upgradesDiscount=0;
 let ventCounts={ridge:{exist:0,desiredExist:0,desired:0},box:{exist:0,desiredExist:0,desired:0},power:{exist:0,desiredExist:0,desired:0},solar:{exist:0,desiredExist:0,desired:0},turbine:{exist:0,desiredExist:0,desired:0}};
@@ -1529,6 +1531,7 @@ function calc(){try{
         warrCommission=warrHOCharge-upgCost;
       }
       totUpgradeCost+=upgCost;totHOCharge+=warrHOCharge;totComm+=warrCommission;
+      lastCalcData['warr']={selName:selOpt.name,hoCharge:warrHOCharge};
       const rc=document.getElementById('mrc-warr');
       if(rc) rc.textContent=upgCost>0?('$'+upgCost.toFixed(2)):'Included';
       // Use showSliderResult so Min HO Charge = 0% cost, Your Commission = actual margin earned
@@ -1562,6 +1565,7 @@ function calc(){try{
 
     totUpgradeCost+=upgCost;
     totHOCharge+=hoCharge;totComm+=commission;
+    lastCalcData[m.key]={selName:selOpt.name,hoCharge};
 
     // Update upgrade cost display and slider
     const rc=document.getElementById(`mrc-${m.key}`);
@@ -1612,6 +1616,7 @@ function calc(){try{
     finalVentComm=finalVentHO-ventUpgradeCost;
   }
   totHOCharge+=finalVentHO;totComm+=finalVentComm;
+  lastCalcData['vent']={hoCharge:finalVentHO};
   showSliderResult('vent',ventUpgradeCost,ventPct);
   totUpgradeCost+=ventUpgradeCost;
 
@@ -1744,6 +1749,16 @@ function resetCalc(){
   ['g-sq','g-rdg','g-hip','g-val','g-rak','g-eav'].forEach(id=>document.getElementById(id).value='0');
   setMode('full');activeVer=getVer();updateBanner();buildMatUI();calc();
   clearState();toast('↺ Reset');
+}
+
+// Save material selections + HO charges to Work Order
+function saveToWO(){
+  if(typeof window.parent!=='undefined'&amp;&amp;window.parent!==window&amp;&amp;typeof window.parent.receiveCalcData==='function'){
+    window.parent.receiveCalcData(lastCalcData);
+  } else if(typeof window.parent!=='undefined'&amp;&amp;window.parent!==window){
+    window.parent.postMessage({type:'saveToWO',data:lastCalcData},'*');
+  }
+  toast('📋 Sent to Work Order');
 }
 
 // PDF
@@ -2340,7 +2355,7 @@ function saveToPayrollSheet(){
             <option value="">Choose...</option>
           </select>
         </td>
-        <td style="text-align:right" class="wo-upg-col"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
+        <td style="text-align:right" class="wo-upg-col"><input id="wo-shingle-upg" type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
       </tr>
       <tr>
         <td>Ridge Cap</td>
@@ -2357,7 +2372,7 @@ function saveToPayrollSheet(){
           </select>
         </td>
         <td></td>
-        <td style="text-align:right" class="wo-upg-col"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
+        <td style="text-align:right" class="wo-upg-col"><input id="wo-ridge-upg" type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
       </tr>
       <tr>
         <td>Starter</td>
@@ -2370,7 +2385,7 @@ function saveToPayrollSheet(){
           </select>
         </td>
         <td></td>
-        <td style="text-align:right" class="wo-upg-col"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
+        <td style="text-align:right" class="wo-upg-col"><input id="wo-starter-upg" type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
       </tr>
       <tr>
         <td>Underlayment</td>
@@ -2385,7 +2400,7 @@ function saveToPayrollSheet(){
           </select>
         </td>
         <td></td>
-        <td style="text-align:right" class="wo-upg-col"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
+        <td style="text-align:right" class="wo-upg-col"><input id="wo-underlay-upg" type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
       </tr>
       <tr>
         <td>Valley</td>
@@ -2401,7 +2416,7 @@ function saveToPayrollSheet(){
           </select>
         </td>
         <td></td>
-        <td style="text-align:right" class="wo-upg-col"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
+        <td style="text-align:right" class="wo-upg-col"><input id="wo-valley-upg" type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
       </tr>
       <tr>
         <td>Gutter Apron</td>
@@ -2426,7 +2441,7 @@ function saveToPayrollSheet(){
           </select>
         </td>
         <td></td>
-        <td style="text-align:right" class="wo-upg-col"><input type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
+        <td style="text-align:right" class="wo-upg-col"><input id="wo-pipeboot-upg" type="text" class="fi md currency upgrade-cost" oninput="calcUpgradesTotal()"></td>
       </tr>
       <tr>
         <td>Miscellaneous</td>
@@ -7816,6 +7831,62 @@ window.saveUpgradesCommission = function(data) {
     })
     .then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error(t);});return r.json();});
 };
+
+// Receive material selections from Commissions Calculator iframe and populate Work Order
+window.receiveCalcData = function(d) {
+  var matMap = {
+    shingle: {sel:'shingle-type',      upg:'wo-shingle-upg'},
+    ridge:   {sel:'ridgecap-type',     upg:'wo-ridge-upg'},
+    starter: {sel:'starter-type',      upg:'wo-starter-upg'},
+    under:   {sel:'underlayment-type', upg:'wo-underlay-upg'},
+    valley:  {sel:'valley-type',       upg:'wo-valley-upg'},
+    boot:    {sel:'wo-f13',            upg:'wo-pipeboot-upg'},
+    warr:    {sel:'warranty-sel',      upg:'wo-f37'},
+  };
+  var nameMap = {
+    'GAF Royal Sov. Ridge':                     'GAF Royal Sovereign Ridge',
+    '3-in-1 Neoprene':                          '3n1 Neoprene',
+    'No Warranty / GAF Lim. Lifetime (incl.)':  'GAF Limited Lifetime Warranty',
+  };
+  function normalize(name) {
+    var s = (name||'').replace(/\s*\(\d+LF\)/i,'').trim();
+    return nameMap[name] || nameMap[s] || s;
+  }
+  function setDropdown(selId, targetText) {
+    var sel = document.getElementById(selId);
+    if (!sel || !targetText) return;
+    for (var i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].text === targetText) {
+        sel.selectedIndex = i;
+        sel.dispatchEvent(new Event('change'));
+        return;
+      }
+    }
+  }
+  Object.keys(matMap).forEach(function(key) {
+    var entry = d[key];
+    if (!entry) return;
+    var ids = matMap[key];
+    setDropdown(ids.sel, normalize(entry.selName));
+    var upgEl = document.getElementById(ids.upg);
+    if (upgEl && entry.hoCharge > 0) {
+      upgEl.value = entry.hoCharge.toFixed(2);
+      upgEl.dispatchEvent(new Event('input'));
+    }
+  });
+  // Switch to Work Order tab
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(tb){tb.classList.remove('active');});
+  var woSec = document.getElementById('tab-workorder');
+  if (woSec) woSec.classList.add('active');
+  var woTab = document.querySelector('.tab[data-tab="workorder"]');
+  if (woTab) woTab.classList.add('active');
+};
+
+window.addEventListener('message', function(e) {
+  if (!e.data || e.data.type !== 'saveToWO') return;
+  if (typeof window.receiveCalcData === 'function') window.receiveCalcData(e.data.data);
+});
 
 function woSave() {
   woSerializeTrades();
