@@ -1753,10 +1753,12 @@ function resetCalc(){
 
 // Save material selections + HO charges to Work Order
 function saveToWO(){
+  const jobNum=((document.getElementById('fc-wo')||{}).value||'').trim();
+  const payload=Object.assign({},lastCalcData,{_jobNum:jobNum});
   if(typeof window.parent!=='undefined'&amp;&amp;window.parent!==window&amp;&amp;typeof window.parent.receiveCalcData==='function'){
-    window.parent.receiveCalcData(lastCalcData);
+    window.parent.receiveCalcData(payload);
   } else if(typeof window.parent!=='undefined'&amp;&amp;window.parent!==window){
-    window.parent.postMessage({type:'saveToWO',data:lastCalcData},'*');
+    window.parent.postMessage({type:'saveToWO',data:payload},'*');
   }
   toast('📋 Sent to Work Order');
 }
@@ -7834,6 +7836,7 @@ window.saveUpgradesCommission = function(data) {
 
 // Receive material selections from Commissions Calculator iframe and populate Work Order
 window.receiveCalcData = function(d) {
+  var jobNum = (d._jobNum || '').trim();
   var matMap = {
     shingle: {sel:'shingle-type',      upg:'wo-shingle-upg'},
     ridge:   {sel:'ridgecap-type',     upg:'wo-ridge-upg'},
@@ -7856,31 +7859,49 @@ window.receiveCalcData = function(d) {
     var sel = document.getElementById(selId);
     if (!sel || !targetText) return;
     for (var i = 0; i < sel.options.length; i++) {
-      if (sel.options[i].text === targetText) {
-        sel.selectedIndex = i;
-        sel.dispatchEvent(new Event('change'));
-        return;
-      }
+      if (sel.options[i].text === targetText) { sel.selectedIndex = i; sel.dispatchEvent(new Event('change')); return; }
     }
   }
-  Object.keys(matMap).forEach(function(key) {
-    var entry = d[key];
-    if (!entry) return;
-    var ids = matMap[key];
-    setDropdown(ids.sel, normalize(entry.selName));
-    var upgEl = document.getElementById(ids.upg);
-    if (upgEl && entry.hoCharge > 0) {
-      upgEl.value = entry.hoCharge.toFixed(2);
-      upgEl.dispatchEvent(new Event('input'));
-    }
-  });
-  // Switch to Work Order tab
-  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
-  document.querySelectorAll('.tab').forEach(function(tb){tb.classList.remove('active');});
-  var woSec = document.getElementById('tab-workorder');
-  if (woSec) woSec.classList.add('active');
-  var woTab = document.querySelector('.tab[data-tab="workorder"]');
-  if (woTab) woTab.classList.add('active');
+  function applyUpgrades() {
+    Object.keys(matMap).forEach(function(key) {
+      var entry = d[key];
+      if (!entry) return;
+      var ids = matMap[key];
+      setDropdown(ids.sel, normalize(entry.selName));
+      var upgEl = document.getElementById(ids.upg);
+      if (upgEl && entry.hoCharge > 0) { upgEl.value = entry.hoCharge.toFixed(2); upgEl.dispatchEvent(new Event('input')); }
+    });
+  }
+  function switchToWO() {
+    document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+    document.querySelectorAll('.tab').forEach(function(tb){tb.classList.remove('active');});
+    var woSec = document.getElementById('tab-workorder');
+    if (woSec) woSec.classList.add('active');
+    var woTab = document.querySelector('.tab[data-tab="workorder"]');
+    if (woTab) woTab.classList.add('active');
+  }
+  if (jobNum) {
+    var jobInput = document.getElementById('wo-job-input');
+    if (jobInput) jobInput.value = jobNum;
+    woFetchAllRows().then(function(rows) {
+      var found = rows.find(function(r){ return r.jobNum.toLowerCase() === jobNum.toLowerCase(); });
+      if (found) {
+        woSetAllFields(found.data);
+        woStatus('✓ Loaded WO for job ' + jobNum + ' — upgrades applied', true);
+      } else {
+        woStatus('Job ' + jobNum + ' not found in WO — upgrade fields pre-filled', false);
+      }
+      applyUpgrades();
+      switchToWO();
+    }).catch(function(e) {
+      applyUpgrades();
+      switchToWO();
+      woStatus('⚠ Could not load WO (' + e.message + ') — upgrade fields pre-filled', false);
+    });
+  } else {
+    applyUpgrades();
+    switchToWO();
+  }
 };
 
 window.addEventListener('message', function(e) {
