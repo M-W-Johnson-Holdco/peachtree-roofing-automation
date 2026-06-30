@@ -4450,8 +4450,8 @@ var TEMPLATES = [
    check:function(row,today){if((row["Current Status"]||"").toLowerCase()!=="other trade(s) completed")return false;var d=pd(row["Current Status Date"]);return d&&wc(d,today,4);}},
   {id:"T6",name:"Settlement Reached",trigger:"Invoiced Date — within 2 days",
    check:function(row,today){var d=pd(row["Invoiced Date"]);return d&&wc(d,today,2);}},
-  {id:"T7",name:"Post-Adjuster",trigger:"Met With Adjuster Date — day after (skips if T2 ready)",
-   check:function(row,today){var d=pd(row["Met With Adjuster Date"]);if(!d)return false;var da=new Date(d);da.setDate(da.getDate()+1);if(!sd(da,today))return false;var t2d=pd(row["Current Status Date"]);if(t2d&&(row["Current Status"]||"").toLowerCase()==="lgib"&&sd(t2d,today))return false;return true;}},
+  {id:"T7",name:"Post-Adjuster",trigger:"Met With Adjuster Date — day after, within 3 days (skips if T2 ready)",
+   check:function(row,today){var d=pd(row["Met With Adjuster Date"]);if(!d)return false;var da=new Date(d);da.setDate(da.getDate()+1);if(!wc(da,today,3))return false;var t2d=pd(row["Current Status Date"]);if(t2d&&(row["Current Status"]||"").toLowerCase()==="lgib"&&wc(t2d,today,5))return false;return true;}},
   {id:"T8",name:"Work Order Approved",trigger:"Submitted for Approval Date — within 2 days",
    check:function(row,today){var d=pd(row["Submitted for Approval Date"]);return d&&wc(d,today,2);}}
 ];
