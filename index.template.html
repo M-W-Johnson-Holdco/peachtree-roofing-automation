@@ -6988,8 +6988,23 @@ var SMS_TMPL_VARS = ["{{First Name}}","{{Appointment Type}}","{{Date}}","{{Time}
 
 var SCHED_SMS_DEFAULTS = {};
 var RESCHED_SMS_DEFAULTS = {};
+var _SCHED_SMS_CUSTOM = {
+  "On-Roof Inspection":                 "Hi {{First Name}}! Our experts are coming out on {{Date}} to get a closer look at your roof. We've sent a calendar invite to your email with details.",
+  "Appraisal Inspection":               "Hi {{First Name}}! Your appraiser, Tim Varga, will be out to re-inspect your property on {{Date}}. Please check your email for the Google Calendar invite for details.",
+  "Insurance Adjustment":               "This is Peachtree Roofing & Exteriors reminding you of your scheduled {{Appointment Type}} on {{Date}}. Please contact us if you hear from the insurance company narrowing down the inspection window, requesting a change to the scheduled meeting time or you have any questions. Please walk around and check for any missed damages and let us know if you see any before the adjustment. Thank you and have a great day!",
+  "Re-inspection Adjustment":           "Hi {{First Name}}! The insurance adjuster missed a few things, so we’re stepping in. 🔍 We’re scheduled to re-inspect your roof on {{Date}} to document the full scope of the damage. Check your email for a Google Calendar invite with details!",
+  "Video Repair":                       "Hi {{First Name}}! Next step for your claim: we’re doing a quick video repair test on {{Date}} to prove to insurance that your roof needs a full replacement, not just a patch job. 🎥 Check your email for the Google Calendar invite for details.",
+  "2nd Video Repair":                   "Hi {{First Name}}, insurance companies love throwing curveballs! 🪃 They changed their testing rules, so we’re coming back out on {{Date}} to re-film the roof repair test using their new method. Check your email for Google Calendar invite details. We won’t let them off the hook!",
+  "Forensic Inspection":                "Hi {{First Name}}! We have scheduled an inspector to re-examine your roofing system on {{Date}} -- weather pending. You do not need to be present for this. Our inspector may arrive anytime between 8:00 AM and 5:00 PM. Please ensure any gates are unlocked and pets are secured.",
+  "Shingle Pull":                       "Hi {{First Name}}! We have scheduled a site visit on {{Date}} to collect a shingle sample for analysis. This will take about 30-60 minutes and you do not need to be present. Our team member may arrive anytime between 9:00 AM and 4:00 PM. Please make sure any gates are unlocked and pets are safely inside.",
+  "Interior Only Inspection":           "Hi {{First Name}}! We have scheduled an inspector to examine your interior damages on {{Date}}. We will need someone over the age of 18 to be present for access.",
+  "Leak Source":                        "Hi {{First Name}}. We have scheduled an inspector to examine your active leak on {{Date}} -- weather pending. This will take about 1-2 hours and you do not need to be present. They may arrive anytime between 8:00 AM and 5:00 PM. Please ensure any gates are unlocked and pets are secured so we can investigate safely. Text us with any questions!",
+  "Leak Source (Warranty)":             "Hi {{First Name}}. We have scheduled an inspector to examine your active leak on {{Date}} -- weather pending. This will take about 1-2 hours and you do not need to be present. They may arrive anytime between 8:00 AM and 5:00 PM. Please ensure any gates are unlocked and pets are secured so we can investigate safely. Text us with any questions!",
+  "Engineer Inspection":                "Hi {{First Name}}! A licensed engineer will be out to re-inspect your roof on {{Date}}. Please check your email for the calendar invite for details.",
+};
+var _GENERIC_SCHED_SMS = "Hi {{First Name}}! This is Peachtree Roofing & Exteriors. Your {{Appointment Type}} has been scheduled for {{Date}} at {{Time}}. Reply to this message with any questions. Thank you!";
 APPT_TYPES.forEach(function(t){
-  SCHED_SMS_DEFAULTS[t]  = "Hi {{First Name}}! This is Peachtree Roofing & Exteriors. Your {{Appointment Type}} has been scheduled for {{Date}} at {{Time}}. Reply to this message with any questions. Thank you!";
+  SCHED_SMS_DEFAULTS[t]  = _SCHED_SMS_CUSTOM[t] || _GENERIC_SCHED_SMS;
   RESCHED_SMS_DEFAULTS[t] = "Hi {{First Name}}! Peachtree Roofing & Exteriors needs to reschedule your {{Appointment Type}}. Your new appointment is {{Date}} at {{Time}}. We apologize for any inconvenience. Reply with any questions. Thank you!";
 });
 
