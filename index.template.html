@@ -7945,22 +7945,29 @@ window.receiveCalcData = function(d) {
   }
   if (jobNum) {
     var jobInput = document.getElementById('wo-job-input');
+    var alreadyLoaded = jobInput && (jobInput.value || '').trim().toLowerCase() === jobNum.toLowerCase();
     if (jobInput) jobInput.value = jobNum;
-    woFetchAllRows().then(function(rows) {
-      var found = rows.find(function(r){ return r.jobNum.toLowerCase() === jobNum.toLowerCase(); });
-      if (found) {
-        woSetAllFields(found.data);
-        woStatus('✓ Loaded WO for job ' + jobNum + ' — upgrades applied', true);
-      } else {
-        woStatus('Job ' + jobNum + ' not found in WO — upgrade fields pre-filled', false);
-      }
+    if (alreadyLoaded) {
       applyUpgrades();
       switchToWO();
-    }).catch(function(e) {
-      applyUpgrades();
-      switchToWO();
-      woStatus('⚠ Could not load WO (' + e.message + ') — upgrade fields pre-filled', false);
-    });
+      woStatus('✓ Upgrades applied to WO for job ' + jobNum, true);
+    } else {
+      woFetchAllRows().then(function(rows) {
+        var found = rows.find(function(r){ return r.jobNum.toLowerCase() === jobNum.toLowerCase(); });
+        if (found) {
+          woSetAllFields(found.data);
+          woStatus('✓ Loaded WO for job ' + jobNum + ' — upgrades applied', true);
+        } else {
+          woStatus('Job ' + jobNum + ' not found in WO — upgrade fields pre-filled', false);
+        }
+        applyUpgrades();
+        switchToWO();
+      }).catch(function(e) {
+        applyUpgrades();
+        switchToWO();
+        woStatus('⚠ Could not load WO (' + e.message + ') — upgrade fields pre-filled', false);
+      });
+    }
   } else {
     applyUpgrades();
     switchToWO();
