@@ -5339,13 +5339,74 @@ function isInTheField(summary) {
   var cachedMonday = null;
   var wcEvMap = {};       // event id -> event object, for popover
   var wcCurrentEvId = null; // event id currently shown in popover
+  var evCodesCache = {};    // evId -> codes[], loaded from sheet + updated locally
+  var evCodesSaveTimer = null;
+  var EV_CODES_TAB = 'EventCodes';
 
   function getEvCodes(evId) {
+    if (evCodesCache[evId]) return evCodesCache[evId].slice();
     try { return JSON.parse(localStorage.getItem('ev_codes_' + evId) || '[]'); } catch(e) { return []; }
   }
   function setEvCodes(evId, codes) {
+    evCodesCache[evId] = codes.slice();
     localStorage.setItem('ev_codes_' + evId, JSON.stringify(codes));
+    if (evCodesSaveTimer) clearTimeout(evCodesSaveTimer);
+    evCodesSaveTimer = setTimeout(saveEvCodesToSheet, 1200);
   }
+
+  function loadEvCodesFromSheet() {
+    var sid = CRED_GS_SHEET_ID;
+    if (!sid) return;
+    getGSToken().then(function(tok) {
+      return fetch('https://sheets.googleapis.com/v4/spreadsheets/' + sid + '/values/' + encodeURIComponent(EV_CODES_TAB) + '!A:B', {
+        headers: { Authorization: 'Bearer ' + tok }
+      });
+    }).then(function(r) { return r.json(); }).then(function(d) {
+      if (!d.values) return;
+      d.values.slice(1).forEach(function(row) {
+        var evId = (row[0] || '').trim();
+        var raw  = (row[1] || '').trim();
+        if (!evId || !raw) return;
+        try { evCodesCache[evId] = JSON.parse(raw); } catch(e) {
+          evCodesCache[evId] = raw.split(',').map(function(c){ return c.trim(); }).filter(Boolean);
+        }
+        localStorage.setItem('ev_codes_' + evId, JSON.stringify(evCodesCache[evId]));
+      });
+      // Re-render grid so chips appear immediately after load
+      var gridEl = document.getElementById('week-cal-grid');
+      if (gridEl && cachedMonday) gridEl.innerHTML = renderGrid(cachedMonday, buildByDay(cachedEvents));
+    }).catch(function() {}); // silently fall back to localStorage
+  }
+
+  function saveEvCodesToSheet() {
+    var sid = CRED_GS_SHEET_ID;
+    if (!sid) return;
+    var rows = [['EventId', 'Codes']];
+    Object.keys(evCodesCache).forEach(function(evId) {
+      var codes = evCodesCache[evId];
+      if (codes && codes.length) rows.push([evId, JSON.stringify(codes)]);
+    });
+    getGSToken().then(function(tok) {
+      var range = encodeURIComponent(EV_CODES_TAB) + '!A1:B' + rows.length;
+      return fetch('https://sheets.googleapis.com/v4/spreadsheets/' + sid + '/values/' + range + '?valueInputOption=RAW', {
+        method: 'PUT',
+        headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ range: EV_CODES_TAB + '!A1:B' + rows.length, majorDimension: 'ROWS', values: rows })
+      }).then(function(r) {
+        if (r.status === 400) {
+          // Tab probably doesn't exist — create it then retry
+          return getGSToken().then(function(tok2) {
+            return fetch('https://sheets.googleapis.com/v4/spreadsheets/' + sid + ':batchUpdate', {
+              method: 'POST',
+              headers: { Authorization: 'Bearer ' + tok2, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ requests: [{ addSheet: { properties: { title: EV_CODES_TAB } } }] })
+            });
+          }).then(function() { return saveEvCodesToSheet(); });
+        }
+      });
+    }).catch(function() {});
+  }
+
   function renderWcCodes(evId) {
     var el = document.getElementById('wc-pop-codes');
     if (!el) return;
@@ -5756,6 +5817,7 @@ function isInTheField(summary) {
       return Promise.all(promises);
     }).then(function(results) {
       cachedEvents = [].concat.apply([], results);
+      loadEvCodesFromSheet();
       renderFilters();
       renderPersonFilters();
       renderWeatherMini(cachedMonday, cachedEvents);
