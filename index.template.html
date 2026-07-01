@@ -5556,7 +5556,7 @@ function isInTheField(summary) {
     el.style.display = 'block';
     el.innerHTML =
       '<div style="font-size:0.7rem;font-weight:700;color:#0ea5e9;margin-bottom:4px;letter-spacing:0.04em;">🌧️ Weather</div>'
-      + '<div style="overflow-x:auto;"><div style="display:flex;border:1px solid #0ea5e944;border-radius:6px;overflow:hidden;min-width:500px;">' + cols + '</div></div>';
+      + '<div id="week-cal-weather-inner" style="overflow-x:hidden;"><div style="display:flex;border:1px solid #0ea5e944;border-radius:6px;overflow:hidden;min-width:600px;">' + cols + '</div></div>';
   }
 
   function renderPtoMini(monday, events) {
@@ -5610,7 +5610,7 @@ function isInTheField(summary) {
     el.style.display = 'block';
     el.innerHTML =
       '<div style="font-size:0.7rem;font-weight:700;color:#7c3aed;margin-bottom:4px;letter-spacing:0.04em;">🏖️ PTO</div>'
-      + '<div style="overflow-x:auto;"><div style="display:flex;border:1px solid #7c3aed44;border-radius:6px;overflow:hidden;min-width:500px;">' + cols + '</div></div>';
+      + '<div id="week-cal-pto-inner" style="overflow-x:hidden;"><div style="display:flex;border:1px solid #7c3aed44;border-radius:6px;overflow:hidden;min-width:600px;">' + cols + '</div></div>';
   }
 
   function renderItfMini(monday, events) {
@@ -5656,7 +5656,7 @@ function isInTheField(summary) {
     el.style.display = 'block';
     el.innerHTML =
       '<div style="font-size:0.7rem;font-weight:700;color:#4A90D9;margin-bottom:4px;letter-spacing:0.04em;">🚗 In the Field</div>'
-      + '<div style="overflow-x:auto;"><div style="display:flex;border:1px solid #4A90D944;border-radius:6px;overflow:hidden;min-width:500px;">' + cols + '</div></div>';
+      + '<div id="week-cal-itf-inner" style="overflow-x:hidden;"><div style="display:flex;border:1px solid #4A90D944;border-radius:6px;overflow:hidden;min-width:600px;">' + cols + '</div></div>';
   }
 
   function getMondayOf(dateStr) {
@@ -5899,6 +5899,20 @@ function isInTheField(summary) {
     });
 
     document.getElementById('week-cal-anchor') && document.getElementById('week-cal-anchor').addEventListener('change', loadWeekCal);
+
+    // Sync horizontal scroll of mini sections with the main grid
+    (function() {
+      var grid = document.getElementById('week-cal-grid');
+      if (!grid) return;
+      var miniIds = ['week-cal-weather-inner', 'week-cal-pto-inner', 'week-cal-itf-inner'];
+      grid.addEventListener('scroll', function() {
+        var sl = grid.scrollLeft;
+        miniIds.forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) el.scrollLeft = sl;
+        });
+      }, { passive: true });
+    })();
 
     // Swipe left/right on calendar grid to navigate weeks
     (function() {
