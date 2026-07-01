@@ -5342,7 +5342,7 @@ function isInTheField(summary) {
   var evCodesCache = {};    // evId -> codes[], loaded from sheet + updated locally
   var evCodesSaveTimer = null;
   var EV_CODES_TAB = 'EventCodes';
-  var EV_CODE_OPTIONS = ['P','PY','M','MA','MAD','T','TT','Pending Skylights','Pending Permit','Redeck'];
+  var EV_CODE_OPTIONS = ['P','PY','M','MA','MAD','T','TT','ID','Pending Skylights','Pending Permit','Redeck'];
 
   function getEvCodes(evId) {
     if (evCodesCache[evId]) return evCodesCache[evId].slice();
