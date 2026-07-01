@@ -7024,7 +7024,7 @@ var _SCHED_SMS_CUSTOM = {
 var _GENERIC_SCHED_SMS = "Hi {{First Name}}! This is Peachtree Roofing & Exteriors. Your {{Appointment Type}} has been scheduled for {{Date}} at {{Time}}. Reply to this message with any questions. Thank you!";
 APPT_TYPES.forEach(function(t){
   SCHED_SMS_DEFAULTS[t]  = _SCHED_SMS_CUSTOM[t] || _GENERIC_SCHED_SMS;
-  RESCHED_SMS_DEFAULTS[t] = "Hi {{First Name}}! Peachtree Roofing & Exteriors needs to reschedule your {{Appointment Type}}. Your new appointment is {{Date}} at {{Time}}. We apologize for any inconvenience. Reply with any questions. Thank you!";
+  RESCHED_SMS_DEFAULTS[t] = "Hi {{First Name}}! Peachtree Roofing & Exteriors needs to reschedule your {{Appointment Type}}. Your new appointment is {{Date}}. We apologize for any inconvenience. Reply with any questions. Thank you!";
 });
 
 var schedSmsBodies   = {};
