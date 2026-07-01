@@ -5698,6 +5698,27 @@ function isInTheField(summary) {
 
     document.getElementById('week-cal-anchor') && document.getElementById('week-cal-anchor').addEventListener('change', loadWeekCal);
 
+    // Swipe left/right on calendar grid to navigate weeks
+    (function() {
+      var container = document.getElementById('week-cal-grid');
+      if (!container) return;
+      var touchStartX = 0, touchStartY = 0;
+      container.addEventListener('touchstart', function(e) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+      container.addEventListener('touchend', function(e) {
+        var dx = e.changedTouches[0].clientX - touchStartX;
+        var dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return; // too short or mostly vertical
+        var anchorEl = document.getElementById('week-cal-anchor');
+        var monday = getMondayOf(anchorEl ? anchorEl.value : '');
+        monday.setDate(monday.getDate() + (dx < 0 ? 7 : -7));
+        if (anchorEl) anchorEl.value = toDateStr(monday);
+        loadWeekCal();
+      }, { passive: true });
+    })();
+
     document.addEventListener('click', function(e) {
       var pbtn = e.target.closest ? e.target.closest('[data-wc-person]') : null;
       if (pbtn && pbtn.dataset.wcPerson !== undefined) {
