@@ -7217,7 +7217,7 @@ function loadReminderTemplatesFromSheet() {
       }
     });
     if(statusEl) statusEl.textContent = "✓ Loaded " + loaded + " templates from sheet at " + new Date().toLocaleTimeString();
-    renderReminderSmsTemplates();
+    renderReminderSmsTmplList();
   }).catch(function(e){
     if(statusEl) statusEl.textContent = "Error: " + e.message;
   });
