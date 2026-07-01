@@ -49,6 +49,7 @@ jobs:
           GCAL_ID_VIDEO_REPAIR: ${{ secrets.GCAL_ID_VIDEO_REPAIR }}
           GCAL_ID_2ND_VIDEO_REPAIR: ${{ secrets.GCAL_ID_2ND_VIDEO_REPAIR }}
           GCAL_ID_LEAK_SOURCE: ${{ secrets.GCAL_ID_LEAK_SOURCE }}
+          GCAL_ID_LEAK_WARRANTY: ${{ secrets.GCAL_ID_LEAK_WARRANTY }}
           GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
         run: |
           python3 inject.py
