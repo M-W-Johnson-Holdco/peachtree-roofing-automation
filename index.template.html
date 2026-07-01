@@ -276,6 +276,41 @@
         <button class="btn btn-primary" id="sched-search-btn">🔍 Look Up Job</button>
       </div>
       <div id="sched-search-status" class="small" style="margin-bottom:8px;"></div>
+      <div style="text-align:center;margin-bottom:10px;">
+        <button type="button" id="sched-manual-toggle" class="btn btn-secondary btn-sm" style="font-size:0.76rem;opacity:0.8;">+ Manual Entry / Return Client</button>
+      </div>
+      <div id="sched-manual-form" style="display:none;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;margin-bottom:12px;background:rgba(255,255,255,0.03);">
+        <div style="font-size:0.75rem;font-weight:700;color:#a09890;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px;">Client Details</div>
+        <div class="grid2" style="gap:10px;">
+          <div>
+            <label>Customer Name <span style="color:#f97316;font-weight:700;">*</span></label>
+            <input type="text" id="sched-manual-name" placeholder="e.g. John Smith" autocomplete="off">
+          </div>
+          <div>
+            <label>Job Number <span style="color:#f97316;font-weight:700;">*</span></label>
+            <input type="text" id="sched-manual-jobnum" placeholder="e.g. 12345" autocomplete="off">
+          </div>
+        </div>
+        <div class="grid2" style="gap:10px;margin-top:10px;">
+          <div>
+            <label>Primary Phone <span style="color:#f97316;font-weight:700;">*</span></label>
+            <input type="tel" id="sched-manual-phone" placeholder="(404) 555-1234">
+          </div>
+          <div>
+            <label>Secondary Phone <span style="color:#64748b;font-weight:400;">(optional)</span></label>
+            <input type="tel" id="sched-manual-phone2" placeholder="(optional)">
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <label>Salesperson <span style="color:#64748b;font-weight:400;">(optional)</span></label>
+          <select id="sched-manual-sp">
+            <option value="">— None —</option>
+          </select>
+        </div>
+        <div class="btn-row" style="margin-top:12px;">
+          <button class="btn btn-primary btn-sm" id="sched-manual-submit">📋 Set Up Scheduling Form</button>
+        </div>
+      </div>
       <div id="sched-job-result"></div>
     </div>
 
@@ -5061,6 +5096,42 @@ function schedLog(type, msg) {
   box.scrollTop = box.scrollHeight;
 }
 
+// -- Manual entry for return clients / jobs never texted --
+function scheduleManualClient() {
+  var name    = ((document.getElementById('sched-manual-name')   || {}).value || '').trim();
+  var jobNum  = ((document.getElementById('sched-manual-jobnum') || {}).value || '').trim();
+  var phone   = ((document.getElementById('sched-manual-phone')  || {}).value || '').trim();
+  var phone2  = ((document.getElementById('sched-manual-phone2') || {}).value || '').trim();
+  var sp      = ((document.getElementById('sched-manual-sp')     || {}).value || '').trim();
+
+  if (!name)   { alert('Customer name is required.'); return; }
+  if (!jobNum) { alert('Job number is required.'); return; }
+  if (!phone)  { alert('Primary phone is required.'); return; }
+
+  var entry = {
+    timestamp:      new Date().toISOString(),
+    jobNum:         jobNum,
+    name:           name,
+    phone:          toE164(phone),
+    trigger:        'manual',
+    template:       '',
+    message:        '',
+    acculynxLogged: '',
+    status:         '',
+    jobGuid:        jobNum,
+    messageId:      '',
+    runBy:          '',
+    secondaryPhone: phone2 ? toE164(phone2) : '',
+    conversationId: ''
+  };
+  if (sp) entry._salesperson = sp; // picked up by extractSalespersonFromEntries via _salesperson hint
+
+  document.getElementById('sched-manual-form').style.display = 'none';
+  var statusEl = document.getElementById('sched-search-status');
+  if (statusEl) statusEl.textContent = 'Manual entry: ' + name + ' (Job ' + jobNum + ')';
+  renderJobResult([entry]);
+}
+
 // -- Search sheet log for job --
 function searchSheetForJob(query) {
   query = (query || "").trim();
@@ -6481,6 +6552,17 @@ function loadExistingEventsForJob(jobKey, name) {
 document.addEventListener("click", function(e){
   var t = e.target;
 
+  if (t.id === "sched-manual-toggle") {
+    var mf = document.getElementById("sched-manual-form");
+    if (mf) mf.style.display = mf.style.display === "none" ? "block" : "none";
+    return;
+  }
+
+  if (t.id === "sched-manual-submit") {
+    scheduleManualClient();
+    return;
+  }
+
   if (t.id === "sched-search-btn") {
     var q = (document.getElementById("sched-search-input") || {}).value || "";
     var statusEl = document.getElementById("sched-search-status");
@@ -6577,6 +6659,18 @@ document.addEventListener("click", function(e){
   var inp = document.getElementById("sched-search-input");
   if (inp) inp.addEventListener("keydown", function(e){
     if (e.key === "Enter") document.getElementById("sched-search-btn").click();
+  });
+})();
+
+// Populate manual-entry salesperson dropdown
+(function(){
+  var sel = document.getElementById("sched-manual-sp");
+  if (!sel || typeof SALESPERSON_MAP === "undefined") return;
+  Object.keys(SALESPERSON_MAP).sort().forEach(function(name) {
+    var o = document.createElement("option");
+    o.value = name;
+    o.textContent = name;
+    sel.appendChild(o);
   });
 })();
 
