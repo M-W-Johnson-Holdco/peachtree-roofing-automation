@@ -311,6 +311,10 @@
             <option value="">— None —</option>
           </select>
         </div>
+        <div style="margin-top:10px;">
+          <label>AccuLynx Job URL <span style="color:#64748b;font-weight:400;">(optional — paste job page URL to enable AccuLynx note)</span></label>
+          <input type="text" id="sched-manual-alguid" placeholder="https://app.acculynx.com/jobs/..." autocomplete="off">
+        </div>
         <div class="btn-row" style="margin-top:12px;">
           <button class="btn btn-primary btn-sm" id="sched-manual-submit">📋 Set Up Scheduling Form</button>
         </div>
@@ -4691,45 +4695,31 @@ function logToAccuLynx(jobKey,msg,jobNumUrl,jobNameUrl,existingLog){
   var guid=extractGuid(jobNumUrl)||extractGuid(jobNameUrl);
   // Fall back to scanning existing log entries for a stored GUID
   if(!guid&&existingLog){for(var ei=0;ei<existingLog.length;ei++){var eg=extractGuid(existingLog[ei].jobGuid||"");if(eg){guid=eg;break;}}}
-
-  // If still no GUID, try looking up the job in AccuLynx by job number
-  var guidPromise = guid ? Promise.resolve(guid)
-    : fetch(ACCULYNX_PROXY+"/api/v2/jobs?number="+encodeURIComponent(jobKey),{headers:{Authorization:"Bearer "+key}})
-      .then(function(r){return r.ok?r.json():null;})
-      .then(function(d){
-        if(!d)return null;
-        var items=d.items||d.jobs||(Array.isArray(d)?d:[]);
-        return items.length?(items[0].id||null):null;
-      }).catch(function(){return null;});
-
-  return guidPromise.then(function(resolvedGuid){
-    if(!resolvedGuid){addLog("warn","No GUID found for Job "+jobKey+" — skipping AccuLynx log");return{guid:"",messageId:""};}
-    guid=resolvedGuid;
-    var threadMessageId="";var threadGuid="";
-    var jobGuidForThread=guid;
-    for(var i=0;i<existingLog.length;i++){
-      var entry=existingLog[i];
-      if(entry.messageId){
-        if(entry.jobNum===jobKey||(jobGuidForThread&&(entry.jobNum===jobGuidForThread||entry.jobGuid===jobGuidForThread))){
-          threadMessageId=entry.messageId;threadGuid=entry.jobGuid;break;
-        }
+  if(!guid){addLog("warn","No GUID found for Job "+jobKey+" — skipping AccuLynx log");return Promise.resolve({guid:"",messageId:""});}
+  var threadMessageId="";var threadGuid="";
+  var jobGuidForThread=guid;
+  for(var i=0;i<existingLog.length;i++){
+    var entry=existingLog[i];
+    if(entry.messageId){
+      if(entry.jobNum===jobKey||(jobGuidForThread&&(entry.jobNum===jobGuidForThread||entry.jobGuid===jobGuidForThread))){
+        threadMessageId=entry.messageId;threadGuid=entry.jobGuid;break;
       }
     }
-    return fetch(ACCULYNX_PROXY+"/api/v2/jobs/"+guid,{headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"}})
-    .then(function(r){if(!r.ok)throw new Error("Job fetch failed: "+r.status);return r.json();})
-    .then(function(jobData){
-      var apiGuid=jobData.id||guid;
-      if(threadMessageId&&threadGuid){
-        addLog("info","Replying to existing AccuLynx thread for Job "+jobKey);
-        return fetch(ACCULYNX_PROXY+"/api/v2/jobs/"+threadGuid+"/messages/"+threadMessageId+"/replies",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({message:"[Auto-Text Sent] "+msg})})
-        .then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error("Reply failed: "+r.status+" "+t);});return r.json();})
-        .then(function(){return{guid:apiGuid,messageId:threadMessageId};});
-      }
-      addLog("info","Creating new AccuLynx thread for Job "+jobKey);
-      return fetch(ACCULYNX_PROXY+"/api/v2/jobs/"+apiGuid+"/messages",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({message:"[Auto-Text Sent] "+msg})})
-      .then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error("AccuLynx post failed: "+r.status+" "+t);});return r.json();})
-      .then(function(data){addLog("info","AccuLynx new thread — MsgID: "+(data.messageId||""));return{guid:apiGuid,messageId:data.messageId||""};});
-    });
+  }
+  return fetch(ACCULYNX_PROXY+"/api/v2/jobs/"+guid,{headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"}})
+  .then(function(r){if(!r.ok)throw new Error("Job fetch failed: "+r.status);return r.json();})
+  .then(function(jobData){
+    var apiGuid=jobData.id||guid;
+    if(threadMessageId&&threadGuid){
+      addLog("info","Replying to existing AccuLynx thread for Job "+jobKey);
+      return fetch(ACCULYNX_PROXY+"/api/v2/jobs/"+threadGuid+"/messages/"+threadMessageId+"/replies",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({message:"[Auto-Text Sent] "+msg})})
+      .then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error("Reply failed: "+r.status+" "+t);});return r.json();})
+      .then(function(){return{guid:apiGuid,messageId:threadMessageId};});
+    }
+    addLog("info","Creating new AccuLynx thread for Job "+jobKey);
+    return fetch(ACCULYNX_PROXY+"/api/v2/jobs/"+apiGuid+"/messages",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({message:"[Auto-Text Sent] "+msg})})
+    .then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error("AccuLynx post failed: "+r.status+" "+t);});return r.json();})
+    .then(function(data){addLog("info","AccuLynx new thread — MsgID: "+(data.messageId||""));return{guid:apiGuid,messageId:data.messageId||""};});
   });
 }
 
@@ -5133,10 +5123,14 @@ function scheduleManualClient() {
   var phone   = ((document.getElementById('sched-manual-phone')  || {}).value || '').trim();
   var phone2  = ((document.getElementById('sched-manual-phone2') || {}).value || '').trim();
   var sp      = ((document.getElementById('sched-manual-sp')     || {}).value || '').trim();
+  var alUrl   = ((document.getElementById('sched-manual-alguid') || {}).value || '').trim();
 
   if (!name)   { alert('Customer name is required.'); return; }
   if (!jobNum) { alert('Job number is required.'); return; }
   if (!phone)  { alert('Primary phone is required.'); return; }
+
+  // Extract GUID from AccuLynx URL if provided, otherwise fall back to job number
+  var alGuid = extractGuid(alUrl) || jobNum;
 
   var entry = {
     timestamp:      new Date().toISOString(),
@@ -5148,13 +5142,13 @@ function scheduleManualClient() {
     message:        '',
     acculynxLogged: '',
     status:         '',
-    jobGuid:        jobNum,
+    jobGuid:        alGuid,
     messageId:      '',
     runBy:          '',
     secondaryPhone: phone2 ? toE164(phone2) : '',
     conversationId: ''
   };
-  if (sp) entry._salesperson = sp; // picked up by extractSalespersonFromEntries via _salesperson hint
+  if (sp) entry._salesperson = sp;
 
   document.getElementById('sched-manual-form').style.display = 'none';
   var statusEl = document.getElementById('sched-search-status');
