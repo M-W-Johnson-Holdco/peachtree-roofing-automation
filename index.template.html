@@ -5334,7 +5334,7 @@ function isInTheField(summary) {
   ];
   var typeColorMap = {};
   var activeFilters = {}; // type name -> true/false; empty = all shown
-  var activePersonFilter = null; // person name string or null = all shown
+  var activePersonFilters = {}; // person name -> true; empty = all shown
   var cachedEvents = [];  // last loaded raw events
   var cachedMonday = null;
   var wcEvMap = {};       // event id -> event object, for popover
@@ -5369,11 +5369,11 @@ function isInTheField(summary) {
     if (isInTheField(summary)) return false;
     // Working Location events never appear in main grid
     if (isWorkingLocation(ev)) return false;
-    // Person filter: only show events with the selected person as attendee
-    if (activePersonFilter) {
+    // Person filter: only show events with at least one selected person as attendee
+    if (Object.keys(activePersonFilters).length) {
       var found = false;
       ((ev && ev.attendees) || []).forEach(function(a) {
-        if (ATTENDEE_MAP[(a.email||'').toLowerCase()] === activePersonFilter) found = true;
+        if (activePersonFilters[ATTENDEE_MAP[(a.email||'').toLowerCase()]]) found = true;
       });
       if (!found) return false;
     }
@@ -5389,10 +5389,11 @@ function isInTheField(summary) {
     var people = ['Wes','Wally','Adrian','Jonah','Irbin','Rony','Vega'];
     el.style.display = 'flex';
     var html = '<span style="font-size:0.72rem;color:var(--txt3);align-self:center;margin-right:4px;">Person:</span>';
+    var noneActive = !Object.keys(activePersonFilters).length;
     html += '<button data-wc-person="__all__" style="font-size:0.72rem;padding:2px 8px;border-radius:12px;border:1px solid var(--bdr);cursor:pointer;' +
-      (!activePersonFilter ? 'background:var(--bdr);color:var(--txt);' : 'background:transparent;color:var(--txt2);') + '">All</button>';
+      (noneActive ? 'background:#4A90D9;color:#fff;border-color:#4A90D9;' : 'background:var(--surf2);color:var(--txt3);') + '">All</button>';
     people.forEach(function(name) {
-      var on = activePersonFilter === name;
+      var on = !!activePersonFilters[name];
       html += '<button data-wc-person="' + name + '" style="font-size:0.72rem;padding:2px 8px;border-radius:12px;border:1px solid #4A90D9;cursor:pointer;' +
         (on ? 'background:#4A90D9;color:#fff;' : 'background:rgba(74,144,217,0.12);color:var(--txt);') + '">' + name + '</button>';
     });
@@ -5794,7 +5795,13 @@ function isInTheField(summary) {
       var pbtn = e.target.closest ? e.target.closest('[data-wc-person]') : null;
       if (pbtn && pbtn.dataset.wcPerson !== undefined) {
         var p = pbtn.dataset.wcPerson;
-        activePersonFilter = (p === '__all__' || activePersonFilter === p) ? null : p;
+        if (p === '__all__') {
+          activePersonFilters = {};
+        } else if (activePersonFilters[p]) {
+          delete activePersonFilters[p];
+        } else {
+          activePersonFilters[p] = true;
+        }
         renderPersonFilters();
         var gridEl = document.getElementById('week-cal-grid');
         if (gridEl && cachedMonday) gridEl.innerHTML = renderGrid(cachedMonday, buildByDay(cachedEvents));
