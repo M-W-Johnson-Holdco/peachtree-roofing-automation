@@ -5339,7 +5339,9 @@ function isInTheField(summary) {
   var cachedMonday = null;
   var wcEvMap = {};       // event id -> event object, for popover
   var wcCurrentEvId = null; // event id currently shown in popover
-  var evCodesCache = {};    // evId -> codes[], loaded from sheet + updated locally
+  var evCodesCache  = {};   // evId -> codes[], loaded from sheet + updated locally
+  var evSqCache     = {};   // evId -> square size string
+  var evStatusCache = {};   // evId -> 'blue'|'purple'|'orange' (all-day event status)
   var evCodesSaveTimer = null;
   var EV_CODES_TAB = 'EventCodes';
   var EV_CODE_OPTIONS = ['P','PY','M','MA','MAD','T','TT','ID','Pending Skylights','Pending Permit','Redeck'];
@@ -5351,6 +5353,27 @@ function isInTheField(summary) {
   function setEvCodes(evId, codes) {
     evCodesCache[evId] = codes.slice();
     localStorage.setItem('ev_codes_' + evId, JSON.stringify(codes));
+    scheduleSaveEvData();
+  }
+  function getEvSq(evId) {
+    if (evSqCache[evId] !== undefined) return evSqCache[evId];
+    return localStorage.getItem('ev_sq_' + evId) || '';
+  }
+  function setEvSq(evId, val) {
+    evSqCache[evId] = val;
+    localStorage.setItem('ev_sq_' + evId, val);
+    scheduleSaveEvData();
+  }
+  function getEvStatus(evId) {
+    if (evStatusCache[evId] !== undefined) return evStatusCache[evId];
+    return localStorage.getItem('ev_status_' + evId) || 'blue';
+  }
+  function setEvStatus(evId, val) {
+    evStatusCache[evId] = val;
+    localStorage.setItem('ev_status_' + evId, val);
+    scheduleSaveEvData();
+  }
+  function scheduleSaveEvData() {
     if (evCodesSaveTimer) clearTimeout(evCodesSaveTimer);
     evCodesSaveTimer = setTimeout(saveEvCodesToSheet, 1200);
   }
@@ -5359,43 +5382,52 @@ function isInTheField(summary) {
     var sid = CRED_GS_SHEET_ID;
     if (!sid) return;
     getGSToken().then(function(tok) {
-      return fetch('https://sheets.googleapis.com/v4/spreadsheets/' + sid + '/values/' + encodeURIComponent(EV_CODES_TAB) + '!A:B', {
+      return fetch('https://sheets.googleapis.com/v4/spreadsheets/' + sid + '/values/' + encodeURIComponent(EV_CODES_TAB) + '!A:D', {
         headers: { Authorization: 'Bearer ' + tok }
       });
     }).then(function(r) { return r.json(); }).then(function(d) {
       if (!d.values) return;
       d.values.slice(1).forEach(function(row) {
         var evId = (row[0] || '').trim();
-        var raw  = (row[1] || '').trim();
-        if (!evId || !raw) return;
-        try { evCodesCache[evId] = JSON.parse(raw); } catch(e) {
-          evCodesCache[evId] = raw.split(',').map(function(c){ return c.trim(); }).filter(Boolean);
+        if (!evId) return;
+        var raw = (row[1] || '').trim();
+        if (raw) {
+          try { evCodesCache[evId] = JSON.parse(raw); } catch(e) {
+            evCodesCache[evId] = raw.split(',').map(function(c){ return c.trim(); }).filter(Boolean);
+          }
+          localStorage.setItem('ev_codes_' + evId, JSON.stringify(evCodesCache[evId]));
         }
-        localStorage.setItem('ev_codes_' + evId, JSON.stringify(evCodesCache[evId]));
+        var sq = (row[2] || '').trim();
+        if (sq) { evSqCache[evId] = sq; localStorage.setItem('ev_sq_' + evId, sq); }
+        var st = (row[3] || '').trim();
+        if (st) { evStatusCache[evId] = st; localStorage.setItem('ev_status_' + evId, st); }
       });
-      // Re-render grid so chips appear immediately after load
       var gridEl = document.getElementById('week-cal-grid');
       if (gridEl && cachedMonday) gridEl.innerHTML = renderGrid(cachedMonday, buildByDay(cachedEvents));
-    }).catch(function() {}); // silently fall back to localStorage
+    }).catch(function() {});
   }
 
   function saveEvCodesToSheet() {
     var sid = CRED_GS_SHEET_ID;
     if (!sid) return;
-    var rows = [['EventId', 'Codes']];
-    Object.keys(evCodesCache).forEach(function(evId) {
-      var codes = evCodesCache[evId];
-      if (codes && codes.length) rows.push([evId, JSON.stringify(codes)]);
+    var allIds = {};
+    Object.keys(evCodesCache).forEach(function(id){ allIds[id] = true; });
+    Object.keys(evSqCache).forEach(function(id){ allIds[id] = true; });
+    var rows = [['EventId', 'Codes', 'Squares', 'Status']];
+    Object.keys(allIds).forEach(function(evId) {
+      var codes = evCodesCache[evId] || [];
+      var sq    = evSqCache[evId] || '';
+      var st    = evStatusCache[evId] || '';
+      if (codes.length || sq || st) rows.push([evId, codes.length ? JSON.stringify(codes) : '', sq, st]);
     });
     getGSToken().then(function(tok) {
-      var range = encodeURIComponent(EV_CODES_TAB) + '!A1:B' + rows.length;
+      var range = encodeURIComponent(EV_CODES_TAB) + '!A1:D' + rows.length;
       return fetch('https://sheets.googleapis.com/v4/spreadsheets/' + sid + '/values/' + range + '?valueInputOption=RAW', {
         method: 'PUT',
         headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ range: EV_CODES_TAB + '!A1:B' + rows.length, majorDimension: 'ROWS', values: rows })
+        body: JSON.stringify({ range: EV_CODES_TAB + '!A1:D' + rows.length, majorDimension: 'ROWS', values: rows })
       }).then(function(r) {
         if (r.status === 400) {
-          // Tab probably doesn't exist — create it then retry
           return getGSToken().then(function(tok2) {
             return fetch('https://sheets.googleapis.com/v4/spreadsheets/' + sid + ':batchUpdate', {
               method: 'POST',
@@ -5670,6 +5702,12 @@ function isInTheField(summary) {
       var evStart = (ev.start||{}).dateTime || (ev.start||{}).date || '';
       var evEnd   = (ev.end||{}).dateTime   || (ev.end||{}).date   || '';
       var isAllDay = (ev.start||{}).date && !(ev.start||{}).dateTime;
+      if (isAllDay && ev.id) {
+        var st = getEvStatus(ev.id);
+        if (st === 'purple') color = '#a855f7';
+        else if (st === 'orange') color = '#f97316';
+        else color = '#3b82f6';
+      }
       var timeLabel = (function() {
         if (isAllDay) return '';
         var s = evStart.slice(11,16); var e = evEnd.slice(11,16);
@@ -5692,11 +5730,14 @@ function isInTheField(summary) {
           }).join('') + '</div>';
       })();
       var evCodes = ev.id ? getEvCodes(ev.id) : [];
-      var codeChips = evCodes.length
+      var evSq    = ev.id ? getEvSq(ev.id)    : '';
+      var codeChips = (evCodes.length || evSq)
         ? '<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px;pointer-events:none;">' +
             evCodes.map(function(c){
               return '<span style="background:rgba(201,162,74,0.18);color:#c9a24a;border:1px solid rgba(201,162,74,0.35);font-size:0.58rem;padding:1px 5px;border-radius:6px;font-weight:700;letter-spacing:0.03em;">' + c + '</span>';
-            }).join('') + '</div>'
+            }).join('') +
+            (evSq ? '<span style="background:rgba(14,165,233,0.15);color:#38bdf8;border:1px solid rgba(14,165,233,0.35);font-size:0.58rem;padding:1px 5px;border-radius:6px;font-weight:700;letter-spacing:0.03em;">' + evSq + ' sq</span>' : '') +
+          '</div>'
         : '';
       return '<div data-wcpop-id="' + (ev.id||'').replace(/"/g,'') + '" style="background:' + color + '22;border-left:3px solid ' + color + ';border-radius:4px;padding:3px 5px;margin-bottom:4px;font-size:0.7rem;line-height:1.3;overflow:hidden;cursor:pointer;">' +
         (timeLabel ? '<div style="font-weight:700;color:' + color + ';pointer-events:none;">' + timeLabel + '</div>' : '') +
@@ -5920,7 +5961,20 @@ function isInTheField(summary) {
       '<div id="wc-pop-desc" style="color:#6a6560;font-size:0.72rem;max-height:80px;overflow-y:auto;white-space:pre-wrap;margin-bottom:4px;"></div>' +
       '<div style="border-top:1px solid rgba(255,255,255,0.1);margin:8px 0 6px;"></div>' +
       '<div style="font-size:0.65rem;font-weight:700;color:#c9a24a;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px;">Internal Codes</div>' +
-      '<div id="wc-pop-codes" style="display:flex;flex-wrap:wrap;gap:4px;"></div>';
+      '<div id="wc-pop-codes" style="display:flex;flex-wrap:wrap;gap:4px;"></div>' +
+      '<div style="border-top:1px solid rgba(255,255,255,0.1);margin:8px 0 6px;"></div>' +
+      '<div style="font-size:0.65rem;font-weight:700;color:#0ea5e9;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px;">Square Size</div>' +
+      '<input id="wc-pop-sq" type="text" inputmode="decimal" placeholder="e.g. 24.5" style="width:100%;box-sizing:border-box;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.3);color:#e0f2fe;border-radius:6px;padding:4px 8px;font-size:0.78rem;outline:none;" />' +
+      '<div id="wc-pop-status-section" style="display:none;">' +
+        '<div style="border-top:1px solid rgba(255,255,255,0.1);margin:8px 0 6px;"></div>' +
+        '<div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px;">Job Status</div>' +
+        '<div style="display:flex;gap:5px;flex-wrap:wrap;">' +
+          '<button type="button" data-set-status="blue" style="cursor:pointer;padding:3px 10px;border-radius:6px;font-size:0.68rem;font-weight:700;border:1px solid rgba(59,130,246,0.5);background:rgba(59,130,246,0.12);color:#93c5fd;">Blue</button>' +
+          '<button type="button" data-set-status="purple" style="cursor:pointer;padding:3px 10px;border-radius:6px;font-size:0.68rem;font-weight:700;border:1px solid rgba(168,85,247,0.5);background:rgba(168,85,247,0.12);color:#d8b4fe;">Labor Assigned</button>' +
+          '<button type="button" data-set-status="orange" style="cursor:pointer;padding:3px 10px;border-radius:6px;font-size:0.68rem;font-weight:700;border:1px solid rgba(249,115,22,0.5);background:rgba(249,115,22,0.12);color:#fdba74;">Issue</button>' +
+        '</div>' +
+        '<div id="wc-pop-status-cur" style="margin-top:5px;font-size:0.63rem;color:#6a6560;"></div>' +
+      '</div>';
     document.body.appendChild(wcPop);
 
     document.getElementById('wc-pop-close').addEventListener('click', function(e) {
@@ -5939,6 +5993,17 @@ function isInTheField(summary) {
         if (idx > -1) codes.splice(idx, 1); else codes.push(code);
         setEvCodes(wcCurrentEvId, codes);
         renderWcCodes(wcCurrentEvId);
+        var gridEl = document.getElementById('week-cal-grid');
+        if (gridEl && cachedMonday) gridEl.innerHTML = renderGrid(cachedMonday, buildByDay(cachedEvents));
+      }
+      var stBtn = e.target.closest ? e.target.closest('[data-set-status]') : null;
+      if (stBtn && wcCurrentEvId) {
+        var st = stBtn.getAttribute('data-set-status');
+        setEvStatus(wcCurrentEvId, st);
+        var stLabels = { blue: 'Blue (default)', purple: 'Labor Assigned', orange: 'Issue' };
+        var stColors = { blue: '#93c5fd', purple: '#d8b4fe', orange: '#fdba74' };
+        var curEl = document.getElementById('wc-pop-status-cur');
+        if (curEl) curEl.innerHTML = 'Current: <span style="color:' + (stColors[st]||'#93c5fd') + ';font-weight:700;">' + (stLabels[st]||st) + '</span>';
         var gridEl = document.getElementById('week-cal-grid');
         if (gridEl && cachedMonday) gridEl.innerHTML = renderGrid(cachedMonday, buildByDay(cachedEvents));
       }
@@ -5968,7 +6033,32 @@ function isInTheField(summary) {
     descEl.textContent = cleanDesc;
     descEl.style.display = cleanDesc ? '' : 'none';
     if (ev.id) renderWcCodes(ev.id);
-    document.getElementById('wc-pop-code-input') && (document.getElementById('wc-pop-code-input').value = '');
+    var isAllDay = (ev.start||{}).date && !(ev.start||{}).dateTime;
+    var statusSection = document.getElementById('wc-pop-status-section');
+    if (statusSection) {
+      statusSection.style.display = isAllDay ? '' : 'none';
+      if (isAllDay && ev.id) {
+        var curSt = getEvStatus(ev.id);
+        var stLabels = { blue: 'Blue (default)', purple: 'Labor Assigned', orange: 'Issue' };
+        var stColors = { blue: '#93c5fd', purple: '#d8b4fe', orange: '#fdba74' };
+        var curEl = document.getElementById('wc-pop-status-cur');
+        if (curEl) {
+          curEl.innerHTML = 'Current: <span style="color:' + (stColors[curSt]||'#93c5fd') + ';font-weight:700;">' + (stLabels[curSt]||'Blue (default)') + '</span>';
+        }
+      }
+    }
+    var sqInput = document.getElementById('wc-pop-sq');
+    if (sqInput) {
+      sqInput.value = ev.id ? getEvSq(ev.id) : '';
+      sqInput.onblur = function() {
+        if (wcCurrentEvId) {
+          setEvSq(wcCurrentEvId, sqInput.value.trim());
+          var gridEl = document.getElementById('week-cal-grid');
+          if (gridEl && cachedMonday) gridEl.innerHTML = renderGrid(cachedMonday, buildByDay(cachedEvents));
+        }
+      };
+      sqInput.onkeydown = function(e) { if (e.key === 'Enter') { sqInput.blur(); } };
+    }
     var rect = chip.getBoundingClientRect();
     var popW = 290, popH = 180;
     var left = rect.left;
