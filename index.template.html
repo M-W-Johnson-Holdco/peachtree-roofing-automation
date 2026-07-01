@@ -257,6 +257,7 @@
       <div id="week-cal-status" style="font-size:0.78rem;color:var(--txt3);margin-bottom:8px;min-height:16px;"></div>
       <div id="week-cal-filters" style="display:none;flex-wrap:wrap;gap:6px;margin-bottom:6px;"></div>
       <div id="week-cal-person-filters" style="display:none;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+      <div id="week-cal-weather-mini" style="display:none;margin-bottom:10px;"></div>
       <div id="week-cal-pto-mini" style="display:none;margin-bottom:10px;"></div>
       <div id="week-cal-itf-mini" style="display:none;margin-bottom:10px;"></div>
       <div id="week-cal-grid" style="overflow-x:auto;">
@@ -5313,6 +5314,12 @@ var ATTENDEE_MAP = {
 function isPto(summary) {
   return (summary || '').toUpperCase().indexOf('PTO') > -1;
 }
+function isHoliday(summary) {
+  return /holiday/i.test(summary || '');
+}
+function isWeather(summary) {
+  return /\b(rain|snow)\b/i.test(summary || '');
+}
 function isWorkingLocation(ev) {
   return (ev && ev.eventType === 'workingLocation') ||
     /^(Working from|Working Location|Work from Home|Work from Office|Office|Home|Out of office)$/i.test((ev && ev.summary) || '');
@@ -5356,6 +5363,8 @@ function isInTheField(summary) {
   function isFiltered(summary, ev) {
     // PTO events never appear in main grid
     if (isPto(summary)) return false;
+    if (isHoliday(summary)) return false;
+    if (isWeather(summary)) return false;
     // In the Field events never appear in main grid
     if (isInTheField(summary)) return false;
     // Working Location events never appear in main grid
@@ -5390,9 +5399,55 @@ function isInTheField(summary) {
     el.innerHTML = html;
   }
 
+  function renderWeatherMini(monday, events) {
+    var DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat'];
+    var wxEvents = events.filter(function(ev) { return isWeather(ev.summary || ''); });
+    var el = document.getElementById('week-cal-weather-mini');
+    if (!el) return;
+    if (!wxEvents.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+    var saturday = new Date(monday); saturday.setDate(monday.getDate() + 5);
+    var byDay = {};
+    wxEvents.forEach(function(ev) {
+      var startStr = ((ev.start||{}).dateTime || (ev.start||{}).date || '').slice(0,10);
+      var endStr   = ((ev.end||{}).dateTime   || (ev.end||{}).date   || '').slice(0,10);
+      var cur = new Date(startStr + 'T12:00:00');
+      var endD = endStr ? new Date(endStr + 'T12:00:00') : new Date(cur);
+      if ((ev.start||{}).dateTime) endD = new Date(cur);
+      while (cur < endD || (cur <= endD && !(ev.start||{}).date)) {
+        var key = toDateStr(cur);
+        if (cur >= monday && cur <= saturday) {
+          if (!byDay[key]) byDay[key] = [];
+          var already = false;
+          for (var x = 0; x < byDay[key].length; x++) { if (byDay[key][x] === ev) { already = true; break; } }
+          if (!already) byDay[key].push(ev);
+        }
+        cur.setDate(cur.getDate() + 1);
+        if (!(ev.start||{}).date) break;
+      }
+    });
+    var cols = '';
+    for (var i = 0; i < 6; i++) {
+      var d = new Date(monday); d.setDate(monday.getDate() + i);
+      var key = toDateStr(d);
+      var dayEvs = byDay[key] || [];
+      var chips = dayEvs.map(function(ev) {
+        var label = (ev.summary || 'Weather').replace(/\s*\(Job[^)]*\)/,'');
+        return '<div style="background:#0ea5e922;border-left:2px solid #0ea5e9;border-radius:3px;padding:2px 4px;font-size:0.65rem;word-break:break-word;" title="' + label.replace(/"/g,'&quot;') + '">' + label + '</div>';
+      }).join('');
+      cols += '<div style="min-width:80px;flex:1;border-right:1px solid var(--bdr);padding:0 5px 4px;">'
+        + '<div style="font-size:0.65rem;font-weight:700;color:var(--txt3);text-align:center;padding:3px 0;border-bottom:1px solid var(--bdr);margin-bottom:3px;">' + DAY_NAMES[i] + '</div>'
+        + (chips || '<div style="font-size:0.62rem;color:var(--txt3);text-align:center;padding:2px 0;">—</div>')
+        + '</div>';
+    }
+    el.style.display = 'block';
+    el.innerHTML =
+      '<div style="font-size:0.7rem;font-weight:700;color:#0ea5e9;margin-bottom:4px;letter-spacing:0.04em;">🌧️ Weather</div>'
+      + '<div style="overflow-x:auto;"><div style="display:flex;border:1px solid #0ea5e944;border-radius:6px;overflow:hidden;min-width:500px;">' + cols + '</div></div>';
+  }
+
   function renderPtoMini(monday, events) {
     var DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat'];
-    var ptoEvents = events.filter(function(ev) { return isPto(ev.summary || ''); });
+    var ptoEvents = events.filter(function(ev) { return isPto(ev.summary || '') || isHoliday(ev.summary || ''); });
     var el = document.getElementById('week-cal-pto-mini');
     if (!el) return;
     if (!ptoEvents.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
@@ -5624,6 +5679,7 @@ function isInTheField(summary) {
     renderFilters();
     renderPersonFilters();
     if (cachedMonday) {
+      renderWeatherMini(cachedMonday, cachedEvents);
       renderPtoMini(cachedMonday, cachedEvents);
       renderItfMini(cachedMonday, cachedEvents);
       var gridEl = document.getElementById('week-cal-grid');
@@ -5661,6 +5717,7 @@ function isInTheField(summary) {
       cachedEvents = [].concat.apply([], results);
       renderFilters();
       renderPersonFilters();
+      renderWeatherMini(cachedMonday, cachedEvents);
       renderPtoMini(cachedMonday, cachedEvents);
       renderItfMini(cachedMonday, cachedEvents);
       var byDay = buildByDay(cachedEvents);
