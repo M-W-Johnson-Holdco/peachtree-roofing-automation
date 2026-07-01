@@ -4986,6 +4986,7 @@ var APPT_TYPES = [
   "Forensic Inspection",
   "Engineer Inspection",
   "Engineer Adjustment",
+  "Appraisal Inspection",
   "On-Roof Inspection",
   "Interior Only Inspection",
   "Shingle Pull",
@@ -5006,6 +5007,7 @@ var APPT_TYPES = [
   "Interior Assessment",
   "Window/Glass Replacement",
   "Fence Staining/Pressure Washing",
+  "Fence Work",
   "Siding Repairs",
   "General Site Visit"
 ];
@@ -7171,9 +7173,40 @@ document.addEventListener("click", function(e){
 
 var REMINDER_APPT_TYPES = APPT_TYPES.filter(function(t){ return t !== "Tentative Build Date"; });
 
-var REMINDER_SMS_DEFAULTS = {};
+var REMINDER_SMS_DEFAULTS = {
+  "Re-inspection Adjustment":           "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}} at {{Time}}. Please contact us if you hear from the insurance company requesting a change to the scheduled meeting time. Reply to this message with any questions. Thank you!",
+  "Insurance Adjustment":               "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}} at {{Time}}. Please contact us if you hear from the insurance company requesting a change to the scheduled meeting time. Reply to this message with any questions. Thank you!",
+  "Interior Only Insurance Adjustment": "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}} at {{Time}}. Please contact us if you hear from the insurance company requesting a change to the scheduled meeting time. Reply to this message with any questions. Thank you!",
+  "Forensic Inspection":                "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Engineer Inspection":                "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Engineer Adjustment":                "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}} at {{Time}}. Please contact us if you hear from the insurance company requesting a change to the scheduled meeting time. Reply to this message with any questions. Thank you!",
+  "Appraisal Inspection":               "Hi {{First Name}}! Your appraisal inspection is scheduled for tomorrow, {{Date}}. Please check your email for the Google Calendar invite for details.",
+  "On-Roof Inspection":                 "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Interior Only Inspection":           "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Shingle Pull":                       "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Video Repair":                       "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "2nd Video Repair":                   "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Leak Source":                        "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Leak Source (Warranty)":             "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Roof Replacement":                   "Hi, {{First Name}}. We are all set for roof replacement tomorrow morning. The crew will be arriving 6-7am. Make sure driveway is clear with vehicles parked in the street. Following completion of your roof, {{Salesperson}} will reach out to you to schedule your walk-through and attic safety check.",
+  "Roof Repair":                        "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Gutter Work":                        "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Interior Work":                      "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Window Screen Measurements":         "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Window Screen Installation":         "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Garage Door Installation":           "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Someone must be home, so our crew can have full access to the garage. We will see you then. Reply to this message with any questions. Thank you!",
+  "Exterior Assessment":                "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Exterior Repair":                    "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Interior Assessment":                "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Someone must be home to let the crew member inside. We will see you then! Reply to this message with any questions. Thank you!",
+  "Window/Glass Replacement":           "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Someone must be home to let the crew inside. We will see you then! Reply to this message with any questions. Thank you!",
+  "Fence Staining/Pressure Washing":    "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Fence Work":                         "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "Siding Repairs":                     "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}}. Reply to this message with any questions. Thank you!",
+  "General Site Visit":                 "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your Quality Control Technician appointment to review concerns at your home is scheduled for tomorrow, {{Date}}."
+};
+// Fallback for any future types not explicitly listed above
 REMINDER_APPT_TYPES.forEach(function(t){
-  REMINDER_SMS_DEFAULTS[t] = "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}} at {{Time}}. Reply to this message with any questions. Thank you!";
+  if (!REMINDER_SMS_DEFAULTS[t]) REMINDER_SMS_DEFAULTS[t] = "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}} at {{Time}}. Reply to this message with any questions. Thank you!";
 });
 
 var reminderSmsBodies = {};
@@ -7250,7 +7283,7 @@ function syncReminderTemplatesToSheet() {
     if (!r.ok) return r.text().then(function(t){ throw new Error("Sheet write failed: " + t); });
     return r.json();
   }).then(function(){
-    if(statusEl) statusEl.textContent = "✓ " + APPT_TYPES.length + " templates synced to \"" + (CRED_GS_TMPL_TAB||"ReminderTemplates") + "\" tab at " + new Date().toLocaleTimeString();
+    if(statusEl) statusEl.textContent = "✓ " + REMINDER_APPT_TYPES.length + " templates synced to \"" + (CRED_GS_TMPL_TAB||"ReminderTemplates") + "\" tab at " + new Date().toLocaleTimeString();
   }).catch(function(e){
     if(statusEl) statusEl.textContent = "Error: " + e.message;
   });
