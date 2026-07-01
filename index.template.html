@@ -5624,16 +5624,15 @@ function isInTheField(summary) {
       var allDayEvs  = events.filter(function(ev){ return (ev.start||{}).date && !(ev.start||{}).dateTime; });
       var timedEvs   = events.filter(function(ev){ return !((ev.start||{}).date && !(ev.start||{}).dateTime); });
 
-      var allDaySection = allDayEvs.length
-        ? '<div style="border-bottom:1px solid var(--bdr);margin-bottom:5px;padding-bottom:5px;">'
-            + '<div style="font-size:0.58rem;font-weight:700;color:var(--txt3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:3px;">All Day</div>'
-            + allDayEvs.map(makeChip).join('')
-          + '</div>'
-        : '';
+      var allDaySection = '<div style="min-height:28px;border-bottom:2px solid var(--bdr);margin-bottom:6px;padding-bottom:4px;">'
+        + (allDayEvs.length
+            ? allDayEvs.map(makeChip).join('')
+            : '<div style="font-size:0.62rem;color:var(--txt3);text-align:center;padding:5px 0;">—</div>')
+        + '</div>';
 
       var timedSection = timedEvs.length
         ? timedEvs.map(makeChip).join('')
-        : (!allDayEvs.length ? '<div style="font-size:0.72rem;color:var(--txt3);text-align:center;padding:8px 0;">—</div>' : '');
+        : '<div style="font-size:0.72rem;color:var(--txt3);text-align:center;padding:8px 0;">—</div>';
 
       cols += '<div style="min-width:120px;flex:1;border-right:1px solid var(--bdr);padding:0 8px 8px;">' +
         '<div style="font-weight:700;font-size:0.78rem;text-align:center;padding:6px 0;border-bottom:1px solid var(--bdr);margin-bottom:6px;' + (isToday ? 'color:#4A90D9;' : 'color:var(--txt2);') + '">' +
