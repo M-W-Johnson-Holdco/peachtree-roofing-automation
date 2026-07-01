@@ -6329,7 +6329,6 @@ function createCalendarEvent(jobKey, isReschedule, oldEventId) {
   };
   if (attendees.length) {
     eventBody.attendees = attendees;
-    eventBody.sendUpdates = "all";
   }
 
   schedLog("info", (isReschedule ? "Rescheduling" : "Creating") + " calendar event for " + ctx.name + "...");
@@ -6345,7 +6344,7 @@ function createCalendarEvent(jobKey, isReschedule, oldEventId) {
   deletePromise
     .then(function(){ return getGCalToken(); })
     .then(function(t){
-      return fetch("https://www.googleapis.com/calendar/v3/calendars/" + encodeURIComponent(getCalendarId(type)) + "/events", {
+      return fetch("https://www.googleapis.com/calendar/v3/calendars/" + encodeURIComponent(getCalendarId(type)) + "/events?sendUpdates=all", {
         method: "POST",
         headers: { Authorization: "Bearer " + t, "Content-Type": "application/json" },
         body: JSON.stringify(eventBody)
@@ -7006,12 +7005,12 @@ function runBulkSchedule() {
     var bulkAttendees = (item.emailsRaw||"").split(",").map(function(e){ return e.trim(); })
       .filter(function(e){ return e.indexOf("@") > -1; })
       .map(function(e){ return { email: e }; });
-    if (bulkAttendees.length) { eventBody.attendees = bulkAttendees; eventBody.sendUpdates = "all"; }
+    if (bulkAttendees.length) { eventBody.attendees = bulkAttendees; }
 
     schedLog("info", "["+i+"/"+toSend.length+"] "+ctx.name+" — "+item.type+" on "+formatDateNice(item.date)+" at "+formatTimeNice(item.start));
 
     getGCalToken().then(function(t){
-      return fetch("https://www.googleapis.com/calendar/v3/calendars/"+encodeURIComponent(getCalendarId(item.type))+"/events",{
+      return fetch("https://www.googleapis.com/calendar/v3/calendars/"+encodeURIComponent(getCalendarId(item.type))+"/events?sendUpdates=all",{
         method:"POST", headers:{Authorization:"Bearer "+t,"Content-Type":"application/json"},
         body:JSON.stringify(eventBody)
       });
@@ -7537,7 +7536,7 @@ document.addEventListener("click", function(e){
       start: { dateTime: startDt, timeZone: "America/New_York" },
       end:   { dateTime: endDt,   timeZone: "America/New_York" }
     };
-    if (attendees2.length) { newEventBody.attendees = attendees2; newEventBody.sendUpdates = "all"; }
+    if (attendees2.length) { newEventBody.attendees = attendees2; }
 
     schedLog("info", "Rescheduling " + (origEv ? origEv.summary : evId2) + "…");
 
@@ -7546,7 +7545,7 @@ document.addEventListener("click", function(e){
     .then(function(){
       return getGCalToken();
     }).then(function(tok){
-      return fetch("https://www.googleapis.com/calendar/v3/calendars/" + encodeURIComponent(getCalendarId(newType)) + "/events", {
+      return fetch("https://www.googleapis.com/calendar/v3/calendars/" + encodeURIComponent(getCalendarId(newType)) + "/events?sendUpdates=all", {
         method: "POST",
         headers: { Authorization: "Bearer " + tok, "Content-Type": "application/json" },
         body: JSON.stringify(newEventBody)
