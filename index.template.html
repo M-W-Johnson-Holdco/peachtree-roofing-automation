@@ -5926,7 +5926,12 @@ function isInTheField(summary) {
       container.addEventListener('touchend', function(e) {
         var dx = e.changedTouches[0].clientX - touchStartX;
         var dy = e.changedTouches[0].clientY - touchStartY;
-        if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return; // too short or mostly vertical
+        if (Math.abs(dx) < 80 || Math.abs(dy) > Math.abs(dx)) return;
+        // Only navigate when already at the scroll boundary in the swipe direction
+        var atLeft  = container.scrollLeft <= 2;
+        var atRight = container.scrollLeft >= container.scrollWidth - container.clientWidth - 2;
+        if (dx > 0 && !atLeft)  return; // swiping right but not at left edge
+        if (dx < 0 && !atRight) return; // swiping left but not at right edge
         var anchorEl = document.getElementById('week-cal-anchor');
         var monday = getMondayOf(anchorEl ? anchorEl.value : '');
         monday.setDate(monday.getDate() + (dx < 0 ? 7 : -7));
