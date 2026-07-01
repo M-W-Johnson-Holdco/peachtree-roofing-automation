@@ -7105,7 +7105,7 @@ function renderReminderSmsTmplList() {
   var tabDisplay = document.getElementById("reminder-tmpl-tab-display");
   if (tabDisplay) tabDisplay.textContent = CRED_GS_TMPL_TAB;
 
-  el.innerHTML = APPT_TYPES.map(function(apptType){
+  el.innerHTML = REMINDER_APPT_TYPES.map(function(apptType){
     var body = reminderSmsBodies[apptType] || REMINDER_SMS_DEFAULTS[apptType] || "";
     return '<div class="cal-tmpl-item" style="opacity:0.85;">' +
       '<h3>' +
@@ -7169,16 +7169,18 @@ document.addEventListener("click", function(e){
 // DAY-BEFORE REMINDER SMS TEMPLATES
 // =====================================================================
 
+var REMINDER_APPT_TYPES = APPT_TYPES.filter(function(t){ return t !== "Tentative Build Date"; });
+
 var REMINDER_SMS_DEFAULTS = {};
-APPT_TYPES.forEach(function(t){
+REMINDER_APPT_TYPES.forEach(function(t){
   REMINDER_SMS_DEFAULTS[t] = "Hi {{First Name}}! This is a reminder from Peachtree Roofing & Exteriors that your {{Appointment Type}} is scheduled for tomorrow, {{Date}} at {{Time}}. Reply to this message with any questions. Thank you!";
 });
 
 var reminderSmsBodies = {};
-APPT_TYPES.forEach(function(t){ reminderSmsBodies[t] = REMINDER_SMS_DEFAULTS[t]; });
+REMINDER_APPT_TYPES.forEach(function(t){ reminderSmsBodies[t] = REMINDER_SMS_DEFAULTS[t]; });
 
 function loadReminderSmsTemplates() {
-  APPT_TYPES.forEach(function(t){
+  REMINDER_APPT_TYPES.forEach(function(t){
     var v = store.get("reminder_sms_" + t); if (v) reminderSmsBodies[t] = v;
   });
 }
@@ -7234,7 +7236,7 @@ function syncReminderTemplatesToSheet() {
 
   // Build rows: header + one row per type
   var rows = [["AppointmentType", "Template"]];
-  APPT_TYPES.forEach(function(t){ rows.push([t, reminderSmsBodies[t] || REMINDER_SMS_DEFAULTS[t] || ""]); });
+  REMINDER_APPT_TYPES.forEach(function(t){ rows.push([t, reminderSmsBodies[t] || REMINDER_SMS_DEFAULTS[t] || ""]); });
 
   getGSToken().then(function(tok){
     var sn = encodeURIComponent(tmplTab);
