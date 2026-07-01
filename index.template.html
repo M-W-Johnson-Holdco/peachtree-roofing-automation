@@ -473,8 +473,9 @@
     </div>
     <div class="card">
       <h2>Reminder Template Sync</h2>
-      <div class="alert alert-info">Pushes all reminder templates to the Google Sheet tab so the auto-reminder Worker picks them up. Run after any template change.</div>
+      <div class="alert alert-info">Use <strong>Load from Sheet</strong> to pull the latest templates from Google Sheets into the app. Use <strong>Sync to Sheet</strong> to push the app's current templates up to Google Sheets for the Worker to use.</div>
       <div class="btn-row">
+        <button class="btn btn-secondary btn-sm" id="load-reminder-tmpl-btn">⬇️ Load from Sheet</button>
         <button class="btn btn-secondary btn-sm" id="sync-reminder-tmpl-btn">☁️ Sync Reminder Templates to Sheet</button>
       </div>
       <div id="sync-tmpl-status" class="small" style="margin-top:6px;"></div>
@@ -4893,6 +4894,7 @@ document.addEventListener("click",function(e){
   if(t.id==="weather-reset-msg-btn"){store.del("weather_msg");document.getElementById("weather-msg-edit").value=WEATHER_MESSAGE_DEFAULT;alert("Reset to default!");return;}
   if(t.id==="weather-send-btn"){sendWeatherBlast();return;}
   if(t.id==="weather-clear-btn"){var b=document.getElementById("weather-log");if(b)b.innerHTML="";return;}
+  if(t.id==="load-reminder-tmpl-btn"){loadReminderTemplatesFromSheet();return;}
   if(t.id==="sync-reminder-tmpl-btn"){syncReminderTemplatesToSheet();return;}
   if(t.id==="register-webhook-btn"){
     setWebhookStatus("Authenticating...","#4A90D9");
@@ -7186,6 +7188,39 @@ function isReminderSmsModified(t)  { return reminderSmsBodies[t] !== REMINDER_SM
 
 function buildReminderSms(apptType, firstName, dateStr, timeStr, address, jobNum, spPhone) {
   return applySmsTmplVars(reminderSmsBodies[apptType] || REMINDER_SMS_DEFAULTS[apptType] || "", firstName, apptType, dateStr, timeStr, address, jobNum, spPhone);
+}
+
+// -- Load reminder templates FROM Google Sheet into app localStorage --
+function loadReminderTemplatesFromSheet() {
+  var tmplTab = CRED_GS_TMPL_TAB;
+  var sid = CRED_GS_SHEET_ID;
+  var statusEl = document.getElementById("sync-tmpl-status");
+  if (!sid) { if(statusEl) statusEl.textContent = "Error: Spreadsheet ID not set."; return; }
+  if(statusEl) statusEl.textContent = "Loading from sheet…";
+  getGSToken().then(function(tok){
+    var sn = encodeURIComponent(tmplTab);
+    return fetch("https://sheets.googleapis.com/v4/spreadsheets/" + sid + "/values/" + sn + "!A:B", {
+      headers: { Authorization: "Bearer " + tok }
+    });
+  }).then(function(r){
+    if (!r.ok) return r.text().then(function(t){ throw new Error("Sheet read failed: " + t); });
+    return r.json();
+  }).then(function(d){
+    if (!d.values || d.values.length < 2) throw new Error("No templates found in sheet tab \"" + tmplTab + "\"");
+    var loaded = 0;
+    d.values.slice(1).forEach(function(row){
+      var type = (row[0] || "").trim();
+      var tmpl = (row[1] || "").trim();
+      if (type && tmpl && reminderSmsBodies.hasOwnProperty(type)) {
+        saveReminderSms(type, tmpl);
+        loaded++;
+      }
+    });
+    if(statusEl) statusEl.textContent = "✓ Loaded " + loaded + " templates from sheet at " + new Date().toLocaleTimeString();
+    renderReminderSmsTemplates();
+  }).catch(function(e){
+    if(statusEl) statusEl.textContent = "Error: " + e.message;
+  });
 }
 
 // -- Sync reminder templates to Google Sheet tab so the Worker can read them --
