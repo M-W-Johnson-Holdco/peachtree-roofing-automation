@@ -4998,6 +4998,7 @@ function getAllCalendarIds() {
 var gcalToken = null;
 var gcalTokenExpiry = 0;
 var schedJobContext = null; // { jobNum, jobGuid, name, phone, phone2, salesperson, logEntries }
+var pendingEvData   = {};   // jobKey -> { codes:[], sq:'', status:'blue' } — set before event creation
 
 var APPT_TYPES = [
   "Re-inspection Adjustment",
@@ -5162,6 +5163,27 @@ function renderJobResult(entries) {
           '<label>Internal Notes <span style="color:#64748b;font-weight:400">(internally shared via text day before appt at 5pm EST)</span></label>' +
           '<textarea id="appt-internalnotes-' + jobKey + '" rows="3" placeholder="e.g. Customer prefers afternoon. Adjuster name: John Smith."></textarea>' +
         '</div>' +
+        (function() {
+          var opts = window.EV_CODE_OPTIONS || ['P','PY','M','MA','MAD','T','TT','ID','Pending Skylights','Pending Permit','Redeck'];
+          var chipHtml = opts.map(function(c) {
+            return '<span data-appt-code="' + c + '" style="cursor:pointer;display:inline-block;padding:2px 8px;border-radius:6px;font-size:0.65rem;font-weight:700;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#6a6560;user-select:none;">' + c + '</span>';
+          }).join('');
+          return '<div style="margin-top:12px;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px;">' +
+            '<div style="font-size:0.68rem;font-weight:700;color:#c9a24a;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px;">Internal Codes</div>' +
+            '<div id="appt-codes-chips-' + jobKey + '" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">' + chipHtml + '</div>' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">' +
+              '<span style="font-size:0.68rem;font-weight:700;color:#0ea5e9;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;">Sq Size</span>' +
+              '<input type="text" id="appt-sq-' + jobKey + '" inputmode="decimal" placeholder="e.g. 24.5" style="width:90px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.3);color:#e0f2fe;border-radius:6px;padding:3px 8px;font-size:0.78rem;outline:none;">' +
+            '</div>' +
+            '<div style="font-size:0.68rem;font-weight:700;color:#94a3b8;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:5px;">Job Status</div>' +
+            '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px;">' +
+              '<button type="button" id="appt-st-blue-' + jobKey + '" style="cursor:pointer;padding:3px 10px;border-radius:6px;font-size:0.68rem;font-weight:700;border:2px solid rgba(59,130,246,0.7);background:rgba(59,130,246,0.2);color:#93c5fd;">Blue</button>' +
+              '<button type="button" id="appt-st-purple-' + jobKey + '" style="cursor:pointer;padding:3px 10px;border-radius:6px;font-size:0.68rem;font-weight:700;border:1px solid rgba(168,85,247,0.5);background:rgba(168,85,247,0.12);color:#d8b4fe;">Labor Assigned</button>' +
+              '<button type="button" id="appt-st-orange-' + jobKey + '" style="cursor:pointer;padding:3px 10px;border-radius:6px;font-size:0.68rem;font-weight:700;border:1px solid rgba(249,115,22,0.5);background:rgba(249,115,22,0.12);color:#fdba74;">Issue</button>' +
+            '</div>' +
+            '<div id="appt-status-label-' + jobKey + '" style="font-size:0.63rem;color:#6a6560;">Status: <span style="color:#93c5fd;font-weight:700;">Blue (default)</span></div>' +
+          '</div>';
+        })() +
         '<div class="btn-row" style="margin-top:10px;">' +
           '<button class="btn btn-primary btn-sm" data-sched-book="' + jobKey + '">📅 Schedule & Send SMS</button>' +
           '<button class="btn btn-secondary btn-sm" data-sched-preview="' + jobKey + '">↻ Preview SMS</button>' +
@@ -5171,6 +5193,53 @@ function renderJobResult(entries) {
   }).join("");
 
   container.innerHTML = html;
+
+  // Wire internal codes / sq / status for each job form
+  entries.forEach(function(entry) {
+    var jk = entry.jobNum || entry.jobGuid;
+    if (!pendingEvData[jk]) pendingEvData[jk] = { codes: [], sq: '', status: 'blue' };
+
+    var codesEl = document.getElementById('appt-codes-chips-' + jk);
+    if (codesEl) {
+      codesEl.addEventListener('click', function(e) {
+        var chip = e.target.closest ? e.target.closest('[data-appt-code]') : null;
+        if (!chip) return;
+        var code = chip.getAttribute('data-appt-code');
+        var d = pendingEvData[jk];
+        var idx = d.codes.indexOf(code);
+        if (idx > -1) d.codes.splice(idx, 1); else d.codes.push(code);
+        codesEl.querySelectorAll('[data-appt-code]').forEach(function(c) {
+          var on = d.codes.indexOf(c.getAttribute('data-appt-code')) > -1;
+          c.style.background    = on ? 'rgba(201,162,74,0.22)' : 'transparent';
+          c.style.color         = on ? '#c9a24a' : '#6a6560';
+          c.style.borderColor   = on ? 'rgba(201,162,74,0.7)' : 'rgba(255,255,255,0.1)';
+          c.style.borderWidth   = '1px';
+        });
+      });
+    }
+
+    var sqEl = document.getElementById('appt-sq-' + jk);
+    if (sqEl) sqEl.addEventListener('input', function() { pendingEvData[jk].sq = sqEl.value.trim(); });
+
+    var stColors = { blue: '#93c5fd', purple: '#d8b4fe', orange: '#fdba74' };
+    var stLabels = { blue: 'Blue (default)', purple: 'Labor Assigned', orange: 'Issue' };
+    ['blue','purple','orange'].forEach(function(st) {
+      var btn = document.getElementById('appt-st-' + st + '-' + jk);
+      if (!btn) return;
+      btn.addEventListener('click', function() {
+        pendingEvData[jk].status = st;
+        var lbl = document.getElementById('appt-status-label-' + jk);
+        if (lbl) lbl.innerHTML = 'Status: <span style="color:' + stColors[st] + ';font-weight:700;">' + stLabels[st] + '</span>';
+        ['blue','purple','orange'].forEach(function(s) {
+          var b = document.getElementById('appt-st-' + s + '-' + jk);
+          if (b) b.style.borderWidth = s === st ? '2px' : '1px';
+          if (b) b.style.borderColor = s === st
+            ? (s==='blue'?'rgba(59,130,246,0.9)': s==='purple'?'rgba(168,85,247,0.9)':'rgba(249,115,22,0.9)')
+            : (s==='blue'?'rgba(59,130,246,0.5)': s==='purple'?'rgba(168,85,247,0.5)':'rgba(249,115,22,0.5)');
+        });
+      });
+    });
+  });
 
   // Store context and wire up live preview
   var firstEntry = entries[0];
@@ -6091,6 +6160,15 @@ function isInTheField(summary) {
     if (top + popH + 8 > window.innerHeight) top = rect.top - popH - 6;
     pop.style.top = Math.max(6, top) + 'px';
   }
+
+  // Expose to global scope so createCalendarEvent (outside IIFE) can save pending codes
+  window._evInternal = {
+    setCodes:   setEvCodes,
+    setSq:      setEvSq,
+    setStatus:  setEvStatus,
+    save:       scheduleSaveEvData
+  };
+  window.EV_CODE_OPTIONS = EV_CODE_OPTIONS;
 })();
 // -- Create Calendar Event --
 function createCalendarEvent(jobKey, isReschedule, oldEventId) {
@@ -6163,6 +6241,16 @@ function createCalendarEvent(jobKey, isReschedule, oldEventId) {
     .then(function(ev){
       if (ev.error) throw new Error("Calendar API: " + JSON.stringify(ev.error));
       schedLog("success", "Event created: " + ev.summary + " | ID: " + ev.id);
+
+      // Save any internal codes / sq / status entered before creation
+      if (ev.id && window._evInternal && pendingEvData[jobKey]) {
+        var pd = pendingEvData[jobKey];
+        if (pd.codes && pd.codes.length) window._evInternal.setCodes(ev.id, pd.codes);
+        if (pd.sq)                        window._evInternal.setSq(ev.id, pd.sq);
+        if (pd.status && pd.status !== 'blue') window._evInternal.setStatus(ev.id, pd.status);
+        if (pd.codes.length || pd.sq || (pd.status && pd.status !== 'blue')) window._evInternal.save();
+        delete pendingEvData[jobKey];
+      }
 
       // Build recipient list from context, same as main SMS system
       var recips = [];
