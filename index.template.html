@@ -6380,12 +6380,16 @@ function createCalendarEvent(jobKey, isReschedule, oldEventId) {
 
         // Log to AccuLynx
         var existingLog = ctx.logEntries || [];
+        var alMessageId = "";
+        var alJobGuid   = ctx.jobGuid || "";
         return logToAccuLynx(ctx.jobKey, smsMsg, ctx.jobGuid || "", "", existingLog).then(function(alRes){
-          schedLog("success", "AccuLynx updated — MsgID: " + (alRes.messageId || "n/a"));
+          alMessageId = (alRes && alRes.messageId) || "";
+          alJobGuid   = (alRes && alRes.guid)      || alJobGuid;
+          schedLog("success", "AccuLynx updated — MsgID: " + (alMessageId || "n/a"));
         }).catch(function(e){
           schedLog("warn", "AccuLynx log failed: " + e.message);
         }).then(function(){
-          // Append to Google Sheet
+          // Append to Google Sheet — store AccuLynx messageId so replies thread correctly
           var entry = {
             timestamp: new Date().toISOString(),
             jobNum: ctx.jobNum || ctx.jobGuid,
@@ -6396,8 +6400,8 @@ function createCalendarEvent(jobKey, isReschedule, oldEventId) {
             message: smsMsg,
             acculynxLogged: "logged",
             status: "sent",
-            jobGuid: ctx.jobGuid || "",
-            messageId: "",
+            jobGuid: alJobGuid,
+            messageId: alMessageId,
             runBy: currentUser || "Unknown",
             secondaryPhone: ctx.phone2 || "",
             conversationId: convId || ""
