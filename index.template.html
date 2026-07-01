@@ -5503,10 +5503,11 @@ function isInTheField(summary) {
     var DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat'];
     var el = document.getElementById('week-cal-itf-mini');
     if (!el) return;
-    // Only include events that would show in the main grid (exclude PTO, holiday, weather, ITF, working location)
+    // Only include timed (non-all-day) events that would show in the main grid
     var gridEvents = events.filter(function(ev) {
       var s = ev.summary || '';
-      return !isPto(s) && !isHoliday(s) && !isWeather(s) && !isInTheField(s) && !isWorkingLocation(ev);
+      var isAllDay = (ev.start||{}).date && !(ev.start||{}).dateTime;
+      return !isAllDay && !isPto(s) && !isHoliday(s) && !isWeather(s) && !isInTheField(s) && !isWorkingLocation(ev);
     });
     var saturday = new Date(monday); saturday.setDate(monday.getDate() + 5);
     // Build day -> sorted unique person names
