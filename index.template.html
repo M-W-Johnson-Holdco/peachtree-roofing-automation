@@ -5344,7 +5344,11 @@ function renderJobResult(entries) {
 }
 
 function extractSalespersonFromEntries(entries) {
-  // Try to pull salesperson name from message body by matching SALESPERSON_MAP keys
+  // Check _salesperson field first (set by manual entry form)
+  for (var i = 0; i < entries.length; i++) {
+    if (entries[i]._salesperson) return entries[i]._salesperson;
+  }
+  // Fall back to scanning message body for salesperson name
   var keys = Object.keys(SALESPERSON_MAP);
   for (var i = 0; i < entries.length; i++) {
     var msg = entries[i].message || "";
@@ -6244,25 +6248,36 @@ function isInTheField(summary) {
 // -- Create Calendar Event --
 function createCalendarEvent(jobKey, isReschedule, oldEventId) {
   var prefix = isReschedule ? "resched" : "appt";
-  var type = document.getElementById(prefix + "-type-" + jobKey).value;
-  var date = document.getElementById(prefix + "-date-" + jobKey).value;
-  var start = document.getElementById(prefix + "-start-" + jobKey).value;
-  var end = document.getElementById(prefix + "-end-" + jobKey).value;
-  var location = (document.getElementById(prefix + "-location-" + jobKey) || {}).value || "";
-  var notes = document.getElementById(prefix + "-notes-" + jobKey).value;
-  var emailsRaw = (document.getElementById(prefix + "-emails-" + jobKey) || {}).value || "";
-  var extraNotes = (document.getElementById(prefix + "-extranotes-" + jobKey) || {}).value || "";
-  var smsMsg = document.getElementById(prefix + "-sms-" + jobKey).value;
+  var typeEl    = document.getElementById(prefix + "-type-"       + jobKey);
+  var dateEl    = document.getElementById(prefix + "-date-"       + jobKey);
+  var startEl   = document.getElementById(prefix + "-start-"      + jobKey);
+  var endEl     = document.getElementById(prefix + "-end-"        + jobKey);
+  var notesEl   = document.getElementById(prefix + "-notes-"      + jobKey);
+  var smsEl     = document.getElementById(prefix + "-sms-"        + jobKey);
+  if (!typeEl || !dateEl || !startEl || !endEl || !notesEl || !smsEl) {
+    schedLog("error", "Form not found for job " + jobKey + " — please reload and try again.");
+    return;
+  }
+  var type      = typeEl.value;
+  var date      = dateEl.value;
+  var start     = startEl.value;
+  var end       = endEl.value;
+  var location  = (document.getElementById(prefix + "-location-"  + jobKey) || {}).value || "";
+  var notes     = notesEl.value;
+  var emailsRaw = (document.getElementById(prefix + "-emails-"    + jobKey) || {}).value || "";
+  var extraNotes= (document.getElementById(prefix + "-extranotes-"+ jobKey) || {}).value || "";
+  var smsMsg    = smsEl.value;
 
   if (!date || !start || !end) {
+    schedLog("warn", "Please fill in date, start time, and end time.");
     alert("Please fill in date, start time, and end time.");
     return;
   }
   if (!smsMsg.trim()) {
+    schedLog("warn", "SMS message is empty — click ↻ Preview SMS to rebuild it.");
     alert("SMS message is empty.");
     return;
   }
-  if (!confirm((isReschedule ? "Reschedule" : "Schedule") + " appointment and send SMS to group thread?")) return;
 
   var ctx = schedJobContext;
   if (!ctx) { schedLog("error", "No job context. Look up a job first."); return; }
