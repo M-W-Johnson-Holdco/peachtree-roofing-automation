@@ -6360,8 +6360,8 @@ function loadExistingEventsForJob(jobKey, name) {
     });
     // Sort by start time
     allItems.sort(function(a,b){
-      var at = a.start&&a.start.dateTime ? new Date(a.start.dateTime) : 0;
-      var bt = b.start&&b.start.dateTime ? new Date(b.start.dateTime) : 0;
+      var at = a.start&&a.start.dateTime ? new Date(a.start.dateTime) : a.start&&a.start.date ? new Date(a.start.date+'T00:00:00') : 0;
+      var bt = b.start&&b.start.dateTime ? new Date(b.start.dateTime) : b.start&&b.start.date ? new Date(b.start.date+'T00:00:00') : 0;
       return at - bt;
     });
     return allItems;
@@ -6380,11 +6380,18 @@ function loadExistingEventsForJob(jobKey, name) {
     }
 
     container.innerHTML = items.map(function(ev){
-      var start = ev.start && ev.start.dateTime ? new Date(ev.start.dateTime) : null;
+      var isAllDayEv = !!(ev.start && ev.start.date && !ev.start.dateTime);
+      var start = ev.start && ev.start.dateTime ? new Date(ev.start.dateTime)
+                : ev.start && ev.start.date     ? new Date(ev.start.date + 'T12:00:00')
+                : null;
       var end   = ev.end   && ev.end.dateTime   ? new Date(ev.end.dateTime)   : null;
-      var timeStr = start ? start.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}) + " " +
-        start.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"}) +
-        " – " + (end ? end.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"}) : "") + " EST" : "All day";
+      var timeStr = start
+        ? (isAllDayEv
+            ? start.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"}) + " · All Day"
+            : start.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}) + " · " +
+              start.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"}) +
+              " – " + (end ? end.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"}) : "") + " EST")
+        : "No date";
 
       // Pre-fill values from original event
       var origType = "";
@@ -7158,8 +7165,8 @@ function loadAllEvents() {
       });
     });
     merged.sort(function(a,b){
-      var at = a.start&&a.start.dateTime ? new Date(a.start.dateTime) : 0;
-      var bt = b.start&&b.start.dateTime ? new Date(b.start.dateTime) : 0;
+      var at = a.start&&a.start.dateTime ? new Date(a.start.dateTime) : a.start&&a.start.date ? new Date(a.start.date+'T00:00:00') : 0;
+      var bt = b.start&&b.start.dateTime ? new Date(b.start.dateTime) : b.start&&b.start.date ? new Date(b.start.date+'T00:00:00') : 0;
       return at - bt;
     });
     allEventsCache = merged;
@@ -7196,8 +7203,12 @@ function renderAllEvents() {
   var groups = {};
   var order  = [];
   items.forEach(function(ev){
-    var dt = ev.start && ev.start.dateTime ? new Date(ev.start.dateTime) : null;
-    var dateKey = dt ? dt.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric",timeZone:"America/New_York"}) : "All Day";
+    var dt = ev.start && ev.start.dateTime ? new Date(ev.start.dateTime)
+           : ev.start && ev.start.date    ? new Date(ev.start.date + 'T12:00:00')
+           : null;
+    var dateKey = dt
+      ? dt.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric",timeZone:"America/New_York"})
+      : "Unknown Date";
     if (!groups[dateKey]) { groups[dateKey] = []; order.push(dateKey); }
     groups[dateKey].push(ev);
   });
@@ -7205,12 +7216,16 @@ function renderAllEvents() {
   var html = order.map(function(dateKey){
     var evs = groups[dateKey];
     var evRows = evs.map(function(ev){
-      var start = ev.start && ev.start.dateTime ? new Date(ev.start.dateTime) : null;
+      var isAllDayEv = !!(ev.start && ev.start.date && !ev.start.dateTime);
+      var start = ev.start && ev.start.dateTime ? new Date(ev.start.dateTime)
+                : ev.start && ev.start.date    ? new Date(ev.start.date + 'T12:00:00')
+                : null;
       var end   = ev.end   && ev.end.dateTime   ? new Date(ev.end.dateTime)   : null;
-      var timeStr = start
+      var timeStr = isAllDayEv ? "All Day"
+        : start
         ? start.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"}) +
           (end ? " – " + end.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",timeZone:"America/New_York"}) : "") + " EST"
-        : "All day";
+        : "";
 
       // Extract appointment type from summary (format: "Type — Name (Job X)")
       var apptType = "";
