@@ -5624,11 +5624,12 @@ function isInTheField(summary) {
       var allDayEvs  = events.filter(function(ev){ return (ev.start||{}).date && !(ev.start||{}).dateTime; });
       var timedEvs   = events.filter(function(ev){ return !((ev.start||{}).date && !(ev.start||{}).dateTime); });
 
-      var allDaySection = '<div style="min-height:28px;border-bottom:2px solid var(--bdr);margin-bottom:6px;padding-bottom:4px;">'
+      var allDaySection = '<div style="min-height:28px;margin-bottom:6px;padding-bottom:4px;">'
         + (allDayEvs.length
             ? allDayEvs.map(makeChip).join('')
             : '<div style="font-size:0.62rem;color:var(--txt3);text-align:center;padding:5px 0;">—</div>')
-        + '</div>';
+        + '</div>'
+        + '<div style="height:1px;background:rgba(255,255,255,0.18);margin:0 -8px 8px;"></div>';
 
       var timedSection = timedEvs.length
         ? timedEvs.map(makeChip).join('')
