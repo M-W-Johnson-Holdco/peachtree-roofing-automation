@@ -5501,38 +5501,37 @@ function isInTheField(summary) {
 
   function renderItfMini(monday, events) {
     var DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat'];
-    var itfEvents = events.filter(function(ev) { return isInTheField(ev.summary || ''); });
     var el = document.getElementById('week-cal-itf-mini');
     if (!el) return;
-    if (!itfEvents.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+    // Only include events that would show in the main grid (exclude PTO, holiday, weather, ITF, working location)
+    var gridEvents = events.filter(function(ev) {
+      var s = ev.summary || '';
+      return !isPto(s) && !isHoliday(s) && !isWeather(s) && !isInTheField(s) && !isWorkingLocation(ev);
+    });
     var saturday = new Date(monday); saturday.setDate(monday.getDate() + 5);
+    // Build day -> sorted unique person names
     var byDay = {};
-    itfEvents.forEach(function(ev) {
+    gridEvents.forEach(function(ev) {
       var startStr = ((ev.start||{}).dateTime || (ev.start||{}).date || '').slice(0,10);
-      var endStr   = ((ev.end||{}).dateTime   || (ev.end||{}).date   || '').slice(0,10);
       var cur = new Date(startStr + 'T12:00:00');
-      var endD = endStr ? new Date(endStr + 'T12:00:00') : new Date(cur);
-      if ((ev.start||{}).dateTime) endD = new Date(cur);
-      while (cur < endD || (cur <= endD && !(ev.start||{}).date)) {
+      if (cur >= monday && cur <= saturday) {
         var key = toDateStr(cur);
-        if (cur >= monday && cur <= saturday) {
-          if (!byDay[key]) byDay[key] = [];
-          var already = false;
-          for (var x = 0; x < byDay[key].length; x++) { if (byDay[key][x] === ev) { already = true; break; } }
-          if (!already) byDay[key].push(ev);
-        }
-        cur.setDate(cur.getDate() + 1);
-        if (!(ev.start||{}).date) break;
+        if (!byDay[key]) byDay[key] = {};
+        ((ev.attendees) || []).forEach(function(a) {
+          var n = ATTENDEE_MAP[(a.email||'').toLowerCase()];
+          if (n) byDay[key][n] = true;
+        });
       }
     });
+    var hasAny = Object.keys(byDay).some(function(k){ return Object.keys(byDay[k]).length > 0; });
+    if (!hasAny) { el.style.display = 'none'; el.innerHTML = ''; return; }
     var cols = '';
     for (var i = 0; i < 6; i++) {
       var d = new Date(monday); d.setDate(monday.getDate() + i);
       var key = toDateStr(d);
-      var dayEvs = byDay[key] || [];
-      var chips = dayEvs.map(function(ev) {
-        var label = (ev.summary || 'In the Field').replace(/\s*\(Job[^)]*\)/,'');
-        return '<div style="background:#0ea5e922;border-left:2px solid #0ea5e9;border-radius:3px;padding:2px 4px;font-size:0.65rem;word-break:break-word;" title="' + label.replace(/"/g,'&quot;') + '">' + label + '</div>';
+      var names = byDay[key] ? Object.keys(byDay[key]).sort() : [];
+      var chips = names.map(function(n) {
+        return '<span style="display:inline-block;background:rgba(74,144,217,0.18);color:#4A90D9;border-radius:8px;padding:1px 7px;font-size:0.62rem;font-weight:700;margin:1px 1px;">' + n + '</span>';
       }).join('');
       cols += '<div style="min-width:80px;flex:1;border-right:1px solid var(--bdr);padding:0 5px 4px;">'
         + '<div style="font-size:0.65rem;font-weight:700;color:var(--txt3);text-align:center;padding:3px 0;border-bottom:1px solid var(--bdr);margin-bottom:3px;">' + DAY_NAMES[i] + '</div>'
@@ -5541,8 +5540,8 @@ function isInTheField(summary) {
     }
     el.style.display = 'block';
     el.innerHTML =
-      '<div style="font-size:0.7rem;font-weight:700;color:#0ea5e9;margin-bottom:4px;letter-spacing:0.04em;">🚗 In the Field</div>'
-      + '<div style="overflow-x:auto;"><div style="display:flex;border:1px solid #0ea5e944;border-radius:6px;overflow:hidden;min-width:500px;">' + cols + '</div></div>';
+      '<div style="font-size:0.7rem;font-weight:700;color:#4A90D9;margin-bottom:4px;letter-spacing:0.04em;">🚗 In the Field</div>'
+      + '<div style="overflow-x:auto;"><div style="display:flex;border:1px solid #4A90D944;border-radius:6px;overflow:hidden;min-width:500px;">' + cols + '</div></div>';
   }
 
   function getMondayOf(dateStr) {
