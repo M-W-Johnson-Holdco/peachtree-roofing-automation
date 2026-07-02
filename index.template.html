@@ -6520,6 +6520,27 @@ function createCalendarEvent(jobKey, isReschedule, oldEventId) {
             return appendSchedulerLog(schedEntry);
           }).then(function(){
             schedLog("success", "Scheduler log updated.");
+            // If appointment is tomorrow and there are internal notes, send them now
+            // (the nightly worker will have already run by this point)
+            var internalNotesTxt = internalNotes.trim();
+            var staffPhonesStr   = resolveInvitePhones(emailsRaw);
+            if (internalNotesTxt && staffPhonesStr) {
+              var nowET = new Date(new Date().toLocaleString("en-US", {timeZone: "America/New_York"}));
+              var tomorrowET = new Date(nowET);
+              tomorrowET.setDate(tomorrowET.getDate() + 1);
+              var tomorrowStr = tomorrowET.toLocaleDateString("en-CA");
+              if (date === tomorrowStr) {
+                var staffNums = staffPhonesStr.split(",").map(function(p){return p.trim();}).filter(function(p){return !!p;});
+                var internalMsg = "[Staff Notes] " + ctx.name + " (Job " + (ctx.jobNum||ctx.jobGuid) + ") — " + type + " tomorrow at " + formatTimeNice(start) + "\n\n" + internalNotesTxt;
+                schedLog("info", "Appointment is tomorrow — sending internal notes to staff now...");
+                return sendSMS(staffNums, internalMsg).then(function(){
+                  schedLog("success", "Internal notes sent to " + staffNums.length + " staff recipient(s).");
+                }).catch(function(e){
+                  schedLog("warn", "Internal notes SMS failed: " + e.message);
+                });
+              }
+            }
+          }).then(function(){
             showSchedToast("st-success", "✓ Appointment scheduled & SMS sent!");
             // Refresh events list
             loadExistingEventsForJob(ctx.jobKey, ctx.name);
