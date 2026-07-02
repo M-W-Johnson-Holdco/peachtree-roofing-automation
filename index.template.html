@@ -535,7 +535,11 @@
     </div>
     <div class="card">
       <h2>📱 Staff Email → Phone (Internal Notes Recipients)</h2>
-      <div class="alert alert-info">When scheduling, anyone in the Invite Emails whose address is listed here will receive the Internal Notes via SMS the evening before the appointment.</div>
+      <div class="alert alert-info">When scheduling, anyone in the Invite Emails whose address is listed here will receive the Internal Notes via SMS the evening before the appointment. Saved to Google Sheets so all devices share the same list.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span id="sep-status" class="small" style="color:#64748b;"></span>
+        <button class="btn btn-secondary btn-sm" onclick="loadStaffContactsFromSheet()">⬇️ Load from Sheet</button>
+      </div>
       <div id="staff-email-phone-list"></div>
       <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
         <input type="email" id="sep-new-email" placeholder="staff@peachtreeroof.com" style="flex:2;">
@@ -4477,11 +4481,10 @@ if (document.readyState === "complete") {
   window.addEventListener("load", tryInitGoogleAuth);
 }
 
+var STAFF_CONTACTS_TAB = "StaffContacts";
+
 function getStaffEmailPhoneMap() {
   try { return JSON.parse(localStorage.getItem("STAFF_EMAIL_PHONE_MAP") || "{}"); } catch(e) { return {}; }
-}
-function saveStaffEmailPhoneMap(map) {
-  localStorage.setItem("STAFF_EMAIL_PHONE_MAP", JSON.stringify(map));
 }
 function resolveInvitePhones(emailsRaw) {
   var map = getStaffEmailPhoneMap();
@@ -4490,6 +4493,49 @@ function resolveInvitePhones(emailsRaw) {
     .map(function(e){ return map[e] || ""; })
     .filter(function(p){ return !!p; })
     .join(",");
+}
+function syncStaffContactsToSheet(map, statusElId) {
+  var sid = CRED_GS_SHEET_ID;
+  var statusEl = statusElId ? document.getElementById(statusElId) : null;
+  if (!sid) { if(statusEl) statusEl.textContent = "Error: Sheet ID not set."; return Promise.resolve(); }
+  var rows = [["Email","Phone"]];
+  Object.keys(map).forEach(function(e){ rows.push([e, map[e]]); });
+  return getGSToken().then(function(tok){
+    var sn = encodeURIComponent(STAFF_CONTACTS_TAB);
+    return fetch("https://sheets.googleapis.com/v4/spreadsheets/" + sid + "/values/" + sn + "!A1:B" + rows.length + "?valueInputOption=RAW", {
+      method: "PUT",
+      headers: { Authorization: "Bearer " + tok, "Content-Type": "application/json" },
+      body: JSON.stringify({ range: STAFF_CONTACTS_TAB + "!A1:B" + rows.length, majorDimension: "ROWS", values: rows })
+    });
+  }).then(function(r){
+    if (!r.ok) return r.text().then(function(t){ throw new Error("Sheet write failed: " + t); });
+    return r.json();
+  }).then(function(){
+    if(statusEl) statusEl.textContent = "✓ Saved to sheet at " + new Date().toLocaleTimeString();
+  }).catch(function(e){
+    if(statusEl) statusEl.textContent = "Error: " + e.message;
+  });
+}
+function loadStaffContactsFromSheet() {
+  var sid = CRED_GS_SHEET_ID;
+  var statusEl = document.getElementById("sep-status");
+  if (!sid) return;
+  if(statusEl) statusEl.textContent = "Loading…";
+  return getGSToken().then(function(tok){
+    var sn = encodeURIComponent(STAFF_CONTACTS_TAB);
+    return fetch("https://sheets.googleapis.com/v4/spreadsheets/" + sid + "/values/" + sn + "!A:B", {
+      headers: { Authorization: "Bearer " + tok }
+    });
+  }).then(function(r){ return r.json(); }).then(function(data){
+    var rows = (data.values || []).slice(1); // skip header
+    var map = {};
+    rows.forEach(function(r){ if(r[0] && r[1]) map[r[0].trim().toLowerCase()] = r[1].trim(); });
+    localStorage.setItem("STAFF_EMAIL_PHONE_MAP", JSON.stringify(map));
+    if(statusEl) statusEl.textContent = "✓ Loaded " + Object.keys(map).length + " contacts at " + new Date().toLocaleTimeString();
+    renderStaffEmailPhoneMap();
+  }).catch(function(e){
+    if(statusEl) statusEl.textContent = "Could not load — " + e.message;
+  });
 }
 
 var SALESPERSON_MAP = {
@@ -7795,17 +7841,19 @@ function addStaffEmailPhone() {
   if (!/^\+1\d{10}$/.test(phone)) { alert("Phone must be E.164 format: +1XXXXXXXXXX"); return; }
   var map = getStaffEmailPhoneMap();
   map[email] = phone;
-  saveStaffEmailPhoneMap(map);
+  localStorage.setItem("STAFF_EMAIL_PHONE_MAP", JSON.stringify(map));
   emailEl.value = "";
   phoneEl.value = "";
   renderStaffEmailPhoneMap();
+  syncStaffContactsToSheet(map, "sep-status");
 }
 
 function removeStaffEmailPhone(email) {
   var map = getStaffEmailPhoneMap();
   delete map[email];
-  saveStaffEmailPhoneMap(map);
+  localStorage.setItem("STAFF_EMAIL_PHONE_MAP", JSON.stringify(map));
   renderStaffEmailPhoneMap();
+  syncStaffContactsToSheet(map, "sep-status");
 }
 
 function renderAllSmsTmplLists() {
@@ -9004,6 +9052,7 @@ loadReminderSmsTemplates();
 renderAllSmsTmplLists();
 renderReminderSmsTmplList();
 renderStaffEmailPhoneMap();
+loadStaffContactsFromSheet();
 </script>
 </body>
 </html>
