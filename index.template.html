@@ -533,6 +533,16 @@
         <div><label>Billing Dept</label><input type="text" value="+16782938467" readonly></div>
       </div>
     </div>
+    <div class="card">
+      <h2>📱 Staff Email → Phone (Internal Notes Recipients)</h2>
+      <div class="alert alert-info">When scheduling, anyone in the Invite Emails whose address is listed here will receive the Internal Notes via SMS the evening before the appointment.</div>
+      <div id="staff-email-phone-list"></div>
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
+        <input type="email" id="sep-new-email" placeholder="staff@peachtreeroof.com" style="flex:2;">
+        <input type="text" id="sep-new-phone" placeholder="+14045551234" style="flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="addStaffEmailPhone()">Add</button>
+      </div>
+    </div>
   </div>
 
 
@@ -4467,6 +4477,21 @@ if (document.readyState === "complete") {
   window.addEventListener("load", tryInitGoogleAuth);
 }
 
+function getStaffEmailPhoneMap() {
+  try { return JSON.parse(localStorage.getItem("STAFF_EMAIL_PHONE_MAP") || "{}"); } catch(e) { return {}; }
+}
+function saveStaffEmailPhoneMap(map) {
+  localStorage.setItem("STAFF_EMAIL_PHONE_MAP", JSON.stringify(map));
+}
+function resolveInvitePhones(emailsRaw) {
+  var map = getStaffEmailPhoneMap();
+  return (emailsRaw || "").split(",").map(function(e){ return e.trim().toLowerCase(); })
+    .filter(function(e){ return e.indexOf("@") > -1; })
+    .map(function(e){ return map[e] || ""; })
+    .filter(function(p){ return !!p; })
+    .join(",");
+}
+
 var SALESPERSON_MAP = {
   "Tim Bresko":"+17707124556","Alex Raffensperger":"+17703628125",
   "Wells Walker":"+14705960020","Ahmed Alsinjary":"+16786345945",
@@ -4656,7 +4681,8 @@ function appendSchedulerLog(e) {
       body: JSON.stringify({ values: [[
         e.timestamp, e.jobNum, e.name, e.apptType,
         e.date, e.start, e.end, e.action,
-        e.notes, e.internalNotes, e.scheduledBy, e.calEventId
+        e.notes, e.internalNotes, e.scheduledBy, e.calEventId,
+        e.staffPhones || ""
       ]] })
     });
   }).then(function(r) {
@@ -6440,7 +6466,8 @@ function createCalendarEvent(jobKey, isReschedule, oldEventId) {
             notes: notes,
             internalNotes: internalNotes,
             scheduledBy: currentUser || 'Unknown',
-            calEventId: ev.id || ''
+            calEventId: ev.id || '',
+            staffPhones: resolveInvitePhones(emailsRaw)
           };
           return appendSheetLog(entry).then(function(){
             schedLog("success", "Sheet log updated.");
@@ -7737,6 +7764,50 @@ function renderSmsTmplList(containerId, bodies, defaults, storePrefix, saveFunc,
   }).join("");
 }
 
+function renderStaffEmailPhoneMap() {
+  var el = document.getElementById("staff-email-phone-list");
+  if (!el) return;
+  var map = getStaffEmailPhoneMap();
+  var keys = Object.keys(map);
+  if (!keys.length) {
+    el.innerHTML = '<div class="small" style="color:#64748b;padding:6px 0;">No entries yet — add a staff member below.</div>';
+    return;
+  }
+  el.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:0.85rem;">' +
+    '<tr style="color:#64748b;"><th style="text-align:left;padding:4px 6px;">Email</th><th style="text-align:left;padding:4px 6px;">Phone</th><th></th></tr>' +
+    keys.map(function(email) {
+      return '<tr style="border-top:1px solid #1e293b;">' +
+        '<td style="padding:6px;">' + email + '</td>' +
+        '<td style="padding:6px;">' + map[email] + '</td>' +
+        '<td style="padding:6px;text-align:right;"><button class="btn btn-danger btn-sm" style="padding:2px 8px;" onclick="removeStaffEmailPhone(\'' + email.replace(/'/g, "\\'") + '\')">✕</button></td>' +
+        '</tr>';
+    }).join("") +
+    '</table>';
+}
+
+function addStaffEmailPhone() {
+  var emailEl = document.getElementById("sep-new-email");
+  var phoneEl = document.getElementById("sep-new-phone");
+  var email = (emailEl.value || "").trim().toLowerCase();
+  var phone = (phoneEl.value || "").trim();
+  if (!email || email.indexOf("@") < 0) { alert("Enter a valid email address."); return; }
+  if (!phone) { alert("Enter a phone number."); return; }
+  if (!/^\+1\d{10}$/.test(phone)) { alert("Phone must be E.164 format: +1XXXXXXXXXX"); return; }
+  var map = getStaffEmailPhoneMap();
+  map[email] = phone;
+  saveStaffEmailPhoneMap(map);
+  emailEl.value = "";
+  phoneEl.value = "";
+  renderStaffEmailPhoneMap();
+}
+
+function removeStaffEmailPhone(email) {
+  var map = getStaffEmailPhoneMap();
+  delete map[email];
+  saveStaffEmailPhoneMap(map);
+  renderStaffEmailPhoneMap();
+}
+
 function renderAllSmsTmplLists() {
   renderSmsTmplList("sched-sms-templates-list",   schedSmsBodies,   SCHED_SMS_DEFAULTS,  "sched",  saveSchedSms,   resetSchedSms,   isSchedSmsModified);
   renderSmsTmplList("resched-sms-templates-list", reschedSmsBodies, RESCHED_SMS_DEFAULTS,"resched", saveReschedSms, resetReschedSms, isReschedSmsModified);
@@ -8932,6 +9003,7 @@ loadSchedSmsTemplates();
 loadReminderSmsTemplates();
 renderAllSmsTmplLists();
 renderReminderSmsTmplList();
+renderStaffEmailPhoneMap();
 </script>
 </body>
 </html>
