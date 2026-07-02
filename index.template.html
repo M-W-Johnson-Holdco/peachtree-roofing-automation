@@ -5251,6 +5251,10 @@ function renderJobResult(entries) {
           '<textarea id="appt-extranotes-' + jobKey + '" rows="3" placeholder="e.g. Please bring your policy documents. Gate code is 1234."></textarea>' +
         '</div>' +
         '<div style="margin-top:12px;">' +
+          '<label>Calendar Event Body Preview <span style="color:#64748b;font-weight:400">(read-only — shows what goes into the calendar invite)</span></label>' +
+          '<textarea id="appt-cal-preview-' + jobKey + '" rows="5" style="font-family:sans-serif;background:#0d1520;color:#94a3b8;border-color:#1e3a5f;" readonly></textarea>' +
+        '</div>' +
+        '<div style="margin-top:12px;">' +
           '<label>SMS Preview <span style="color:#64748b;font-weight:400">(auto-built — edit if needed)</span></label>' +
           '<textarea id="appt-sms-' + jobKey + '" rows="4" style="font-family:sans-serif;"></textarea>' +
         '</div>' +
@@ -5354,12 +5358,13 @@ function renderJobResult(entries) {
   };
 
   // Wire live preview on change
-  ["appt-type-" + jobKey, "appt-date-" + jobKey, "appt-start-" + jobKey, "appt-end-" + jobKey, "appt-notes-" + jobKey].forEach(function(id){
+  ["appt-type-" + jobKey, "appt-date-" + jobKey, "appt-start-" + jobKey, "appt-end-" + jobKey, "appt-notes-" + jobKey, "appt-location-" + jobKey].forEach(function(id){
     var el = document.getElementById(id);
-    if (el) el.addEventListener("change", function(){ buildSmsPreview(jobKey); });
+    if (el) el.addEventListener("change", function(){ buildSmsPreview(jobKey); buildCalPreview(jobKey); });
   });
 
   buildSmsPreview(jobKey);
+  buildCalPreview(jobKey);
 
   // Show existing events card
   document.getElementById("sched-existing-card").style.display = "block";
@@ -5395,6 +5400,22 @@ function buildSmsPreview(jobKey) {
   var firstName = ctx ? (ctx.name || "").split(" ")[0] : "";
   var spPhone = ctx && ctx.spPhone ? spDisplay(ctx.salesperson) : "";
   ta.value = buildSchedSms(type, firstName, date ? formatDateNice(date) : "[date]", start ? formatTimeNice(start) : "[time]", notes, ctx ? (ctx.jobNum||ctx.jobGuid||"") : "", spPhone);
+}
+
+function buildCalPreview(jobKey) {
+  var ta = document.getElementById("appt-cal-preview-" + jobKey);
+  if (!ta) return;
+  var ctx = schedJobContext;
+  if (!ctx) return;
+  var type     = (document.getElementById("appt-type-"     + jobKey) || {}).value || "";
+  var date     = (document.getElementById("appt-date-"     + jobKey) || {}).value || "";
+  var start    = (document.getElementById("appt-start-"    + jobKey) || {}).value || "";
+  var location = (document.getElementById("appt-location-" + jobKey) || {}).value || "";
+  var notes    = (document.getElementById("appt-notes-"    + jobKey) || {}).value || "";
+  ta.value = buildCalEventBody(type, ctx.name, ctx.jobNum || ctx.jobGuid,
+    date  ? formatDateNice(date)  : "[date]",
+    start ? formatTimeNice(start) : "[time]",
+    location, notes);
 }
 
 function buildRescheduleSmsPreview(jobKey) {
