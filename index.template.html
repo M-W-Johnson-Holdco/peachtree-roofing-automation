@@ -5251,8 +5251,8 @@ function renderJobResult(entries) {
           '<textarea id="appt-extranotes-' + jobKey + '" rows="3" placeholder="e.g. Please bring your policy documents. Gate code is 1234."></textarea>' +
         '</div>' +
         '<div style="margin-top:12px;">' +
-          '<label>Calendar Event Body Preview <span style="color:#64748b;font-weight:400">(read-only — shows what goes into the calendar invite)</span></label>' +
-          '<textarea id="appt-cal-preview-' + jobKey + '" rows="5" style="font-family:sans-serif;background:#0d1520;color:#94a3b8;border-color:#1e3a5f;" readonly></textarea>' +
+          '<label>Calendar Event Body <span style="color:#64748b;font-weight:400">(auto-built — edit if needed)</span></label>' +
+          '<textarea id="appt-cal-preview-' + jobKey + '" rows="5" style="font-family:sans-serif;"></textarea>' +
         '</div>' +
         '<div style="margin-top:12px;">' +
           '<label>SMS Preview <span style="color:#64748b;font-weight:400">(auto-built — edit if needed)</span></label>' +
@@ -6339,7 +6339,8 @@ function createCalendarEvent(jobKey, isReschedule, oldEventId) {
     .filter(function(e){ return e.indexOf("@") > -1; })
     .map(function(e){ return { email: e }; });
 
-  var calEvBody = buildCalEventBody(type, ctx.name, ctx.jobNum||ctx.jobGuid, formatDateNice(date), formatTimeNice(start), location, notes);
+  var calPreviewEl = document.getElementById(prefix + "-cal-preview-" + jobKey);
+  var calEvBody = (calPreviewEl && calPreviewEl.value.trim()) ? calPreviewEl.value : buildCalEventBody(type, ctx.name, ctx.jobNum||ctx.jobGuid, formatDateNice(date), formatTimeNice(start), location, notes);
 
   var eventBody = {
     summary: title,
