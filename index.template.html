@@ -8733,6 +8733,7 @@ function woFetchAllRows() {
     return fetch('https://sheets.googleapis.com/v4/spreadsheets/' + sid + '/values/' + sn + '!A:B',
       {headers: {Authorization: 'Bearer ' + t}});
   }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
     if (!d.values || d.values.length < 2) return [];
     return d.values.slice(1).map(function(row) {
       var parsed = {};
