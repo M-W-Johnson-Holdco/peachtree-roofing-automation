@@ -4269,6 +4269,7 @@ function printDoc() {
             <div class="pto-bal-num" id="pto-vac-used">—</div>
             <div class="pto-bal-sub" id="pto-vac-total">of — days used</div>
             <div class="pto-bal-rem" id="pto-vac-rem">— remaining</div>
+            <div id="pto-vac-gifted-note" style="font-size:0.68rem;color:#8DC63F;margin-top:4px;display:none;"></div>
           </div>
           <div class="pto-bal-card">
             <div class="pto-bal-title">Sick</div>
@@ -4277,7 +4278,7 @@ function printDoc() {
             <div class="pto-bal-rem" id="pto-sick-rem">— remaining</div>
           </div>
           <div class="pto-bal-card">
-            <div class="pto-bal-title">Personal</div>
+            <div class="pto-bal-title">Bereavement</div>
             <div class="pto-bal-num" id="pto-pers-used">—</div>
             <div class="pto-bal-sub" id="pto-pers-total">of — days used</div>
             <div class="pto-bal-rem" id="pto-pers-rem">— remaining</div>
@@ -4291,7 +4292,7 @@ function printDoc() {
             <select id="pto-req-type" class="appt-type-select">
               <option value="Vacation">Vacation</option>
               <option value="Sick">Sick</option>
-              <option value="Personal">Personal</option>
+              <option value="Bereavement">Bereavement</option>
             </select>
           </div>
           <div></div>
@@ -4346,6 +4347,21 @@ function printDoc() {
           </div>
         </div>
         <div id="pto-admin-bal-container"><div class="no-results">Select a year and click Load.</div></div>
+        <!-- Give extra days modal -->
+        <div id="pto-give-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9998;align-items:center;justify-content:center;">
+          <div style="background:#1a1f2e;border:1px solid #2a3050;border-radius:14px;padding:28px;width:320px;max-width:90vw;">
+            <h3 id="pto-modal-title" style="font-size:0.95rem;color:#8DC63F;margin-bottom:6px;font-weight:700;">Gift PTO Days</h3>
+            <div style="font-size:0.75rem;color:#64748b;margin-bottom:16px;">These days add to the employee's vacation balance and will show as gifted on their balance card.</div>
+            <div style="margin-bottom:18px;">
+              <label>Days to add</label>
+              <input type="number" id="pto-modal-days" value="1" min="0.5" step="0.5">
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="ptoAdminGiveExtraConfirm()">Add Days</button>
+              <button class="btn btn-secondary" onclick="ptoCloseGiveModal()">Cancel</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -9704,15 +9720,16 @@ function ptoParseRequests(rows) {
 function ptoParseBalances(rows) {
   return (rows.slice(1) || []).map(function(row, i) {
     return {
-      email:     (row[0] || '').trim().toLowerCase(),
-      year:       parseInt(row[1] || '0'),
-      vacTotal:   parseFloat(row[2] || '0') || 0,
-      vacUsed:    parseFloat(row[3] || '0') || 0,
-      sickTotal:  parseFloat(row[4] || '0') || 0,
-      sickUsed:   parseFloat(row[5] || '0') || 0,
-      persTotal:  parseFloat(row[6] || '0') || 0,
-      persUsed:   parseFloat(row[7] || '0') || 0,
-      row:        i + 2
+      email:      (row[0] || '').trim().toLowerCase(),
+      year:        parseInt(row[1] || '0'),
+      vacTotal:    parseFloat(row[2] || '0') || 0,
+      vacUsed:     parseFloat(row[3] || '0') || 0,
+      sickTotal:   parseFloat(row[4] || '0') || 0,
+      sickUsed:    parseFloat(row[5] || '0') || 0,
+      persTotal:   parseFloat(row[6] || '0') || 0,
+      persUsed:    parseFloat(row[7] || '0') || 0,
+      vacGifted:   parseFloat(row[8]  || '0') || 0,  // col I — extra vacation days gifted
+      row:         i + 2
     };
   }).filter(function(b) { return b.email; });
 }
@@ -9726,7 +9743,7 @@ function ptoLoad() {
 
   Promise.all([
     ptoSheetRead(CRED_GS_PERMS_TAB, 'A:D'),
-    ptoSheetRead(PTO_BALANCES_TAB,  'A:H'),
+    ptoSheetRead(PTO_BALANCES_TAB,  'A:I'),
     ptoSheetRead(PTO_REQUESTS_TAB,  'A:O')
   ]).then(function(results) {
     ptoPermsData = results[0];
@@ -9794,13 +9811,23 @@ function ptoLoad() {
 function ptoRenderBalance() {
   function fmt(v) { return typeof v === 'number' ? v : '—'; }
   var b = ptoMyBalance;
-  document.getElementById('pto-vac-used').textContent  = b ? fmt(b.vacUsed)  : '—';
-  document.getElementById('pto-vac-total').textContent = b ? 'of ' + fmt(b.vacTotal)  + ' days used' : 'of — days used';
-  document.getElementById('pto-vac-rem').textContent   = b ? fmt(b.vacTotal  - b.vacUsed)  + ' remaining' : '— remaining';
-  document.getElementById('pto-sick-used').textContent  = b ? fmt(b.sickUsed) : '—';
+  var vacEffective = b ? b.vacTotal + b.vacGifted : 0;
+  document.getElementById('pto-vac-used').textContent   = b ? fmt(b.vacUsed)   : '—';
+  document.getElementById('pto-vac-total').textContent  = b ? 'of ' + fmt(vacEffective) + ' days used' : 'of — days used';
+  document.getElementById('pto-vac-rem').textContent    = b ? fmt(vacEffective - b.vacUsed) + ' remaining' : '— remaining';
+  var giftNote = document.getElementById('pto-vac-gifted-note');
+  if (giftNote) {
+    if (b && b.vacGifted > 0) {
+      giftNote.textContent = '(includes ' + fmt(b.vacGifted) + ' gifted)';
+      giftNote.style.display = '';
+    } else {
+      giftNote.style.display = 'none';
+    }
+  }
+  document.getElementById('pto-sick-used').textContent  = b ? fmt(b.sickUsed)  : '—';
   document.getElementById('pto-sick-total').textContent = b ? 'of ' + fmt(b.sickTotal) + ' days used' : 'of — days used';
   document.getElementById('pto-sick-rem').textContent   = b ? fmt(b.sickTotal - b.sickUsed) + ' remaining' : '— remaining';
-  document.getElementById('pto-pers-used').textContent  = b ? fmt(b.persUsed) : '—';
+  document.getElementById('pto-pers-used').textContent  = b ? fmt(b.persUsed)  : '—';
   document.getElementById('pto-pers-total').textContent = b ? 'of ' + fmt(b.persTotal) + ' days used' : 'of — days used';
   document.getElementById('pto-pers-rem').textContent   = b ? fmt(b.persTotal - b.persUsed) + ' remaining' : '— remaining';
 }
@@ -10049,7 +10076,7 @@ function ptoCancelRequest(id) {
 // -- Increment / decrement used balance --
 function ptoIncrementUsed(email, type, delta) {
   var year = new Date().getFullYear();
-  return ptoSheetRead(PTO_BALANCES_TAB, 'A:H').then(function(rows) {
+  return ptoSheetRead(PTO_BALANCES_TAB, 'A:I').then(function(rows) {
     var bals = ptoParseBalances(rows);
     var bal = null;
     for (var i = 0; i < bals.length; i++) {
@@ -10058,11 +10085,11 @@ function ptoIncrementUsed(email, type, delta) {
     if (!bal) return;
     var row;
     if (type === 'Vacation') {
-      row = [email, year, bal.vacTotal, Math.max(0, bal.vacUsed + delta), bal.sickTotal, bal.sickUsed, bal.persTotal, bal.persUsed];
+      row = [email, year, bal.vacTotal, Math.max(0, bal.vacUsed + delta), bal.sickTotal, bal.sickUsed, bal.persTotal, bal.persUsed, bal.vacGifted];
     } else if (type === 'Sick') {
-      row = [email, year, bal.vacTotal, bal.vacUsed, bal.sickTotal, Math.max(0, bal.sickUsed + delta), bal.persTotal, bal.persUsed];
+      row = [email, year, bal.vacTotal, bal.vacUsed, bal.sickTotal, Math.max(0, bal.sickUsed + delta), bal.persTotal, bal.persUsed, bal.vacGifted];
     } else {
-      row = [email, year, bal.vacTotal, bal.vacUsed, bal.sickTotal, bal.sickUsed, bal.persTotal, Math.max(0, bal.persUsed + delta)];
+      row = [email, year, bal.vacTotal, bal.vacUsed, bal.sickTotal, bal.sickUsed, bal.persTotal, Math.max(0, bal.persUsed + delta), bal.vacGifted];
     }
     return ptoSheetUpdateRow(PTO_BALANCES_TAB, bal.row, row);
   }).catch(function(e) { console.warn('[PTO] balance update failed:', e.message); });
@@ -10073,7 +10100,7 @@ function ptoAdminLoadBalances() {
   var year = parseInt(document.getElementById('pto-admin-year').value) || new Date().getFullYear();
   var container = document.getElementById('pto-admin-bal-container');
   if (container) container.innerHTML = '<div class="no-results">Loading...</div>';
-  ptoSheetRead(PTO_BALANCES_TAB, 'A:H').then(function(rows) {
+  ptoSheetRead(PTO_BALANCES_TAB, 'A:I').then(function(rows) {
     var bals = ptoParseBalances(rows).filter(function(b) { return b.year === year; });
     if (!bals.length) {
       if (container) container.innerHTML = '<div class="no-results">No balances for ' + year + '. Use "+ Add Employee" to create rows.</div>';
@@ -10084,21 +10111,26 @@ function ptoAdminLoadBalances() {
         '<th>Employee</th>' +
         '<th>Vac Total</th><th>Vac Used</th>' +
         '<th>Sick Total</th><th>Sick Used</th>' +
-        '<th>Pers Total</th><th>Pers Used</th>' +
+        '<th>Brvmt Total</th><th>Brvmt Used</th>' +
+        '<th style="color:#8DC63F;">Vac Gifted</th>' +
         '<th></th>' +
       '</tr></thead><tbody>' +
       bals.map(function(b) {
         var name = ptoDisplayName(b.email);
-        return '<tr data-email="' + ptoEsc(b.email) + '" data-row="' + b.row + '" data-year="' + year + '">' +
+        return '<tr data-email="' + ptoEsc(b.email) + '" data-row="' + b.row + '" data-year="' + year + '" data-vac-gifted="' + (b.vacGifted || 0) + '">' +
           '<td><div style="color:#e2e8f0;font-weight:600;">' + ptoEsc(name) + '</div>' +
               '<div style="font-size:0.68rem;color:#64748b;">' + ptoEsc(b.email) + '</div></td>' +
-          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.vacTotal  + '" data-field="vacTotal"></td>' +
-          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.vacUsed   + '" data-field="vacUsed"></td>' +
-          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.sickTotal + '" data-field="sickTotal"></td>' +
-          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.sickUsed  + '" data-field="sickUsed"></td>' +
-          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.persTotal + '" data-field="persTotal"></td>' +
-          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.persUsed  + '" data-field="persUsed"></td>' +
-          '<td><button class="btn btn-primary btn-sm" onclick="ptoAdminSaveBalance(this)">Save</button></td>' +
+          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.vacTotal   + '" data-field="vacTotal"></td>' +
+          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.vacUsed    + '" data-field="vacUsed"></td>' +
+          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.sickTotal  + '" data-field="sickTotal"></td>' +
+          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.sickUsed   + '" data-field="sickUsed"></td>' +
+          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.persTotal  + '" data-field="persTotal"></td>' +
+          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.persUsed   + '" data-field="persUsed"></td>' +
+          '<td style="color:#8DC63F;font-weight:600;text-align:center;">' + (b.vacGifted || 0) + '</td>' +
+          '<td style="white-space:nowrap;">' +
+            '<button class="btn btn-primary btn-sm" onclick="ptoAdminSaveBalance(this)" style="margin-right:4px;">Save</button>' +
+            '<button class="btn btn-secondary btn-sm" style="color:#8DC63F;border-color:#8DC63F;" onclick="ptoAdminGiveExtra(\'' + ptoEsc(b.email) + '\',' + b.row + ',' + year + ',\'' + ptoEsc(name) + '\')">+ Gift</button>' +
+          '</td>' +
         '</tr>';
       }).join('') +
       '</tbody></table></div>';
@@ -10107,15 +10139,16 @@ function ptoAdminLoadBalances() {
 }
 
 function ptoAdminSaveBalance(btn) {
-  var row = btn.closest('tr');
-  var email  = row.dataset.email;
-  var rowNum = parseInt(row.dataset.row);
-  var year   = parseInt(row.dataset.year);
-  var vals   = {};
-  row.querySelectorAll('.pto-bal-inp').forEach(function(inp) { vals[inp.dataset.field] = parseFloat(inp.value) || 0; });
+  var tr     = btn.closest('tr');
+  var email  = tr.dataset.email;
+  var rowNum = parseInt(tr.dataset.row);
+  var year   = parseInt(tr.dataset.year);
+  var vacGifted = parseFloat(tr.dataset.vacGifted) || 0;
+  var vals = {};
+  tr.querySelectorAll('.pto-bal-inp').forEach(function(inp) { vals[inp.dataset.field] = parseFloat(inp.value) || 0; });
   btn.disabled = true;
   ptoSheetUpdateRow(PTO_BALANCES_TAB, rowNum,
-    [email, year, vals.vacTotal, vals.vacUsed, vals.sickTotal, vals.sickUsed, vals.persTotal, vals.persUsed]
+    [email, year, vals.vacTotal, vals.vacUsed, vals.sickTotal, vals.sickUsed, vals.persTotal, vals.persUsed, vacGifted]
   ).then(function() {
     showSchedToast('st-success', 'Saved for ' + email);
     btn.disabled = false;
@@ -10130,13 +10163,51 @@ function ptoAdminAddEmployee() {
   if (!email) return;
   email = email.trim().toLowerCase();
   var year = parseInt(document.getElementById('pto-admin-year').value) || new Date().getFullYear();
-  ptoSheetAppend(PTO_BALANCES_TAB, [email, year, 0, 0, 0, 0, 0, 0]).then(function() {
+  ptoSheetAppend(PTO_BALANCES_TAB, [email, year, 0, 0, 0, 0, 0, 0, 0]).then(function() {
     showSchedToast('st-success', 'Added ' + email);
     ptoAdminLoadBalances();
   }).catch(function(e) { showSchedToast('st-error', 'Failed: ' + e.message); });
 }
 
-// -- PTO subtab switching --
+var ptoGiveTarget = null;
+
+function ptoAdminGiveExtra(email, rowNum, year, name) {
+  ptoGiveTarget = { email: email, rowNum: rowNum, year: year, name: name };
+  document.getElementById('pto-modal-title').textContent = 'Give Extra Days — ' + name;
+  document.getElementById('pto-modal-days').value = '1';
+  var modal = document.getElementById('pto-give-modal');
+  if (modal) { modal.style.display = 'flex'; }
+}
+
+function ptoCloseGiveModal() {
+  var modal = document.getElementById('pto-give-modal');
+  if (modal) modal.style.display = 'none';
+  ptoGiveTarget = null;
+}
+
+function ptoAdminGiveExtraConfirm() {
+  if (!ptoGiveTarget) return;
+  var days = parseFloat(document.getElementById('pto-modal-days').value) || 0;
+  if (days <= 0) { showSchedToast('st-error', 'Enter a valid number of days.'); return; }
+  var target = ptoGiveTarget;
+  ptoCloseGiveModal();
+  showSchedToast('st-info', 'Saving...');
+  ptoSheetRead(PTO_BALANCES_TAB, 'A:I').then(function(rows) {
+    var bals = ptoParseBalances(rows);
+    var bal = null;
+    for (var i = 0; i < bals.length; i++) {
+      if (bals[i].email === target.email && bals[i].year === target.year) { bal = bals[i]; break; }
+    }
+    if (!bal) throw new Error('Balance row not found for ' + target.email);
+    var updated = [bal.email, bal.year, bal.vacTotal, bal.vacUsed, bal.sickTotal, bal.sickUsed, bal.persTotal, bal.persUsed, (bal.vacGifted || 0) + days];
+    return ptoSheetUpdateRow(PTO_BALANCES_TAB, bal.row, updated);
+  }).then(function() {
+    showSchedToast('st-success', 'Gifted ' + days + ' vacation day' + (days !== 1 ? 's' : '') + ' to ' + target.name + '.');
+    ptoAdminLoadBalances();
+  }).catch(function(e) { showSchedToast('st-error', 'Failed: ' + e.message); });
+}
+
+// -- PTO subtab switching + modal outside-click close --
 document.addEventListener('click', function(e) {
   if (e.target.classList.contains('pto-subtab') && e.target.dataset.pto) {
     var key = e.target.dataset.pto;
@@ -10146,6 +10217,7 @@ document.addEventListener('click', function(e) {
     var panel = document.getElementById('pto-panel-' + key);
     if (panel) panel.classList.add('active');
   }
+  if (e.target.id === 'pto-give-modal') ptoCloseGiveModal();
 });
 
 loadCalTemplateBodies();
