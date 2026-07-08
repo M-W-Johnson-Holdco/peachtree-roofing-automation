@@ -10427,8 +10427,8 @@ function ptoAdminLoadBalances() {
         var ent  = ptoVacationEntitlement(b.email);
         var match = ent.days === b.vacTotal;
         return '<tr data-email="' + ptoEsc(b.email) + '" data-row="' + b.row + '" data-year="' + year + '" data-vac-gifted="' + (b.vacGifted || 0) + '" data-entitlement="' + ent.days + '">' +
-          '<td style="max-width:160px;"><div style="color:#1e293b;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + ptoEsc(name) + '</div>' +
-              '<div style="font-size:0.68rem;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="' + ptoEsc(b.email) + '">' + ptoEsc(b.email) + '</div></td>' +
+          '<td style="max-width:100px;"><div style="color:#1e293b;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + ptoEsc(name) + '</div>' +
+              '<div style="font-size:0.68rem;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;" title="' + ptoEsc(b.email) + '">' + ptoEsc(b.email) + '</div></td>' +
           '<td style="text-align:center;white-space:nowrap;">' +
             '<div style="color:#2563eb;font-weight:700;font-size:0.95rem;">' + ent.days + '</div>' +
             '<div style="color:#94a3b8;font-size:0.6rem;margin-bottom:4px;">' + ptoEsc(ent.label) + '</div>' +
