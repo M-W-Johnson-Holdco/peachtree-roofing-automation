@@ -4324,6 +4324,8 @@ function printDoc() {
         <div id="pto-breakdown-bars" style="margin-bottom:20px;"></div>
         <div class="pto-section-head">Upcoming Time Off</div>
         <div class="pto-cal-strip" id="pto-cal-strip"></div>
+        <div class="pto-section-head">Your Policy</div>
+        <div id="pto-policy-card" style="margin-bottom:20px;"></div>
         <!-- Request form (collapsible) -->
         <div id="pto-req-form" style="display:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px;margin-bottom:20px;">
           <div class="pto-section-head" style="margin-bottom:14px;">New Request</div>
@@ -9585,7 +9587,9 @@ var ptoGmailToken  = null;
 var ptoGmailExpiry = 0;
 var ptoPermsData   = [];
 var ptoIsManager   = false;
-var ptoMyManagerEmail = '';
+var ptoMyManagerEmail  = '';
+var ptoMyEmployeeType  = '';
+var ptoMyPtoEligible   = false;
 var ptoMyBalance   = null;
 var ptoMyRequests  = [];
 var ptoTeamRequests = [];
@@ -9790,7 +9794,7 @@ function ptoLoad() {
   if (yearInput && !yearInput.value) yearInput.value = year;
 
   Promise.all([
-    ptoSheetRead(CRED_GS_PERMS_TAB, 'A:D'),
+    ptoSheetRead(CRED_GS_PERMS_TAB, 'A:F'),
     ptoSheetRead(PTO_BALANCES_TAB,  'A:I'),
     ptoSheetRead(PTO_REQUESTS_TAB,  'A:O')
   ]).then(function(results) {
@@ -9798,11 +9802,15 @@ function ptoLoad() {
     ptoAllBalances = ptoParseBalances(results[1]);
     ptoAllRequests = ptoParseRequests(results[2]);
 
-    // My manager email (column D of my UserPermissions row)
+    // My row in UserPermissions — extract manager, employee type, PTO eligibility
     ptoMyManagerEmail = '';
+    ptoMyEmployeeType = '';
+    ptoMyPtoEligible  = false;
     for (var i = 1; i < ptoPermsData.length; i++) {
       if ((ptoPermsData[i][0] || '').trim().toLowerCase() === currentUserEmail.toLowerCase()) {
         ptoMyManagerEmail = (ptoPermsData[i][3] || '').trim().toLowerCase();
+        ptoMyPtoEligible  = (ptoPermsData[i][4] || '').trim().toUpperCase() === 'Y';
+        ptoMyEmployeeType = (ptoPermsData[i][5] || '').trim().toUpperCase();
         break;
       }
     }
@@ -9857,6 +9865,7 @@ function ptoLoad() {
 
     ptoRenderBalance();
     ptoRenderCalStrip();
+    ptoRenderPolicyCard();
     ptoRenderMyRequests();
     ptoRenderTeamRequests();
   }).catch(function(e) {
@@ -10091,6 +10100,49 @@ function ptoRenderCalStrip() {
   }).join('');
 }
 
+// -- Render PTO policy card --
+function ptoRenderPolicyCard() {
+  var el = document.getElementById('pto-policy-card');
+  if (!el) return;
+  if (!ptoMyPtoEligible) {
+    el.innerHTML = '<div style="background:#fff8f0;border:1px solid #fed7aa;border-radius:10px;padding:14px 16px;font-size:0.8rem;color:#92400e;">You are not currently enrolled in the PTO program. Contact your manager or HR for details.</div>';
+    return;
+  }
+  if (ptoMyEmployeeType === 'W2') {
+    el.innerHTML =
+      '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;">' +
+        '<div style="display:grid;gap:12px;">' +
+          '<div style="display:flex;gap:14px;align-items:flex-start;">' +
+            '<div style="background:#dbeafe;color:#2563eb;border-radius:6px;padding:4px 8px;font-size:0.67rem;font-weight:700;white-space:nowrap;flex-shrink:0;">VACATION</div>' +
+            '<div style="font-size:0.79rem;color:#475569;line-height:1.5;">' +
+              'Year 1: <strong style="color:#1e293b;">10 days</strong> &nbsp;&middot;&nbsp; ' +
+              'After 1 yr: <strong style="color:#1e293b;">15 days</strong> &nbsp;&middot;&nbsp; ' +
+              'After 3 yrs: <strong style="color:#1e293b;">17 days</strong> &nbsp;&middot;&nbsp; ' +
+              'After 5 yrs: <strong style="color:#1e293b;">22 days</strong>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:14px;align-items:flex-start;">' +
+            '<div style="background:#fef3c7;color:#92400e;border-radius:6px;padding:4px 8px;font-size:0.67rem;font-weight:700;white-space:nowrap;flex-shrink:0;">SICK</div>' +
+            '<div style="font-size:0.79rem;color:#475569;line-height:1.5;">' +
+              '<strong style="color:#1e293b;">3 days/year</strong> &nbsp;&middot;&nbsp; ' +
+              '2 or more consecutive sick days require a <strong style="color:#1e293b;">doctor\'s note</strong>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:14px;align-items:flex-start;">' +
+            '<div style="background:#dcfce7;color:#166534;border-radius:6px;padding:4px 8px;font-size:0.67rem;font-weight:700;white-space:nowrap;flex-shrink:0;">ROLLOVER</div>' +
+            '<div style="font-size:0.79rem;color:#475569;line-height:1.5;">' +
+              'Up to <strong style="color:#1e293b;">5 unused vacation days</strong> carry over to the next year' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  } else if (ptoMyEmployeeType === '1099') {
+    el.innerHTML = '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;font-size:0.8rem;color:#64748b;">1099 contractor PTO policy — contact HR for your specific details.</div>';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
 // -- Toggle request form --
 function ptoToggleReqForm() {
   var form = document.getElementById('pto-req-form');
@@ -10157,6 +10209,9 @@ function ptoSubmitRequest() {
   if (end < start)     { showSchedToast('st-error', 'End date must be on or after start date.'); return; }
   var days = ptoCountWeekdays(start, end, hs, he);
   if (days <= 0) { showSchedToast('st-error', 'No business days in the selected range.'); return; }
+  if (type === 'Sick' && days > 2 && ptoMyEmployeeType === 'W2') {
+    if (!confirm('Per company policy, 2 or more consecutive sick days require a doctor\'s note. Do you want to submit this request?')) return;
+  }
 
   var id        = 'PTO-' + Date.now();
   var submitted = new Date().toISOString();
