@@ -265,7 +265,6 @@
 <div class="container">
   <div class="section-tabs">
     <div class="tab active" data-tab="dashboard">Text Automation</div>
-    <div class="tab" data-tab="weather">🌧️ Weather Blast</div>
     <div class="tab" data-tab="admin">⚙️ Admin</div>
     <div class="tab" data-tab="commissions">💰 Upgrades Commissions</div>
     <div class="tab" data-tab="workorder">📋 Work Order</div>
@@ -276,6 +275,7 @@
   <div id="prodc-subtabs">
     <div class="tab" data-tab="scheduler">📅 Scheduler</div>
     <div class="tab" data-tab="smartsched">Smart 🏠 Scheduler</div>
+    <div class="tab" data-tab="weather">🌧️ Weather Blast</div>
     <div class="tab" data-tab="prewo" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSeCgQYBOZITXBZhxGLN18yR9QVU4eT5_vBoGEQwNVy8R-35YA/viewform?usp=header','_blank');return false;">📝 Pre-WO Form</div>
   </div>
   <div id="admin-subtabs">
@@ -4497,11 +4497,11 @@ function showLoginError(msg) {
 function applyRolePermissions(role) {
   var perms = ROLE_TABS[role] || ROLE_TABS["viewer"];
   var tabMap = {
-    dashboard: "dashboard", weather: "weather",
+    dashboard: "dashboard",
     commissions: "commissions", workorder: "workorder", pto: "pto", metrics: "metrics"
   };
   var adminTabMap = { templates: "templates", config: "config", logs: "logs" };
-  var prodcTabMap = { scheduler: "scheduler", smartsched: "smartsched", prewo: "prewo" };
+  var prodcTabMap = { scheduler: "scheduler", smartsched: "smartsched", weather: "weather", prewo: "prewo" };
   // Find first visible tab to activate
   var firstVisible = null;
   Object.keys(tabMap).forEach(function(key) {
