@@ -10480,9 +10480,10 @@ function ptoAdminAddEmployee() {
   if (!email) return;
   email = email.trim().toLowerCase();
   var year = parseInt(document.getElementById('pto-admin-year').value) || new Date().getFullYear();
-  var ent  = ptoVacationEntitlement(email);
-  ptoSheetAppend(PTO_BALANCES_TAB, [email, year, ent.days, 0, 0, 0, 0, 0, 0]).then(function() {
-    showSchedToast('st-success', 'Added ' + email + ' — ' + ent.days + ' vacation days (' + ent.label + ')');
+  var ent      = ptoVacationEntitlement(email);
+  var sickDays = ent.label.indexOf('1099') === -1 ? 3 : 0;
+  ptoSheetAppend(PTO_BALANCES_TAB, [email, year, ent.days, 0, sickDays, 0, 0, 0, 0]).then(function() {
+    showSchedToast('st-success', 'Added ' + email + ' — ' + ent.days + ' vacation, ' + sickDays + ' sick (' + ent.label + ')');
     ptoAdminLoadBalances();
   }).catch(function(e) { showSchedToast('st-error', 'Failed: ' + e.message); });
 }
@@ -10522,8 +10523,9 @@ function ptoAdminSyncAll() {
     var chain = Promise.resolve();
     toAdd.forEach(function(email) {
       chain = chain.then(function() {
-        var ent = ptoVacationEntitlement(email);
-        return ptoSheetAppend(PTO_BALANCES_TAB, [email, year, ent.days, 0, 0, 0, 0, 0, 0]);
+        var ent      = ptoVacationEntitlement(email);
+        var sickDays = ent.label.indexOf('1099') === -1 ? 3 : 0; // W2 gets 3 sick days
+        return ptoSheetAppend(PTO_BALANCES_TAB, [email, year, ent.days, 0, sickDays, 0, 0, 0, 0]);
       });
     });
     return chain.then(function() {
