@@ -4389,6 +4389,7 @@ function printDoc() {
             <input type="number" id="pto-admin-year" style="width:84px;" min="2020" max="2099">
             <button class="btn btn-secondary btn-sm" onclick="ptoAdminLoadBalances()">Load</button>
             <button class="btn btn-primary btn-sm" onclick="ptoAdminAddEmployee()">+ Add Employee</button>
+            <button class="btn btn-secondary btn-sm" onclick="ptoAdminSyncAll()" title="Add all PTO-eligible employees not yet in this year">Sync All</button>
           </div>
         </div>
         <div id="pto-admin-bal-container"><div class="no-results">Select a year and click Load.</div></div>
@@ -10484,6 +10485,52 @@ function ptoAdminAddEmployee() {
     showSchedToast('st-success', 'Added ' + email + ' — ' + ent.days + ' vacation days (' + ent.label + ')');
     ptoAdminLoadBalances();
   }).catch(function(e) { showSchedToast('st-error', 'Failed: ' + e.message); });
+}
+
+function ptoAdminSyncAll() {
+  var year = parseInt(document.getElementById('pto-admin-year').value) || new Date().getFullYear();
+  var container = document.getElementById('pto-admin-bal-container');
+  if (container) container.innerHTML = '<div class="no-results">Syncing...</div>';
+
+  Promise.all([
+    ptoSheetRead(CRED_GS_PERMS_TAB, 'A:G'),
+    ptoSheetRead(PTO_BALANCES_TAB, 'A:I')
+  ]).then(function(results) {
+    ptoPermsData = results[0];
+    var existing = ptoParseBalances(results[1])
+      .filter(function(b) { return b.year === year; })
+      .map(function(b) { return b.email; });
+
+    // Collect PTO-eligible employees not yet in this year
+    var toAdd = [];
+    for (var i = 1; i < ptoPermsData.length; i++) {
+      var row = ptoPermsData[i];
+      var email = (row[0] || '').trim().toLowerCase();
+      var eligible = (row[4] || '').trim().toUpperCase() === 'Y';
+      if (email && eligible && existing.indexOf(email) === -1) {
+        toAdd.push(email);
+      }
+    }
+
+    if (!toAdd.length) {
+      showSchedToast('st-success', 'All PTO-eligible employees already have ' + year + ' balances.');
+      ptoAdminLoadBalances();
+      return;
+    }
+
+    // Append each one sequentially to avoid race conditions
+    var chain = Promise.resolve();
+    toAdd.forEach(function(email) {
+      chain = chain.then(function() {
+        var ent = ptoVacationEntitlement(email);
+        return ptoSheetAppend(PTO_BALANCES_TAB, [email, year, ent.days, 0, 0, 0, 0, 0, 0]);
+      });
+    });
+    return chain.then(function() {
+      showSchedToast('st-success', 'Added ' + toAdd.length + ' employee(s) for ' + year);
+      ptoAdminLoadBalances();
+    });
+  }).catch(function(e) { showSchedToast('st-error', 'Sync failed: ' + e.message); });
 }
 
 var ptoGiveTarget = null;
