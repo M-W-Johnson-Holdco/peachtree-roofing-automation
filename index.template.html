@@ -10399,7 +10399,13 @@ function ptoAdminLoadBalances() {
   var year = parseInt(document.getElementById('pto-admin-year').value) || new Date().getFullYear();
   var container = document.getElementById('pto-admin-bal-container');
   if (container) container.innerHTML = '<div class="no-results">Loading...</div>';
-  ptoSheetRead(PTO_BALANCES_TAB, 'A:I').then(function(rows) {
+  // Re-fetch perms fresh so hire date edits show immediately
+  Promise.all([
+    ptoSheetRead(CRED_GS_PERMS_TAB, 'A:G'),
+    ptoSheetRead(PTO_BALANCES_TAB, 'A:I')
+  ]).then(function(results) {
+    ptoPermsData = results[0];
+    var rows = results[1];
     var bals = ptoParseBalances(rows).filter(function(b) { return b.year === year; });
     if (!bals.length) {
       if (container) container.innerHTML = '<div class="no-results">No balances for ' + year + '. Use "+ Add Employee" to create rows.</div>';
