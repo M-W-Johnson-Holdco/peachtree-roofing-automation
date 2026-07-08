@@ -170,6 +170,36 @@
   #comm-app-wrapper input, #comm-app-wrapper textarea, #comm-app-wrapper select { all: revert; }
 
   #comm-app-wrapper input, #comm-app-wrapper textarea, #comm-app-wrapper select, #comm-app-wrapper button { all: revert; }
+
+  /* PTO Tab */
+  .pto-subtabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+  .pto-subtab{padding:7px 16px;border-radius:16px;border:1px solid #2a3050;background:#1a1f2e;color:#94a3b8;cursor:pointer;font-size:0.8rem;font-weight:600;transition:all 0.2s;}
+  .pto-subtab.active{background:#4A90D9;color:#fff;border-color:#4A90D9;}
+  .pto-panel{display:none;}.pto-panel.active{display:block;}
+  .pto-bal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+  .pto-bal-card{background:#0f1117;border:1px solid #2a3050;border-radius:12px;padding:18px;text-align:center;}
+  .pto-bal-title{font-size:0.72rem;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;font-weight:600;}
+  .pto-bal-num{font-size:1.8rem;font-weight:800;color:#4A90D9;}
+  .pto-bal-sub{font-size:0.75rem;color:#64748b;margin-top:4px;}
+  .pto-bal-rem{font-size:0.78rem;color:#8DC63F;font-weight:600;margin-top:3px;}
+  .pto-req-card{background:#0f1117;border:1px solid #2a3050;border-radius:10px;padding:14px;margin-bottom:10px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .pto-req-info{flex:1;min-width:0;}
+  .pto-req-type{font-size:0.85rem;font-weight:700;color:#e2e8f0;margin-bottom:4px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;}
+  .pto-req-dates{font-size:0.75rem;color:#64748b;margin-bottom:3px;}
+  .pto-req-notes{font-size:0.75rem;color:#94a3b8;font-style:italic;}
+  .pto-req-actions{display:flex;gap:6px;flex-shrink:0;align-items:flex-start;padding-top:2px;}
+  .pto-day-preview{background:#0c1a2e;border:1px solid #1e3a5f;border-radius:8px;padding:10px 14px;font-size:0.9rem;color:#4A90D9;font-weight:700;margin-top:8px;display:none;}
+  .pto-team-req{background:#0f1117;border:1px solid #2a3050;border-radius:10px;padding:14px;margin-bottom:10px;}
+  .pto-team-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .pto-team-name{font-size:0.88rem;font-weight:700;color:#e2e8f0;}
+  .pto-team-meta{font-size:0.75rem;color:#64748b;margin-top:3px;}
+  .pto-bal-table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+  .pto-bal-table th{text-align:left;padding:8px 10px;color:#64748b;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.04em;border-bottom:1px solid #2a3050;white-space:nowrap;}
+  .pto-bal-table td{padding:7px 10px;border-bottom:1px solid #1a2040;vertical-align:middle;}
+  .pto-bal-table input[type=number]{width:58px;background:#0f1117;border:1px solid #2a3050;border-radius:5px;padding:4px 6px;color:#e2e8f0;font-size:0.8rem;text-align:center;outline:none;}
+  .pto-bal-table input[type=number]:focus{border-color:#4A90D9;}
+  .pill-declined{background:#2d1515;color:#fca5a5;border:1px solid #7f1d1d;}
+  .pill-cancelled{background:#1a1a2e;color:#64748b;border:1px solid #334155;}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Karla:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -4224,11 +4254,99 @@ function printDoc() {
   </div>
 
   <div class="section" id="tab-pto">
-    <div class="card" style="text-align:center;padding:48px 24px;">
-      <div style="font-size:2.5rem;margin-bottom:12px;">🏖️</div>
-      <h2 style="margin-bottom:10px;">PTO Tracker</h2>
-      <p style="color:#8DC63F;font-size:1rem;font-weight:700;margin-bottom:6px;">Something big is brewing.</p>
-      <p style="color:#64748b;font-size:0.82rem;line-height:1.6;">Track time off, request approvals, and keep the whole crew in sync — all without leaving the app. Hold tight, it's coming.</p>
+    <div class="card">
+      <div class="pto-subtabs">
+        <div class="pto-subtab active" data-pto="mypto">My PTO</div>
+        <div class="pto-subtab" data-pto="approvals" id="pto-approvals-tab" style="display:none;">Team Requests</div>
+        <div class="pto-subtab" data-pto="balances" id="pto-balances-tab" style="display:none;">Manage Balances</div>
+      </div>
+
+      <!-- MY PTO -->
+      <div class="pto-panel active" id="pto-panel-mypto">
+        <div class="pto-bal-grid">
+          <div class="pto-bal-card">
+            <div class="pto-bal-title">Vacation</div>
+            <div class="pto-bal-num" id="pto-vac-used">—</div>
+            <div class="pto-bal-sub" id="pto-vac-total">of — days used</div>
+            <div class="pto-bal-rem" id="pto-vac-rem">— remaining</div>
+          </div>
+          <div class="pto-bal-card">
+            <div class="pto-bal-title">Sick</div>
+            <div class="pto-bal-num" id="pto-sick-used">—</div>
+            <div class="pto-bal-sub" id="pto-sick-total">of — days used</div>
+            <div class="pto-bal-rem" id="pto-sick-rem">— remaining</div>
+          </div>
+          <div class="pto-bal-card">
+            <div class="pto-bal-title">Personal</div>
+            <div class="pto-bal-num" id="pto-pers-used">—</div>
+            <div class="pto-bal-sub" id="pto-pers-total">of — days used</div>
+            <div class="pto-bal-rem" id="pto-pers-rem">— remaining</div>
+          </div>
+        </div>
+        <hr>
+        <h2 style="margin-bottom:14px;">Request Time Off</h2>
+        <div class="grid2" style="margin-bottom:12px;">
+          <div>
+            <label>Type</label>
+            <select id="pto-req-type" class="appt-type-select">
+              <option value="Vacation">Vacation</option>
+              <option value="Sick">Sick</option>
+              <option value="Personal">Personal</option>
+            </select>
+          </div>
+          <div></div>
+        </div>
+        <div class="grid2" style="margin-bottom:10px;">
+          <div>
+            <label>Start Date</label>
+            <input type="date" id="pto-req-start" oninput="ptoUpdateDayCount()">
+          </div>
+          <div>
+            <label>End Date</label>
+            <input type="date" id="pto-req-end" oninput="ptoUpdateDayCount()">
+          </div>
+        </div>
+        <div style="display:flex;gap:28px;margin-bottom:10px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;font-size:0.82rem;color:#94a3b8;">
+            <input type="checkbox" id="pto-half-start" onchange="ptoUpdateDayCount()"> First day is half day
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;font-size:0.82rem;color:#94a3b8;">
+            <input type="checkbox" id="pto-half-end" onchange="ptoUpdateDayCount()"> Last day is half day
+          </label>
+        </div>
+        <div id="pto-day-count-preview" class="pto-day-preview"></div>
+        <div style="margin-top:12px;margin-bottom:12px;">
+          <label>Notes (optional)</label>
+          <textarea id="pto-req-notes" rows="2" style="resize:none;" placeholder="Any details for your manager..."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="ptoSubmitRequest()">Submit Request</button>
+        <hr style="margin-top:22px;">
+        <h2 style="margin-bottom:12px;">My Requests</h2>
+        <div id="pto-my-requests-list"><div class="no-results">Loading...</div></div>
+      </div>
+
+      <!-- TEAM REQUESTS (manager / admin) -->
+      <div class="pto-panel" id="pto-panel-approvals">
+        <h2 style="margin-bottom:12px;">Pending Approvals</h2>
+        <div id="pto-pending-list"><div class="no-results">Loading...</div></div>
+        <hr>
+        <h2 style="margin-bottom:12px;">Recent Team History</h2>
+        <div id="pto-team-history-list"><div class="no-results">—</div></div>
+      </div>
+
+      <!-- MANAGE BALANCES (admin only) -->
+      <div class="pto-panel" id="pto-panel-balances">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+          <h2 style="margin-bottom:0;">Employee PTO Balances</h2>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <label style="margin-bottom:0;font-size:0.8rem;">Year:</label>
+            <input type="number" id="pto-admin-year" style="width:84px;" min="2020" max="2099">
+            <button class="btn btn-secondary btn-sm" onclick="ptoAdminLoadBalances()">Load</button>
+            <button class="btn btn-primary btn-sm" onclick="ptoAdminAddEmployee()">+ Add Employee</button>
+          </div>
+        </div>
+        <div id="pto-admin-bal-container"><div class="no-results">Select a year and click Load.</div></div>
+      </div>
     </div>
   </div>
 
@@ -4242,8 +4360,8 @@ function printDoc() {
   </div>
 
   <div class="section" id="tab-metrics" style="padding:0;overflow:auto;">
-    <div style="padding:10px 16px;display:flex;justify-content:flex-end;">
-      <a href="https://datastudio.google.com/reporting/93c07835-f6ee-4330-92ad-546388617dd7/page/p_ic76uw054d" target="_blank" class="btn" style="font-size:0.8rem;padding:6px 14px;">↗ Open in New Window</a>
+    <div style="padding:10px 16px;display:flex;justify-content:center;">
+      <a href="https://datastudio.google.com/reporting/93c07835-f6ee-4330-92ad-546388617dd7/page/p_ic76uw054d" target="_blank" class="btn" style="font-size:0.9rem;padding:8px 20px;color:#ffffff;font-weight:700;">↗ Open in New Window</a>
     </div>
     <div style="display:flex;justify-content:center;">
       <iframe width="1500" height="1126" src="https://datastudio.google.com/embed/reporting/93c07835-f6ee-4330-92ad-546388617dd7/page/p_ic76uw054d" frameborder="0" style="border:0" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
@@ -4273,6 +4391,12 @@ var CRED_GS_TMPL_TAB      = "ReminderTemplates";
 var CRED_AL_API_KEY           = "%%AL_API_KEY%%";
 var CRED_GOOGLE_OAUTH_CLIENT_ID = "%%GOOGLE_OAUTH_CLIENT_ID%%"; // for login
 var CRED_GS_PERMS_TAB         = "UserPermissions"; // sheet tab for user roles
+
+var GMAIL_CLIENT_ID     = "%%GMAIL_CLIENT_ID%%";
+var GMAIL_CLIENT_SECRET = "%%GMAIL_CLIENT_SECRET%%";
+var GMAIL_REFRESH_TOKEN = "%%GMAIL_REFRESH_TOKEN%%";
+var GMAIL_FROM          = "pto@peachtreerestorations.com";
+var GCAL_ID_PTO         = "%%GCAL_ID_PTO%%";
 // =====================================================================
 
 var store = {
@@ -5074,6 +5198,7 @@ document.addEventListener("click",function(e){
       if(adminSub)adminSub.style.display="none";
       var sec=document.getElementById("tab-"+t.dataset.tab);if(sec)sec.classList.add("active");
       t.classList.add("active");
+      if(t.dataset.tab==="pto")ptoLoad();
     }
     return;
   }
@@ -9292,6 +9417,638 @@ function calcUpgradesTotal() {
 })();
 
 
+
+// =============================================================
+// PTO MODULE
+// =============================================================
+var PTO_BALANCES_TAB = 'PTOBalances';
+var PTO_REQUESTS_TAB = 'PTORequests';
+
+var ptoGmailToken  = null;
+var ptoGmailExpiry = 0;
+var ptoPermsData   = [];
+var ptoIsManager   = false;
+var ptoMyManagerEmail = '';
+var ptoMyBalance   = null;
+var ptoMyRequests  = [];
+var ptoTeamRequests = [];
+
+// -- Gmail token --
+function ptoGetGmailToken() {
+  if (ptoGmailToken && Date.now() < ptoGmailExpiry) return Promise.resolve(ptoGmailToken);
+  if (!GMAIL_CLIENT_ID || !GMAIL_REFRESH_TOKEN) return Promise.reject(new Error('Gmail credentials not configured'));
+  return fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'client_id=' + encodeURIComponent(GMAIL_CLIENT_ID) +
+          '&client_secret=' + encodeURIComponent(GMAIL_CLIENT_SECRET) +
+          '&refresh_token=' + encodeURIComponent(GMAIL_REFRESH_TOKEN) +
+          '&grant_type=refresh_token'
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.error) throw new Error(d.error_description || d.error);
+    ptoGmailToken  = d.access_token;
+    ptoGmailExpiry = Date.now() + (d.expires_in - 60) * 1000;
+    return ptoGmailToken;
+  });
+}
+
+// -- Send email via Gmail API --
+function ptoSendEmail(to, subject, bodyHtml) {
+  return ptoGetGmailToken().then(function(t) {
+    var raw = [
+      'From: "Peachtree PTO" <' + GMAIL_FROM + '>',
+      'To: ' + to,
+      'Subject: ' + subject,
+      'MIME-Version: 1.0',
+      'Content-Type: text/html; charset=utf-8',
+      '',
+      bodyHtml
+    ].join('\r\n');
+    var encoded = btoa(unescape(encodeURIComponent(raw)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    return fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ raw: encoded })
+    }).then(function(r) { return r.json(); }).then(function(d) {
+      if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
+    });
+  }).catch(function(e) {
+    console.warn('[PTO] Email send failed:', e.message);
+  });
+}
+
+// -- Google Calendar OOO events --
+function ptoCreateCalEvent(employeeName, startDate, endDate) {
+  if (!GCAL_ID_PTO) return Promise.resolve(null);
+  var endEx = new Date(endDate + 'T12:00:00');
+  endEx.setDate(endEx.getDate() + 1);
+  var endStr = endEx.toISOString().slice(0, 10);
+  return getGCalToken().then(function(t) {
+    return fetch('https://www.googleapis.com/calendar/v3/calendars/' + encodeURIComponent(GCAL_ID_PTO) + '/events', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        summary: employeeName + ' — PTO',
+        start: { date: startDate },
+        end:   { date: endStr },
+        transparency: 'opaque'
+      })
+    }).then(function(r) { return r.json(); }).then(function(d) {
+      if (d.error) throw new Error(d.error.message);
+      return d.id;
+    });
+  }).catch(function(e) { console.warn('[PTO] Cal create failed:', e.message); return null; });
+}
+
+function ptoDeleteCalEvent(calEventId) {
+  if (!GCAL_ID_PTO || !calEventId) return Promise.resolve();
+  return getGCalToken().then(function(t) {
+    return fetch('https://www.googleapis.com/calendar/v3/calendars/' + encodeURIComponent(GCAL_ID_PTO) + '/events/' + calEventId, {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer ' + t }
+    });
+  }).catch(function(e) { console.warn('[PTO] Cal delete failed:', e.message); });
+}
+
+// -- Day count (weekdays only, with half-day support) --
+function ptoCountWeekdays(startStr, endStr, halfStart, halfEnd) {
+  if (!startStr || !endStr) return 0;
+  var s = new Date(startStr + 'T12:00:00');
+  var e = new Date(endStr  + 'T12:00:00');
+  if (e < s) return 0;
+  var count = 0, cur = new Date(s);
+  while (cur <= e) { var d = cur.getDay(); if (d !== 0 && d !== 6) count++; cur.setDate(cur.getDate() + 1); }
+  if (halfStart) count -= 0.5;
+  if (halfEnd)   count -= 0.5;
+  return Math.max(0, count);
+}
+
+function ptoUpdateDayCount() {
+  var s = document.getElementById('pto-req-start').value;
+  var e = document.getElementById('pto-req-end').value;
+  var hs = document.getElementById('pto-half-start').checked;
+  var he = document.getElementById('pto-half-end').checked;
+  var preview = document.getElementById('pto-day-count-preview');
+  if (!s || !e) { preview.style.display = 'none'; return; }
+  var days = ptoCountWeekdays(s, e, hs, he);
+  preview.style.display = '';
+  preview.textContent = days + (days === 1 ? ' business day' : ' business days');
+}
+
+// -- Sheet helpers --
+function ptoSheetRead(tab, range) {
+  return getGSToken().then(function(t) {
+    var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + CRED_GS_SHEET_ID +
+              '/values/' + encodeURIComponent(tab) + '!' + range;
+    return fetch(url, { headers: { Authorization: 'Bearer ' + t } })
+      .then(function(r) { return r.json(); }).then(function(d) {
+        if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
+        return d.values || [];
+      });
+  });
+}
+
+function ptoSheetAppend(tab, values) {
+  return getGSToken().then(function(t) {
+    var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + CRED_GS_SHEET_ID +
+              '/values/' + encodeURIComponent(tab) + '!A1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS';
+    return fetch(url, {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values: [values] })
+    }).then(function(r) { return r.json(); }).then(function(d) {
+      if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
+    });
+  });
+}
+
+function ptoSheetUpdateRow(tab, rowNum, values) {
+  var lastCol = String.fromCharCode(64 + values.length);
+  return getGSToken().then(function(t) {
+    var range = encodeURIComponent(tab) + '!A' + rowNum + ':' + lastCol + rowNum;
+    var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + CRED_GS_SHEET_ID +
+              '/values/' + range + '?valueInputOption=RAW';
+    return fetch(url, {
+      method: 'PUT',
+      headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values: [values] })
+    }).then(function(r) { return r.json(); }).then(function(d) {
+      if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
+    });
+  });
+}
+
+// -- Parse sheet data --
+function ptoParseRequests(rows) {
+  return (rows.slice(1) || []).map(function(row, i) {
+    return {
+      id:           (row[0]  || '').trim(),
+      email:        (row[1]  || '').trim().toLowerCase(),
+      managerEmail: (row[2]  || '').trim().toLowerCase(),
+      type:          row[3]  || 'Vacation',
+      start:         row[4]  || '',
+      end:           row[5]  || '',
+      halfStart:     row[6]  === 'TRUE',
+      halfEnd:       row[7]  === 'TRUE',
+      days:          parseFloat(row[8]  || '0') || 0,
+      notes:         row[9]  || '',
+      status:        (row[10] || 'pending').toLowerCase(),
+      submitted:     row[11] || '',
+      reviewedAt:    row[12] || '',
+      reviewedBy:    row[13] || '',
+      calEventId:    row[14] || '',
+      row:           i + 2
+    };
+  }).filter(function(r) { return r.id; });
+}
+
+function ptoParseBalances(rows) {
+  return (rows.slice(1) || []).map(function(row, i) {
+    return {
+      email:     (row[0] || '').trim().toLowerCase(),
+      year:       parseInt(row[1] || '0'),
+      vacTotal:   parseFloat(row[2] || '0') || 0,
+      vacUsed:    parseFloat(row[3] || '0') || 0,
+      sickTotal:  parseFloat(row[4] || '0') || 0,
+      sickUsed:   parseFloat(row[5] || '0') || 0,
+      persTotal:  parseFloat(row[6] || '0') || 0,
+      persUsed:   parseFloat(row[7] || '0') || 0,
+      row:        i + 2
+    };
+  }).filter(function(b) { return b.email; });
+}
+
+// -- Main load --
+function ptoLoad() {
+  if (!currentUserEmail) return;
+  var year = new Date().getFullYear();
+  var yearInput = document.getElementById('pto-admin-year');
+  if (yearInput && !yearInput.value) yearInput.value = year;
+
+  Promise.all([
+    ptoSheetRead(CRED_GS_PERMS_TAB, 'A:D'),
+    ptoSheetRead(PTO_BALANCES_TAB,  'A:H'),
+    ptoSheetRead(PTO_REQUESTS_TAB,  'A:O')
+  ]).then(function(results) {
+    ptoPermsData = results[0];
+    var allBalances = ptoParseBalances(results[1]);
+    var allRequests = ptoParseRequests(results[2]);
+
+    // My manager email (column D of my UserPermissions row)
+    ptoMyManagerEmail = '';
+    for (var i = 1; i < ptoPermsData.length; i++) {
+      if ((ptoPermsData[i][0] || '').trim().toLowerCase() === currentUserEmail.toLowerCase()) {
+        ptoMyManagerEmail = (ptoPermsData[i][3] || '').trim().toLowerCase();
+        break;
+      }
+    }
+
+    // Am I a manager? Any row in perms has my email as ManagerEmail
+    ptoIsManager = false;
+    for (var j = 1; j < ptoPermsData.length; j++) {
+      if ((ptoPermsData[j][3] || '').trim().toLowerCase() === currentUserEmail.toLowerCase()) {
+        ptoIsManager = true;
+        break;
+      }
+    }
+
+    // My balance for this year
+    ptoMyBalance = null;
+    allBalances.forEach(function(b) {
+      if (b.email === currentUserEmail.toLowerCase() && b.year === year) ptoMyBalance = b;
+    });
+
+    // My requests
+    ptoMyRequests = allRequests.filter(function(r) {
+      return r.email === currentUserEmail.toLowerCase();
+    });
+
+    // Team requests — admins see everything (including their own if self-managed)
+    if (currentUserRole === 'admin') {
+      var hasMgr = !!ptoMyManagerEmail;
+      ptoTeamRequests = allRequests.filter(function(r) {
+        if (r.email !== currentUserEmail.toLowerCase()) return true;
+        return !hasMgr; // include own requests only if no manager set
+      });
+    } else if (ptoIsManager) {
+      ptoTeamRequests = allRequests.filter(function(r) { return r.managerEmail === currentUserEmail.toLowerCase(); });
+    } else {
+      ptoTeamRequests = [];
+    }
+
+    // Show/hide subtabs
+    var appTab = document.getElementById('pto-approvals-tab');
+    var balTab = document.getElementById('pto-balances-tab');
+    if (appTab) appTab.style.display = (ptoIsManager || currentUserRole === 'admin') ? '' : 'none';
+    if (balTab) balTab.style.display = currentUserRole === 'admin' ? '' : 'none';
+
+    ptoRenderBalance();
+    ptoRenderMyRequests();
+    ptoRenderTeamRequests();
+  }).catch(function(e) {
+    showSchedToast('st-error', 'PTO load error: ' + e.message);
+    console.error('[PTO]', e);
+  });
+}
+
+// -- Render balance cards --
+function ptoRenderBalance() {
+  function fmt(v) { return typeof v === 'number' ? v : '—'; }
+  var b = ptoMyBalance;
+  document.getElementById('pto-vac-used').textContent  = b ? fmt(b.vacUsed)  : '—';
+  document.getElementById('pto-vac-total').textContent = b ? 'of ' + fmt(b.vacTotal)  + ' days used' : 'of — days used';
+  document.getElementById('pto-vac-rem').textContent   = b ? fmt(b.vacTotal  - b.vacUsed)  + ' remaining' : '— remaining';
+  document.getElementById('pto-sick-used').textContent  = b ? fmt(b.sickUsed) : '—';
+  document.getElementById('pto-sick-total').textContent = b ? 'of ' + fmt(b.sickTotal) + ' days used' : 'of — days used';
+  document.getElementById('pto-sick-rem').textContent   = b ? fmt(b.sickTotal - b.sickUsed) + ' remaining' : '— remaining';
+  document.getElementById('pto-pers-used').textContent  = b ? fmt(b.persUsed) : '—';
+  document.getElementById('pto-pers-total').textContent = b ? 'of ' + fmt(b.persTotal) + ' days used' : 'of — days used';
+  document.getElementById('pto-pers-rem').textContent   = b ? fmt(b.persTotal - b.persUsed) + ' remaining' : '— remaining';
+}
+
+// -- Render my requests --
+function ptoRenderMyRequests() {
+  var el = document.getElementById('pto-my-requests-list');
+  if (!el) return;
+  if (!ptoMyRequests.length) { el.innerHTML = '<div class="no-results">No requests yet.</div>'; return; }
+  var sorted = ptoMyRequests.slice().sort(function(a, b) { return (b.submitted || '').localeCompare(a.submitted || ''); });
+  el.innerHTML = sorted.map(function(r) {
+    var range = r.start === r.end ? r.start : r.start + ' — ' + r.end;
+    var half = [];
+    if (r.halfStart) half.push('first day half');
+    if (r.halfEnd)   half.push('last day half');
+    var halfStr = half.length ? ' (' + half.join(', ') + ')' : '';
+    var canCancel = r.status === 'pending' || r.status === 'approved';
+    return '<div class="pto-req-card">' +
+      '<div class="pto-req-info">' +
+        '<div class="pto-req-type">' + ptoEsc(r.type) + ' &mdash; ' + r.days + ' day' + (r.days !== 1 ? 's' : '') + ptoPill(r.status) + '</div>' +
+        '<div class="pto-req-dates">' + range + halfStr + '</div>' +
+        (r.notes ? '<div class="pto-req-notes">' + ptoEsc(r.notes) + '</div>' : '') +
+        '<div class="pto-req-dates" style="margin-top:4px;color:#475569;">Submitted ' + (r.submitted ? r.submitted.slice(0,10) : '—') + '</div>' +
+      '</div>' +
+      '<div class="pto-req-actions">' +
+        (canCancel ? '<button class="btn btn-danger btn-sm" onclick="ptoCancelRequest(\'' + r.id + '\')">Cancel</button>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// -- Render team requests --
+function ptoRenderTeamRequests() {
+  var pending = ptoTeamRequests.filter(function(r) { return r.status === 'pending'; });
+  var history = ptoTeamRequests.filter(function(r) { return r.status !== 'pending'; })
+                               .sort(function(a, b) { return (b.reviewedAt || b.submitted || '').localeCompare(a.reviewedAt || a.submitted || ''); })
+                               .slice(0, 30);
+
+  var pendEl = document.getElementById('pto-pending-list');
+  if (pendEl) {
+    if (!pending.length) { pendEl.innerHTML = '<div class="no-results">No pending requests.</div>'; }
+    else {
+      pendEl.innerHTML = pending.map(function(r) {
+        var name = ptoDisplayName(r.email);
+        var range = r.start === r.end ? r.start : r.start + ' — ' + r.end;
+        var half = [];
+        if (r.halfStart) half.push('first day half');
+        if (r.halfEnd)   half.push('last day half');
+        return '<div class="pto-team-req">' +
+          '<div class="pto-team-head">' +
+            '<div>' +
+              '<div class="pto-team-name">' + ptoEsc(name) + '</div>' +
+              '<div class="pto-team-meta">' + r.type + ' &middot; ' + range + (half.length ? ' (' + half.join(', ') + ')' : '') + ' &middot; ' + r.days + ' day' + (r.days !== 1 ? 's' : '') + '</div>' +
+              (r.notes ? '<div class="pto-req-notes" style="margin-top:4px;">' + ptoEsc(r.notes) + '</div>' : '') +
+            '</div>' +
+            '<div class="pto-req-actions">' +
+              '<button class="btn btn-primary btn-sm" onclick="ptoApprove(\'' + r.id + '\')">Approve</button>' +
+              '<button class="btn btn-danger btn-sm" onclick="ptoDecline(\'' + r.id + '\')">Decline</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+  }
+
+  var histEl = document.getElementById('pto-team-history-list');
+  if (histEl) {
+    if (!history.length) { histEl.innerHTML = '<div class="no-results">No history.</div>'; }
+    else {
+      histEl.innerHTML = history.map(function(r) {
+        var name = ptoDisplayName(r.email);
+        var range = r.start === r.end ? r.start : r.start + ' — ' + r.end;
+        return '<div class="pto-team-req">' +
+          '<div class="pto-team-head">' +
+            '<div>' +
+              '<div class="pto-team-name">' + ptoEsc(name) + '</div>' +
+              '<div class="pto-team-meta">' + r.type + ' &middot; ' + range + ' &middot; ' + r.days + ' day' + (r.days !== 1 ? 's' : '') + '</div>' +
+            '</div>' +
+            ptoPill(r.status) +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+  }
+}
+
+// -- Helpers --
+function ptoDisplayName(email) {
+  for (var i = 1; i < ptoPermsData.length; i++) {
+    if ((ptoPermsData[i][0] || '').trim().toLowerCase() === email.toLowerCase()) {
+      return ptoPermsData[i][2] || email;
+    }
+  }
+  return email;
+}
+
+function ptoPill(status) {
+  var map = {
+    pending:   '<span class="pill pill-yellow">Pending</span>',
+    approved:  '<span class="pill pill-green">Approved</span>',
+    declined:  '<span class="pill pill-declined">Declined</span>',
+    cancelled: '<span class="pill pill-cancelled">Cancelled</span>'
+  };
+  return map[status] || '<span class="pill">' + status + '</span>';
+}
+
+function ptoEsc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// -- Submit request --
+function ptoSubmitRequest() {
+  var type  = document.getElementById('pto-req-type').value;
+  var start = document.getElementById('pto-req-start').value;
+  var end   = document.getElementById('pto-req-end').value;
+  var hs    = document.getElementById('pto-half-start').checked;
+  var he    = document.getElementById('pto-half-end').checked;
+  var notes = (document.getElementById('pto-req-notes').value || '').trim();
+
+  if (!start || !end)  { showSchedToast('st-error', 'Please select start and end dates.'); return; }
+  if (end < start)     { showSchedToast('st-error', 'End date must be on or after start date.'); return; }
+  var days = ptoCountWeekdays(start, end, hs, he);
+  if (days <= 0) { showSchedToast('st-error', 'No business days in the selected range.'); return; }
+
+  var id        = 'PTO-' + Date.now();
+  var submitted = new Date().toISOString();
+  var row = [id, currentUserEmail, ptoMyManagerEmail, type, start, end,
+             hs ? 'TRUE' : 'FALSE', he ? 'TRUE' : 'FALSE', days, notes, 'pending', submitted, '', '', ''];
+
+  showSchedToast('st-info', 'Submitting...');
+  ptoSheetAppend(PTO_REQUESTS_TAB, row).then(function() {
+    showSchedToast('st-success', 'PTO request submitted!');
+    document.getElementById('pto-req-start').value = '';
+    document.getElementById('pto-req-end').value   = '';
+    document.getElementById('pto-half-start').checked = false;
+    document.getElementById('pto-half-end').checked   = false;
+    document.getElementById('pto-req-notes').value    = '';
+    document.getElementById('pto-day-count-preview').style.display = 'none';
+
+    if (ptoMyManagerEmail) {
+      var myName  = ptoDisplayName(currentUserEmail);
+      var subject = 'PTO Request: ' + myName + ' — ' + type + ' (' + days + ' day' + (days !== 1 ? 's' : '') + ')';
+      var body    = '<p>Hi,</p><p><strong>' + ptoEsc(myName) + '</strong> has submitted a PTO request:</p>' +
+        '<ul><li><strong>Type:</strong> ' + type + '</li>' +
+        '<li><strong>Dates:</strong> ' + start + (end !== start ? ' &mdash; ' + end : '') + '</li>' +
+        '<li><strong>Days:</strong> ' + days + (hs || he ? ' (includes half day)' : '') + '</li>' +
+        (notes ? '<li><strong>Notes:</strong> ' + ptoEsc(notes) + '</li>' : '') +
+        '</ul><p>Log in to the app to approve or decline.</p>';
+      ptoSendEmail(ptoMyManagerEmail, subject, body);
+    }
+    ptoLoad();
+  }).catch(function(e) { showSchedToast('st-error', 'Submit failed: ' + e.message); });
+}
+
+// -- Find a request by ID (re-reads sheet to get current row number) --
+function ptoFindRequest(id) {
+  return ptoSheetRead(PTO_REQUESTS_TAB, 'A:O').then(function(rows) {
+    var all = ptoParseRequests(rows);
+    for (var i = 0; i < all.length; i++) { if (all[i].id === id) return all[i]; }
+    throw new Error('Request not found');
+  });
+}
+
+// -- Approve --
+function ptoApprove(id) {
+  showSchedToast('st-info', 'Approving...');
+  ptoFindRequest(id).then(function(req) {
+    var now = new Date().toISOString();
+    return ptoCreateCalEvent(ptoDisplayName(req.email), req.start, req.end).then(function(calId) {
+      var updated = [req.id, req.email, req.managerEmail, req.type, req.start, req.end,
+        req.halfStart ? 'TRUE' : 'FALSE', req.halfEnd ? 'TRUE' : 'FALSE',
+        req.days, req.notes, 'approved', req.submitted, now, currentUserEmail, calId || ''];
+      return ptoSheetUpdateRow(PTO_REQUESTS_TAB, req.row, updated);
+    }).then(function() {
+      return ptoIncrementUsed(req.email, req.type, req.days);
+    }).then(function() {
+      showSchedToast('st-success', 'Request approved!');
+      var empName = ptoDisplayName(req.email);
+      var subject = 'PTO Approved: ' + req.type + ' ' + req.start + (req.end !== req.start ? ' — ' + req.end : '');
+      var body = '<p>Hi ' + ptoEsc(empName) + ',</p>' +
+        '<p>Your PTO request has been <strong style="color:#22c55e;">approved</strong>.</p>' +
+        '<ul><li><strong>Type:</strong> ' + req.type + '</li>' +
+        '<li><strong>Dates:</strong> ' + req.start + (req.end !== req.start ? ' — ' + req.end : '') + '</li>' +
+        '<li><strong>Days:</strong> ' + req.days + '</li></ul>' +
+        '<p>Enjoy your time off!</p>';
+      ptoSendEmail(req.email, subject, body);
+      ptoLoad();
+    });
+  }).catch(function(e) { showSchedToast('st-error', 'Approve failed: ' + e.message); });
+}
+
+// -- Decline --
+function ptoDecline(id) {
+  var reason = prompt('Reason for declining (optional):');
+  if (reason === null) return;
+  showSchedToast('st-info', 'Declining...');
+  ptoFindRequest(id).then(function(req) {
+    var now = new Date().toISOString();
+    var updated = [req.id, req.email, req.managerEmail, req.type, req.start, req.end,
+      req.halfStart ? 'TRUE' : 'FALSE', req.halfEnd ? 'TRUE' : 'FALSE',
+      req.days, req.notes, 'declined', req.submitted, now, currentUserEmail, req.calEventId];
+    return ptoSheetUpdateRow(PTO_REQUESTS_TAB, req.row, updated).then(function() {
+      showSchedToast('st-success', 'Request declined.');
+      var empName = ptoDisplayName(req.email);
+      var subject = 'PTO Declined: ' + req.type + ' ' + req.start;
+      var body = '<p>Hi ' + ptoEsc(empName) + ',</p>' +
+        '<p>Your PTO request has been <strong style="color:#f87171;">declined</strong>.</p>' +
+        '<ul><li><strong>Type:</strong> ' + req.type + '</li>' +
+        '<li><strong>Dates:</strong> ' + req.start + (req.end !== req.start ? ' — ' + req.end : '') + '</li></ul>' +
+        (reason ? '<p><strong>Reason:</strong> ' + ptoEsc(reason) + '</p>' : '') +
+        '<p>Please reach out to your manager with any questions.</p>';
+      ptoSendEmail(req.email, subject, body);
+      ptoLoad();
+    });
+  }).catch(function(e) { showSchedToast('st-error', 'Decline failed: ' + e.message); });
+}
+
+// -- Cancel --
+function ptoCancelRequest(id) {
+  if (!confirm('Cancel this PTO request?')) return;
+  showSchedToast('st-info', 'Cancelling...');
+  ptoFindRequest(id).then(function(req) {
+    var now = new Date().toISOString();
+    var wasApproved = req.status === 'approved';
+    var updated = [req.id, req.email, req.managerEmail, req.type, req.start, req.end,
+      req.halfStart ? 'TRUE' : 'FALSE', req.halfEnd ? 'TRUE' : 'FALSE',
+      req.days, req.notes, 'cancelled', req.submitted, now, req.reviewedBy, req.calEventId];
+    return ptoSheetUpdateRow(PTO_REQUESTS_TAB, req.row, updated).then(function() {
+      if (wasApproved && req.calEventId) ptoDeleteCalEvent(req.calEventId);
+      if (wasApproved) ptoIncrementUsed(req.email, req.type, -req.days);
+      showSchedToast('st-success', 'Request cancelled.');
+      if (req.managerEmail) {
+        var myName = ptoDisplayName(req.email);
+        var subject = 'PTO Cancelled: ' + myName + ' — ' + req.type + ' ' + req.start;
+        var body = '<p>Hi,</p><p><strong>' + ptoEsc(myName) + '</strong> cancelled their PTO request.</p>' +
+          '<ul><li><strong>Type:</strong> ' + req.type + '</li>' +
+          '<li><strong>Dates:</strong> ' + req.start + (req.end !== req.start ? ' — ' + req.end : '') + '</li>' +
+          '<li><strong>Was:</strong> ' + req.status + '</li></ul>';
+        ptoSendEmail(req.managerEmail, subject, body);
+      }
+      ptoLoad();
+    });
+  }).catch(function(e) { showSchedToast('st-error', 'Cancel failed: ' + e.message); });
+}
+
+// -- Increment / decrement used balance --
+function ptoIncrementUsed(email, type, delta) {
+  var year = new Date().getFullYear();
+  return ptoSheetRead(PTO_BALANCES_TAB, 'A:H').then(function(rows) {
+    var bals = ptoParseBalances(rows);
+    var bal = null;
+    for (var i = 0; i < bals.length; i++) {
+      if (bals[i].email === email.toLowerCase() && bals[i].year === year) { bal = bals[i]; break; }
+    }
+    if (!bal) return;
+    var row;
+    if (type === 'Vacation') {
+      row = [email, year, bal.vacTotal, Math.max(0, bal.vacUsed + delta), bal.sickTotal, bal.sickUsed, bal.persTotal, bal.persUsed];
+    } else if (type === 'Sick') {
+      row = [email, year, bal.vacTotal, bal.vacUsed, bal.sickTotal, Math.max(0, bal.sickUsed + delta), bal.persTotal, bal.persUsed];
+    } else {
+      row = [email, year, bal.vacTotal, bal.vacUsed, bal.sickTotal, bal.sickUsed, bal.persTotal, Math.max(0, bal.persUsed + delta)];
+    }
+    return ptoSheetUpdateRow(PTO_BALANCES_TAB, bal.row, row);
+  }).catch(function(e) { console.warn('[PTO] balance update failed:', e.message); });
+}
+
+// -- Admin: load all balances --
+function ptoAdminLoadBalances() {
+  var year = parseInt(document.getElementById('pto-admin-year').value) || new Date().getFullYear();
+  var container = document.getElementById('pto-admin-bal-container');
+  if (container) container.innerHTML = '<div class="no-results">Loading...</div>';
+  ptoSheetRead(PTO_BALANCES_TAB, 'A:H').then(function(rows) {
+    var bals = ptoParseBalances(rows).filter(function(b) { return b.year === year; });
+    if (!bals.length) {
+      if (container) container.innerHTML = '<div class="no-results">No balances for ' + year + '. Use "+ Add Employee" to create rows.</div>';
+      return;
+    }
+    var html = '<div style="overflow-x:auto;"><table class="pto-bal-table">' +
+      '<thead><tr>' +
+        '<th>Employee</th>' +
+        '<th>Vac Total</th><th>Vac Used</th>' +
+        '<th>Sick Total</th><th>Sick Used</th>' +
+        '<th>Pers Total</th><th>Pers Used</th>' +
+        '<th></th>' +
+      '</tr></thead><tbody>' +
+      bals.map(function(b) {
+        var name = ptoDisplayName(b.email);
+        return '<tr data-email="' + ptoEsc(b.email) + '" data-row="' + b.row + '" data-year="' + year + '">' +
+          '<td><div style="color:#e2e8f0;font-weight:600;">' + ptoEsc(name) + '</div>' +
+              '<div style="font-size:0.68rem;color:#64748b;">' + ptoEsc(b.email) + '</div></td>' +
+          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.vacTotal  + '" data-field="vacTotal"></td>' +
+          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.vacUsed   + '" data-field="vacUsed"></td>' +
+          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.sickTotal + '" data-field="sickTotal"></td>' +
+          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.sickUsed  + '" data-field="sickUsed"></td>' +
+          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.persTotal + '" data-field="persTotal"></td>' +
+          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.persUsed  + '" data-field="persUsed"></td>' +
+          '<td><button class="btn btn-primary btn-sm" onclick="ptoAdminSaveBalance(this)">Save</button></td>' +
+        '</tr>';
+      }).join('') +
+      '</tbody></table></div>';
+    if (container) container.innerHTML = html;
+  }).catch(function(e) { showSchedToast('st-error', 'Load failed: ' + e.message); });
+}
+
+function ptoAdminSaveBalance(btn) {
+  var row = btn.closest('tr');
+  var email  = row.dataset.email;
+  var rowNum = parseInt(row.dataset.row);
+  var year   = parseInt(row.dataset.year);
+  var vals   = {};
+  row.querySelectorAll('.pto-bal-inp').forEach(function(inp) { vals[inp.dataset.field] = parseFloat(inp.value) || 0; });
+  btn.disabled = true;
+  ptoSheetUpdateRow(PTO_BALANCES_TAB, rowNum,
+    [email, year, vals.vacTotal, vals.vacUsed, vals.sickTotal, vals.sickUsed, vals.persTotal, vals.persUsed]
+  ).then(function() {
+    showSchedToast('st-success', 'Saved for ' + email);
+    btn.disabled = false;
+  }).catch(function(e) {
+    showSchedToast('st-error', 'Save failed: ' + e.message);
+    btn.disabled = false;
+  });
+}
+
+function ptoAdminAddEmployee() {
+  var email = prompt('Employee email address:');
+  if (!email) return;
+  email = email.trim().toLowerCase();
+  var year = parseInt(document.getElementById('pto-admin-year').value) || new Date().getFullYear();
+  ptoSheetAppend(PTO_BALANCES_TAB, [email, year, 0, 0, 0, 0, 0, 0]).then(function() {
+    showSchedToast('st-success', 'Added ' + email);
+    ptoAdminLoadBalances();
+  }).catch(function(e) { showSchedToast('st-error', 'Failed: ' + e.message); });
+}
+
+// -- PTO subtab switching --
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('pto-subtab') && e.target.dataset.pto) {
+    var key = e.target.dataset.pto;
+    document.querySelectorAll('.pto-subtab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.pto-panel').forEach(function(p) { p.classList.remove('active'); });
+    e.target.classList.add('active');
+    var panel = document.getElementById('pto-panel-' + key);
+    if (panel) panel.classList.add('active');
+  }
+});
 
 loadCalTemplateBodies();
 renderCalTemplates();
