@@ -176,28 +176,49 @@
   .pto-subtab{padding:7px 16px;border-radius:16px;border:1px solid #2a3050;background:#1a1f2e;color:#94a3b8;cursor:pointer;font-size:0.8rem;font-weight:600;transition:all 0.2s;}
   .pto-subtab.active{background:#4A90D9;color:#fff;border-color:#4A90D9;}
   .pto-panel{display:none;}.pto-panel.active{display:block;}
-  .pto-bal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
-  .pto-bal-card{background:#0f1117;border:1px solid #2a3050;border-radius:12px;padding:18px;text-align:center;}
-  .pto-bal-title{font-size:0.72rem;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;font-weight:600;}
-  .pto-bal-num{font-size:1.8rem;font-weight:800;color:#4A90D9;}
-  .pto-bal-sub{font-size:0.75rem;color:#64748b;margin-top:4px;}
-  .pto-bal-rem{font-size:0.78rem;color:#8DC63F;font-weight:600;margin-top:3px;}
-  .pto-req-card{background:#0f1117;border:1px solid #2a3050;border-radius:10px;padding:14px;margin-bottom:10px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-  .pto-req-info{flex:1;min-width:0;}
-  .pto-req-type{font-size:0.85rem;font-weight:700;color:#e2e8f0;margin-bottom:4px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;}
-  .pto-req-dates{font-size:0.75rem;color:#64748b;margin-bottom:3px;}
-  .pto-req-notes{font-size:0.75rem;color:#94a3b8;font-style:italic;}
-  .pto-req-actions{display:flex;gap:6px;flex-shrink:0;align-items:flex-start;padding-top:2px;}
+  .pto-hero{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .pto-hero-title{font-size:1.1rem;font-weight:700;color:#e2e8f0;margin-bottom:3px;}
+  .pto-hero-sub{font-size:0.75rem;color:#64748b;}
+  .pto-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px;}
+  .pto-stat-card{background:#0f1117;border:1px solid #2a3050;border-radius:10px;padding:16px 20px;}
+  .pto-stat-label{font-size:0.63rem;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;font-weight:700;margin-bottom:6px;}
+  .pto-stat-num{font-size:1.65rem;font-weight:800;color:#4A90D9;margin-bottom:2px;line-height:1;}
+  .pto-stat-sub{font-size:0.69rem;color:#64748b;}
+  .pto-section-head{font-size:0.63rem;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin-bottom:10px;}
+  .pto-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .pto-bar-label{font-size:0.8rem;color:#94a3b8;width:90px;flex-shrink:0;}
+  .pto-bar-track{flex:1;background:#1a1f2e;border-radius:4px;height:7px;overflow:hidden;min-width:40px;}
+  .pto-bar-fill{height:100%;border-radius:4px;transition:width 0.5s;}
+  .pto-bar-count{font-size:0.71rem;color:#94a3b8;white-space:nowrap;min-width:68px;text-align:right;}
+  .pto-cal-strip{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;}
+  .pto-cal-day{flex-shrink:0;width:40px;border-radius:8px;border:1px solid #1a2040;background:#0f1117;padding:7px 4px;text-align:center;}
+  .pto-cal-dname{font-size:0.57rem;color:#475569;text-transform:uppercase;margin-bottom:2px;}
+  .pto-cal-dnum{font-size:0.88rem;font-weight:700;color:#64748b;}
+  .pto-cal-day.pto-today{border-color:#8DC63F;}.pto-cal-day.pto-today .pto-cal-dnum{color:#8DC63F;}
+  .pto-cal-day.pto-off{background:#0c1e38;border-color:#4A90D9;}.pto-cal-day.pto-off .pto-cal-dnum{color:#4A90D9;}
+  .pto-req-table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+  .pto-req-table th{text-align:left;padding:8px 10px;color:#64748b;font-size:0.67rem;text-transform:uppercase;letter-spacing:0.04em;border-bottom:1px solid #2a3050;white-space:nowrap;}
+  .pto-req-table td{padding:9px 10px;border-bottom:1px solid #1a2040;vertical-align:middle;color:#94a3b8;}
+  .pto-req-table tr:last-child td{border-bottom:none;}
+  .pto-avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0;}
+  .pto-approval-card{display:flex;align-items:flex-start;gap:12px;background:#0f1117;border:1px solid #2a3050;border-radius:10px;padding:14px 16px;margin-bottom:10px;}
+  .pto-approval-info{flex:1;min-width:0;}
+  .pto-approval-name{font-size:0.88rem;font-weight:700;color:#e2e8f0;margin-bottom:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .pto-approval-meta{font-size:0.75rem;color:#64748b;}
+  .pto-approval-note{font-size:0.74rem;color:#94a3b8;font-style:italic;margin-top:3px;}
+  .pto-approval-btns{display:flex;gap:6px;flex-shrink:0;padding-top:2px;}
+  .pto-team-table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+  .pto-team-table th{text-align:left;padding:8px 10px;color:#64748b;font-size:0.67rem;text-transform:uppercase;letter-spacing:0.04em;border-bottom:1px solid #2a3050;white-space:nowrap;}
+  .pto-team-table td{padding:9px 10px;border-bottom:1px solid #1a2040;vertical-align:middle;}
+  .pto-team-table tr:last-child td{border-bottom:none;}
   .pto-day-preview{background:#0c1a2e;border:1px solid #1e3a5f;border-radius:8px;padding:10px 14px;font-size:0.9rem;color:#4A90D9;font-weight:700;margin-top:8px;display:none;}
-  .pto-team-req{background:#0f1117;border:1px solid #2a3050;border-radius:10px;padding:14px;margin-bottom:10px;}
-  .pto-team-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-  .pto-team-name{font-size:0.88rem;font-weight:700;color:#e2e8f0;}
-  .pto-team-meta{font-size:0.75rem;color:#64748b;margin-top:3px;}
   .pto-bal-table{width:100%;border-collapse:collapse;font-size:0.8rem;}
   .pto-bal-table th{text-align:left;padding:8px 10px;color:#64748b;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.04em;border-bottom:1px solid #2a3050;white-space:nowrap;}
   .pto-bal-table td{padding:7px 10px;border-bottom:1px solid #1a2040;vertical-align:middle;}
   .pto-bal-table input[type=number]{width:58px;background:#0f1117;border:1px solid #2a3050;border-radius:5px;padding:4px 6px;color:#e2e8f0;font-size:0.8rem;text-align:center;outline:none;}
   .pto-bal-table input[type=number]:focus{border-color:#4A90D9;}
+  .pto-bal-inp{width:58px;background:#0f1117;border:1px solid #2a3050;border-radius:5px;padding:4px 6px;color:#e2e8f0;font-size:0.8rem;text-align:center;outline:none;}
+  .pto-bal-inp:focus{border-color:#4A90D9;outline:none;}
   .pill-declined{background:#2d1515;color:#fca5a5;border:1px solid #7f1d1d;}
   .pill-cancelled{background:#1a1a2e;color:#64748b;border:1px solid #334155;}
 </style>
@@ -4263,75 +4284,85 @@ function printDoc() {
 
       <!-- MY PTO -->
       <div class="pto-panel active" id="pto-panel-mypto">
-        <div class="pto-bal-grid">
-          <div class="pto-bal-card">
-            <div class="pto-bal-title">Vacation</div>
-            <div class="pto-bal-num" id="pto-vac-used">—</div>
-            <div class="pto-bal-sub" id="pto-vac-total">of — days used</div>
-            <div class="pto-bal-rem" id="pto-vac-rem">— remaining</div>
-            <div id="pto-vac-gifted-note" style="font-size:0.68rem;color:#8DC63F;margin-top:4px;display:none;"></div>
-          </div>
-          <div class="pto-bal-card">
-            <div class="pto-bal-title">Sick</div>
-            <div class="pto-bal-num" id="pto-sick-used">—</div>
-            <div class="pto-bal-sub" id="pto-sick-total">of — days used</div>
-            <div class="pto-bal-rem" id="pto-sick-rem">— remaining</div>
-          </div>
-          <div class="pto-bal-card">
-            <div class="pto-bal-title">Bereavement</div>
-            <div class="pto-bal-num" id="pto-pers-used">—</div>
-            <div class="pto-bal-sub" id="pto-pers-total">of — days used</div>
-            <div class="pto-bal-rem" id="pto-pers-rem">— remaining</div>
-          </div>
-        </div>
-        <hr>
-        <h2 style="margin-bottom:14px;">Request Time Off</h2>
-        <div class="grid2" style="margin-bottom:12px;">
+        <div class="pto-hero">
           <div>
-            <label>Type</label>
-            <select id="pto-req-type" class="appt-type-select">
-              <option value="Vacation">Vacation</option>
-              <option value="Sick">Sick</option>
-              <option value="Bereavement">Bereavement</option>
-            </select>
+            <div class="pto-hero-title">Your PTO overview</div>
+            <div class="pto-hero-sub" id="pto-hero-sub">Loading...</div>
           </div>
-          <div></div>
+          <button class="btn btn-primary btn-sm" onclick="ptoToggleReqForm()" id="pto-req-toggle-btn">+ Request Time Off</button>
         </div>
-        <div class="grid2" style="margin-bottom:10px;">
-          <div>
-            <label>Start Date</label>
-            <input type="date" id="pto-req-start" oninput="ptoUpdateDayCount()">
+        <div class="pto-stat-grid">
+          <div class="pto-stat-card">
+            <div class="pto-stat-label">Available</div>
+            <div class="pto-stat-num" id="pto-stat-avail">—</div>
+            <div class="pto-stat-sub">days remaining</div>
           </div>
-          <div>
-            <label>End Date</label>
-            <input type="date" id="pto-req-end" oninput="ptoUpdateDayCount()">
+          <div class="pto-stat-card">
+            <div class="pto-stat-label">Used</div>
+            <div class="pto-stat-num" style="color:#f59e0b;" id="pto-stat-used">—</div>
+            <div class="pto-stat-sub">days taken</div>
+          </div>
+          <div class="pto-stat-card">
+            <div class="pto-stat-label">Pending</div>
+            <div class="pto-stat-num" style="color:#f59e0b;" id="pto-stat-pend">0</div>
+            <div class="pto-stat-sub">awaiting approval</div>
           </div>
         </div>
-        <div style="display:flex;gap:28px;margin-bottom:10px;flex-wrap:wrap;">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;font-size:0.82rem;color:#94a3b8;">
-            <input type="checkbox" id="pto-half-start" onchange="ptoUpdateDayCount()"> First day is half day
-          </label>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;font-size:0.82rem;color:#94a3b8;">
-            <input type="checkbox" id="pto-half-end" onchange="ptoUpdateDayCount()"> Last day is half day
-          </label>
+        <div class="pto-section-head">Balance Breakdown</div>
+        <div id="pto-breakdown-bars" style="margin-bottom:20px;"></div>
+        <div class="pto-section-head">Upcoming Time Off</div>
+        <div class="pto-cal-strip" id="pto-cal-strip"></div>
+        <!-- Request form (collapsible) -->
+        <div id="pto-req-form" style="display:none;background:#0f1117;border:1px solid #2a3050;border-radius:10px;padding:18px;margin-bottom:20px;">
+          <div class="pto-section-head" style="margin-bottom:14px;">New Request</div>
+          <div class="grid2" style="margin-bottom:12px;">
+            <div>
+              <label>Type</label>
+              <select id="pto-req-type" class="appt-type-select">
+                <option value="Vacation">Vacation</option>
+                <option value="Sick">Sick</option>
+                <option value="Bereavement">Bereavement</option>
+              </select>
+            </div>
+            <div></div>
+          </div>
+          <div class="grid2" style="margin-bottom:10px;">
+            <div><label>Start Date</label><input type="date" id="pto-req-start" oninput="ptoUpdateDayCount()"></div>
+            <div><label>End Date</label><input type="date" id="pto-req-end" oninput="ptoUpdateDayCount()"></div>
+          </div>
+          <div style="display:flex;gap:28px;margin-bottom:10px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;font-size:0.82rem;color:#94a3b8;">
+              <input type="checkbox" id="pto-half-start" onchange="ptoUpdateDayCount()"> First day is half day
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;font-size:0.82rem;color:#94a3b8;">
+              <input type="checkbox" id="pto-half-end" onchange="ptoUpdateDayCount()"> Last day is half day
+            </label>
+          </div>
+          <div id="pto-day-count-preview" class="pto-day-preview"></div>
+          <div style="margin-top:12px;margin-bottom:14px;">
+            <label>Notes (optional)</label>
+            <textarea id="pto-req-notes" rows="2" style="resize:none;" placeholder="Any details for your manager..."></textarea>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="ptoSubmitRequest()">Submit Request</button>
+            <button class="btn btn-secondary" onclick="ptoToggleReqForm()">Cancel</button>
+          </div>
         </div>
-        <div id="pto-day-count-preview" class="pto-day-preview"></div>
-        <div style="margin-top:12px;margin-bottom:12px;">
-          <label>Notes (optional)</label>
-          <textarea id="pto-req-notes" rows="2" style="resize:none;" placeholder="Any details for your manager..."></textarea>
-        </div>
-        <button class="btn btn-primary" onclick="ptoSubmitRequest()">Submit Request</button>
-        <hr style="margin-top:22px;">
-        <h2 style="margin-bottom:12px;">My Requests</h2>
+        <div class="pto-section-head">Recent Requests</div>
         <div id="pto-my-requests-list"><div class="no-results">Loading...</div></div>
       </div>
 
       <!-- TEAM REQUESTS (manager / admin) -->
       <div class="pto-panel" id="pto-panel-approvals">
-        <h2 style="margin-bottom:12px;">Pending Approvals</h2>
+        <div class="pto-hero">
+          <div>
+            <div class="pto-hero-title" id="pto-team-title">Pending approvals</div>
+            <div class="pto-hero-sub" id="pto-team-sub"></div>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="pto-toggle-all-btn" style="display:none;" onclick="ptoToggleTeamView()">View all staff</button>
+        </div>
         <div id="pto-pending-list"><div class="no-results">Loading...</div></div>
-        <hr>
-        <h2 style="margin-bottom:12px;">Recent Team History</h2>
+        <div class="pto-section-head" style="margin-top:22px;" id="pto-team-overview-head">Team Overview</div>
         <div id="pto-team-history-list"><div class="no-results">—</div></div>
       </div>
 
@@ -9546,6 +9577,11 @@ var ptoMyManagerEmail = '';
 var ptoMyBalance   = null;
 var ptoMyRequests  = [];
 var ptoTeamRequests = [];
+var ptoAllBalances  = [];
+var ptoAllRequests  = [];
+var ptoDirectReportRequests = [];
+var ptoAllStaffRequests = [];
+var ptoAdminShowAll = false;
 
 // -- Gmail token --
 function ptoGetGmailToken() {
@@ -9747,8 +9783,8 @@ function ptoLoad() {
     ptoSheetRead(PTO_REQUESTS_TAB,  'A:O')
   ]).then(function(results) {
     ptoPermsData = results[0];
-    var allBalances = ptoParseBalances(results[1]);
-    var allRequests = ptoParseRequests(results[2]);
+    ptoAllBalances = ptoParseBalances(results[1]);
+    ptoAllRequests = ptoParseRequests(results[2]);
 
     // My manager email (column D of my UserPermissions row)
     ptoMyManagerEmail = '';
@@ -9770,24 +9806,33 @@ function ptoLoad() {
 
     // My balance for this year
     ptoMyBalance = null;
-    allBalances.forEach(function(b) {
+    ptoAllBalances.forEach(function(b) {
       if (b.email === currentUserEmail.toLowerCase() && b.year === year) ptoMyBalance = b;
     });
 
     // My requests
-    ptoMyRequests = allRequests.filter(function(r) {
+    ptoMyRequests = ptoAllRequests.filter(function(r) {
       return r.email === currentUserEmail.toLowerCase();
     });
 
-    // Team requests — admins see everything (including their own if self-managed)
+    // Direct reports requests (anyone whose managerEmail === me)
+    ptoDirectReportRequests = ptoAllRequests.filter(function(r) {
+      return r.managerEmail === currentUserEmail.toLowerCase();
+    });
+
+    // All staff requests (for admins — everyone except self if self has a manager)
+    var hasMgr = !!ptoMyManagerEmail;
+    ptoAllStaffRequests = ptoAllRequests.filter(function(r) {
+      if (r.email !== currentUserEmail.toLowerCase()) return true;
+      return !hasMgr;
+    });
+
+    // Team requests — default to direct reports for both managers and admins
     if (currentUserRole === 'admin') {
-      var hasMgr = !!ptoMyManagerEmail;
-      ptoTeamRequests = allRequests.filter(function(r) {
-        if (r.email !== currentUserEmail.toLowerCase()) return true;
-        return !hasMgr; // include own requests only if no manager set
-      });
+      ptoAdminShowAll = ptoDirectReportRequests.length === 0;
+      ptoTeamRequests = ptoAdminShowAll ? ptoAllStaffRequests : ptoDirectReportRequests;
     } else if (ptoIsManager) {
-      ptoTeamRequests = allRequests.filter(function(r) { return r.managerEmail === currentUserEmail.toLowerCase(); });
+      ptoTeamRequests = ptoDirectReportRequests;
     } else {
       ptoTeamRequests = [];
     }
@@ -9799,6 +9844,7 @@ function ptoLoad() {
     if (balTab) balTab.style.display = currentUserRole === 'admin' ? '' : 'none';
 
     ptoRenderBalance();
+    ptoRenderCalStrip();
     ptoRenderMyRequests();
     ptoRenderTeamRequests();
   }).catch(function(e) {
@@ -9807,111 +9853,259 @@ function ptoLoad() {
   });
 }
 
-// -- Render balance cards --
+// -- Render balance overview (stat cards + breakdown bars) --
 function ptoRenderBalance() {
-  function fmt(v) { return typeof v === 'number' ? v : '—'; }
   var b = ptoMyBalance;
+  var year = new Date().getFullYear();
+
+  var heroSub = document.getElementById('pto-hero-sub');
+  if (heroSub) heroSub.textContent = year + ' balance — last updated today';
+
   var vacEffective = b ? b.vacTotal + b.vacGifted : 0;
-  document.getElementById('pto-vac-used').textContent   = b ? fmt(b.vacUsed)   : '—';
-  document.getElementById('pto-vac-total').textContent  = b ? 'of ' + fmt(vacEffective) + ' days used' : 'of — days used';
-  document.getElementById('pto-vac-rem').textContent    = b ? fmt(vacEffective - b.vacUsed) + ' remaining' : '— remaining';
-  var giftNote = document.getElementById('pto-vac-gifted-note');
-  if (giftNote) {
-    if (b && b.vacGifted > 0) {
-      giftNote.textContent = '(includes ' + fmt(b.vacGifted) + ' gifted)';
-      giftNote.style.display = '';
-    } else {
-      giftNote.style.display = 'none';
-    }
+  var totalUsed    = b ? b.vacUsed + b.sickUsed + b.persUsed : 0;
+  var totalAvail   = b ? Math.max(0, vacEffective - b.vacUsed) + Math.max(0, b.sickTotal - b.sickUsed) + Math.max(0, b.persTotal - b.persUsed) : 0;
+  var pendingDays  = ptoMyRequests.filter(function(r) { return r.status === 'pending'; })
+                                  .reduce(function(s, r) { return s + r.days; }, 0);
+
+  var el;
+  el = document.getElementById('pto-stat-avail'); if (el) el.textContent = b ? totalAvail  : '—';
+  el = document.getElementById('pto-stat-used');  if (el) el.textContent = b ? totalUsed   : '—';
+  el = document.getElementById('pto-stat-pend');  if (el) el.textContent = pendingDays || '0';
+
+  var bars = document.getElementById('pto-breakdown-bars');
+  if (bars) {
+    if (!b) { bars.innerHTML = '<div class="no-results">No balance on file.</div>'; return; }
+    var types = [
+      { label: 'Vacation',    used: b.vacUsed,  total: vacEffective, color: '#4A90D9', gifted: b.vacGifted },
+      { label: 'Sick',        used: b.sickUsed, total: b.sickTotal,  color: '#f59e0b', gifted: 0 },
+      { label: 'Bereavement', used: b.persUsed, total: b.persTotal,  color: '#ef4444', gifted: 0 }
+    ];
+    bars.innerHTML = types.map(function(t) {
+      var pct = t.total > 0 ? Math.min(100, Math.round((t.used / t.total) * 100)) : 0;
+      var giftTag = t.gifted > 0 ? ' <span style="color:#8DC63F;font-size:0.62rem;font-weight:700;">(+' + t.gifted + ' gifted)</span>' : '';
+      return '<div class="pto-bar-row">' +
+        '<div class="pto-bar-label">' + t.label + giftTag + '</div>' +
+        '<div class="pto-bar-track"><div class="pto-bar-fill" style="width:' + pct + '%;background:' + t.color + ';"></div></div>' +
+        '<div class="pto-bar-count">' + t.used + ' / ' + t.total + ' days</div>' +
+      '</div>';
+    }).join('');
   }
-  document.getElementById('pto-sick-used').textContent  = b ? fmt(b.sickUsed)  : '—';
-  document.getElementById('pto-sick-total').textContent = b ? 'of ' + fmt(b.sickTotal) + ' days used' : 'of — days used';
-  document.getElementById('pto-sick-rem').textContent   = b ? fmt(b.sickTotal - b.sickUsed) + ' remaining' : '— remaining';
-  document.getElementById('pto-pers-used').textContent  = b ? fmt(b.persUsed)  : '—';
-  document.getElementById('pto-pers-total').textContent = b ? 'of ' + fmt(b.persTotal) + ' days used' : 'of — days used';
-  document.getElementById('pto-pers-rem').textContent   = b ? fmt(b.persTotal - b.persUsed) + ' remaining' : '— remaining';
 }
 
-// -- Render my requests --
+// -- Render my requests (table) --
 function ptoRenderMyRequests() {
   var el = document.getElementById('pto-my-requests-list');
   if (!el) return;
   if (!ptoMyRequests.length) { el.innerHTML = '<div class="no-results">No requests yet.</div>'; return; }
   var sorted = ptoMyRequests.slice().sort(function(a, b) { return (b.submitted || '').localeCompare(a.submitted || ''); });
-  el.innerHTML = sorted.map(function(r) {
-    var range = r.start === r.end ? r.start : r.start + ' — ' + r.end;
-    var half = [];
-    if (r.halfStart) half.push('first day half');
-    if (r.halfEnd)   half.push('last day half');
-    var halfStr = half.length ? ' (' + half.join(', ') + ')' : '';
-    var canCancel = r.status === 'pending' || r.status === 'approved';
-    return '<div class="pto-req-card">' +
-      '<div class="pto-req-info">' +
-        '<div class="pto-req-type">' + ptoEsc(r.type) + ' &mdash; ' + r.days + ' day' + (r.days !== 1 ? 's' : '') + ptoPill(r.status) + '</div>' +
-        '<div class="pto-req-dates">' + range + halfStr + '</div>' +
-        (r.notes ? '<div class="pto-req-notes">' + ptoEsc(r.notes) + '</div>' : '') +
-        '<div class="pto-req-dates" style="margin-top:4px;color:#475569;">Submitted ' + (r.submitted ? r.submitted.slice(0,10) : '—') + '</div>' +
-      '</div>' +
-      '<div class="pto-req-actions">' +
-        (canCancel ? '<button class="btn btn-danger btn-sm" onclick="ptoCancelRequest(\'' + r.id + '\')">Cancel</button>' : '') +
-      '</div>' +
+  el.innerHTML = '<table class="pto-req-table"><thead><tr><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Action</th></tr></thead><tbody>' +
+    sorted.map(function(r) {
+      var range = r.start === r.end ? r.start : r.start + ' – ' + r.end;
+      var half = [];
+      if (r.halfStart) half.push('½ start');
+      if (r.halfEnd)   half.push('½ end');
+      var halfStr = half.length ? ' <span style="color:#475569;font-size:0.68rem;">(' + half.join(', ') + ')</span>' : '';
+      var canCancel = r.status === 'pending' || r.status === 'approved';
+      return '<tr>' +
+        '<td style="color:#e2e8f0;font-weight:600;">' + ptoEsc(r.type) + '</td>' +
+        '<td>' + ptoEsc(range) + halfStr + '</td>' +
+        '<td>' + r.days + '</td>' +
+        '<td>' + ptoPill(r.status) + '</td>' +
+        '<td>' + (canCancel ? '<button class="btn btn-danger btn-sm" onclick="ptoCancelRequest(\'' + r.id + '\')">Cancel</button>' : '<span style="color:#475569;">—</span>') + '</td>' +
+      '</tr>';
+    }).join('') +
+  '</tbody></table>';
+}
+
+// -- Render team requests (pending approval cards + team overview table) --
+function ptoRenderTeamRequests() {
+  var pending = ptoTeamRequests.filter(function(r) { return r.status === 'pending'; });
+
+  // Update header
+  var titleEl = document.getElementById('pto-team-title');
+  var subEl   = document.getElementById('pto-team-sub');
+  if (titleEl) titleEl.textContent = 'Pending approvals';
+  if (subEl)   subEl.textContent   = pending.length
+    ? pending.length + ' request' + (pending.length !== 1 ? 's' : '') + ' need' + (pending.length === 1 ? 's' : '') + ' your review'
+    : 'All caught up';
+
+  // Admin toggle button
+  var toggleBtn = document.getElementById('pto-toggle-all-btn');
+  if (toggleBtn) {
+    toggleBtn.style.display = currentUserRole === 'admin' ? '' : 'none';
+    toggleBtn.textContent   = ptoAdminShowAll ? 'My team only' : 'View all staff';
+  }
+
+  // Pending approval cards
+  var pendEl = document.getElementById('pto-pending-list');
+  if (pendEl) {
+    if (!pending.length) {
+      pendEl.innerHTML = '<div class="no-results">No pending requests.</div>';
+    } else {
+      pendEl.innerHTML = pending.map(function(r) {
+        var name  = ptoDisplayName(r.email);
+        var range = r.start === r.end ? r.start : r.start + ' – ' + r.end;
+        var half  = [];
+        if (r.halfStart) half.push('first half');
+        if (r.halfEnd)   half.push('last half');
+        var metaStr = r.type + ' · ' + range + (half.length ? ' (' + half.join(', ') + ')' : '');
+        return '<div class="pto-approval-card">' +
+          '<div class="pto-avatar" style="width:40px;height:40px;font-size:0.82rem;background:' + ptoAvatarColor(r.email) + ';">' + ptoEsc(ptoInitials(name)) + '</div>' +
+          '<div class="pto-approval-info">' +
+            '<div class="pto-approval-name">' + ptoEsc(name) +
+              ' <span class="pill pill-yellow" style="font-size:0.67rem;padding:2px 8px;">' + r.days + ' day' + (r.days !== 1 ? 's' : '') + '</span>' +
+            '</div>' +
+            '<div class="pto-approval-meta">' + ptoEsc(metaStr) + '</div>' +
+            (r.notes ? '<div class="pto-approval-note">&ldquo;' + ptoEsc(r.notes) + '&rdquo;</div>' : '') +
+          '</div>' +
+          '<div class="pto-approval-btns">' +
+            '<button class="btn btn-primary btn-sm" onclick="ptoApprove(\'' + r.id + '\')">Approve</button>' +
+            '<button class="btn btn-danger btn-sm" onclick="ptoDecline(\'' + r.id + '\')">Decline</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+  }
+
+  // Team overview table
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var headEl = document.getElementById('pto-team-overview-head');
+  if (headEl) headEl.textContent = 'YOUR TEAM — ' + months[new Date().getMonth()].toUpperCase() + ' OVERVIEW';
+
+  var histEl = document.getElementById('pto-team-history-list');
+  if (!histEl) return;
+
+  // Build team email list from permsData (direct reports) or all balances if admin-show-all
+  var curEmail  = currentUserEmail.toLowerCase();
+  var teamEmails = [];
+  if (ptoAdminShowAll) {
+    var yr = new Date().getFullYear();
+    ptoAllBalances.forEach(function(b) {
+      if (b.year === yr && teamEmails.indexOf(b.email) === -1) teamEmails.push(b.email);
+    });
+  } else {
+    for (var i = 1; i < ptoPermsData.length; i++) {
+      var mgr = (ptoPermsData[i][3] || '').trim().toLowerCase();
+      if (mgr === curEmail) {
+        var emp = (ptoPermsData[i][0] || '').trim().toLowerCase();
+        if (emp && teamEmails.indexOf(emp) === -1) teamEmails.push(emp);
+      }
+    }
+    // Admin with no direct reports — fall back to all
+    if (!teamEmails.length && currentUserRole === 'admin') {
+      var yr2 = new Date().getFullYear();
+      ptoAllBalances.forEach(function(b) {
+        if (b.year === yr2 && teamEmails.indexOf(b.email) === -1) teamEmails.push(b.email);
+      });
+    }
+  }
+
+  if (!teamEmails.length) { histEl.innerHTML = '<div class="no-results">No team members found.</div>'; return; }
+
+  var todayStr = new Date().toISOString().slice(0, 10);
+  var yr3 = new Date().getFullYear();
+
+  var rows = teamEmails.map(function(email) {
+    var name  = ptoDisplayName(email);
+    var bal   = null;
+    ptoAllBalances.forEach(function(b) { if (b.email === email && b.year === yr3) bal = b; });
+
+    var vacEff    = bal ? bal.vacTotal + bal.vacGifted : 0;
+    var totalUsed = bal ? bal.vacUsed + bal.sickUsed + bal.persUsed : 0;
+    var totalLeft = bal ? Math.max(0, vacEff - bal.vacUsed) + Math.max(0, bal.sickTotal - bal.sickUsed) + Math.max(0, bal.persTotal - bal.persUsed) : 0;
+
+    var nextReq = null;
+    ptoAllRequests.forEach(function(r) {
+      if (r.email === email && (r.status === 'approved' || r.status === 'pending') && r.start >= todayStr) {
+        if (!nextReq || r.start < nextReq.start) nextReq = r;
+      }
+    });
+
+    var hasPending = ptoAllRequests.some(function(r) { return r.email === email && r.status === 'pending'; });
+    var statusCell = hasPending
+      ? '<span class="pill pill-yellow">Pending</span>'
+      : '<span style="color:#475569;font-size:0.78rem;">All clear</span>';
+
+    return '<tr>' +
+      '<td><div style="display:flex;align-items:center;gap:10px;">' +
+        '<div class="pto-avatar" style="width:30px;height:30px;font-size:0.67rem;background:' + ptoAvatarColor(email) + ';">' + ptoEsc(ptoInitials(name)) + '</div>' +
+        '<div><div style="color:#e2e8f0;font-weight:600;font-size:0.82rem;">' + ptoEsc(name) + '</div>' +
+        '<div style="color:#64748b;font-size:0.67rem;">' + ptoEsc(email) + '</div></div>' +
+      '</div></td>' +
+      '<td style="color:#e2e8f0;">' + (bal ? totalUsed : '—') + '</td>' +
+      '<td style="color:#8DC63F;">' + (bal ? totalLeft : '—') + '</td>' +
+      '<td style="color:#94a3b8;">' + (nextReq ? nextReq.start : '—') + '</td>' +
+      '<td>' + statusCell + '</td>' +
+    '</tr>';
+  }).join('');
+
+  histEl.innerHTML = '<div style="overflow-x:auto;"><table class="pto-team-table">' +
+    '<thead><tr><th>Employee</th><th>Days Used</th><th>Days Left</th><th>Next PTO</th><th>Status</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody>' +
+  '</table></div>';
+}
+
+// -- Calendar strip (next 14 weekdays, highlights approved/pending off days) --
+function ptoRenderCalStrip() {
+  var strip = document.getElementById('pto-cal-strip');
+  if (!strip) return;
+  var today = new Date(); today.setHours(0,0,0,0);
+  var todayStr = today.toISOString().slice(0,10);
+  var offDays = {};
+  ptoMyRequests.forEach(function(r) {
+    if (r.status === 'approved' || r.status === 'pending') {
+      var d = new Date(r.start + 'T00:00:00');
+      var end = new Date(r.end + 'T00:00:00');
+      while (d <= end) {
+        var dow = d.getDay();
+        if (dow !== 0 && dow !== 6) offDays[d.toISOString().slice(0,10)] = true;
+        d.setDate(d.getDate() + 1);
+      }
+    }
+  });
+  var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var days = [], d2 = new Date(today);
+  while (days.length < 14) {
+    if (d2.getDay() !== 0 && d2.getDay() !== 6) days.push(new Date(d2));
+    d2.setDate(d2.getDate() + 1);
+  }
+  strip.innerHTML = days.map(function(day) {
+    var ds = day.toISOString().slice(0,10);
+    var cls = 'pto-cal-day' + (ds === todayStr ? ' pto-today' : '') + (offDays[ds] ? ' pto-off' : '');
+    return '<div class="' + cls + '">' +
+      '<div class="pto-cal-dname">' + dayNames[day.getDay()] + '</div>' +
+      '<div class="pto-cal-dnum">' + day.getDate() + '</div>' +
     '</div>';
   }).join('');
 }
 
-// -- Render team requests --
-function ptoRenderTeamRequests() {
-  var pending = ptoTeamRequests.filter(function(r) { return r.status === 'pending'; });
-  var history = ptoTeamRequests.filter(function(r) { return r.status !== 'pending'; })
-                               .sort(function(a, b) { return (b.reviewedAt || b.submitted || '').localeCompare(a.reviewedAt || a.submitted || ''); })
-                               .slice(0, 30);
+// -- Toggle request form --
+function ptoToggleReqForm() {
+  var form = document.getElementById('pto-req-form');
+  var btn  = document.getElementById('pto-req-toggle-btn');
+  if (!form) return;
+  var open = form.style.display !== 'none';
+  form.style.display = open ? 'none' : 'block';
+  if (btn) btn.textContent = open ? '+ Request Time Off' : 'Cancel';
+}
 
-  var pendEl = document.getElementById('pto-pending-list');
-  if (pendEl) {
-    if (!pending.length) { pendEl.innerHTML = '<div class="no-results">No pending requests.</div>'; }
-    else {
-      pendEl.innerHTML = pending.map(function(r) {
-        var name = ptoDisplayName(r.email);
-        var range = r.start === r.end ? r.start : r.start + ' — ' + r.end;
-        var half = [];
-        if (r.halfStart) half.push('first day half');
-        if (r.halfEnd)   half.push('last day half');
-        return '<div class="pto-team-req">' +
-          '<div class="pto-team-head">' +
-            '<div>' +
-              '<div class="pto-team-name">' + ptoEsc(name) + '</div>' +
-              '<div class="pto-team-meta">' + r.type + ' &middot; ' + range + (half.length ? ' (' + half.join(', ') + ')' : '') + ' &middot; ' + r.days + ' day' + (r.days !== 1 ? 's' : '') + '</div>' +
-              (r.notes ? '<div class="pto-req-notes" style="margin-top:4px;">' + ptoEsc(r.notes) + '</div>' : '') +
-            '</div>' +
-            '<div class="pto-req-actions">' +
-              '<button class="btn btn-primary btn-sm" onclick="ptoApprove(\'' + r.id + '\')">Approve</button>' +
-              '<button class="btn btn-danger btn-sm" onclick="ptoDecline(\'' + r.id + '\')">Decline</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-      }).join('');
-    }
-  }
+// -- Admin: toggle between my team and all staff --
+function ptoToggleTeamView() {
+  ptoAdminShowAll = !ptoAdminShowAll;
+  ptoTeamRequests = ptoAdminShowAll ? ptoAllStaffRequests : (ptoDirectReportRequests.length ? ptoDirectReportRequests : ptoAllStaffRequests);
+  ptoRenderTeamRequests();
+}
 
-  var histEl = document.getElementById('pto-team-history-list');
-  if (histEl) {
-    if (!history.length) { histEl.innerHTML = '<div class="no-results">No history.</div>'; }
-    else {
-      histEl.innerHTML = history.map(function(r) {
-        var name = ptoDisplayName(r.email);
-        var range = r.start === r.end ? r.start : r.start + ' — ' + r.end;
-        return '<div class="pto-team-req">' +
-          '<div class="pto-team-head">' +
-            '<div>' +
-              '<div class="pto-team-name">' + ptoEsc(name) + '</div>' +
-              '<div class="pto-team-meta">' + r.type + ' &middot; ' + range + ' &middot; ' + r.days + ' day' + (r.days !== 1 ? 's' : '') + '</div>' +
-            '</div>' +
-            ptoPill(r.status) +
-          '</div>' +
-        '</div>';
-      }).join('');
-    }
-  }
+// -- Avatar helpers --
+function ptoAvatarColor(email) {
+  var colors = ['#4A90D9','#8DC63F','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#14b8a6'];
+  var h = 0;
+  for (var i = 0; i < email.length; i++) h = (h * 31 + email.charCodeAt(i)) & 0xffff;
+  return colors[h % colors.length];
+}
+function ptoInitials(name) {
+  var parts = String(name).trim().split(/\s+/);
+  return parts.length >= 2 ? (parts[0][0] + parts[parts.length-1][0]).toUpperCase() : String(name).slice(0,2).toUpperCase();
 }
 
 // -- Helpers --
