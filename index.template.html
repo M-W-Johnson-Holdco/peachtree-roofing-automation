@@ -10356,7 +10356,17 @@ function ptoIncrementUsed(email, type, delta) {
     for (var i = 0; i < bals.length; i++) {
       if (bals[i].email === email.toLowerCase() && bals[i].year === year) { bal = bals[i]; break; }
     }
-    if (!bal) return;
+    if (!bal) {
+      // No balance row yet — create one from entitlement, then retry
+      var ent      = ptoVacationEntitlement(email);
+      var isW2     = ent.label.indexOf('1099') === -1;
+      var sickDays = isW2 ? 3 : 0;
+      var brvmDays = isW2 ? 3 : 0;
+      var newUsedVac  = type === 'Vacation'    ? Math.max(0, delta) : 0;
+      var newUsedSick = type === 'Sick'        ? Math.max(0, delta) : 0;
+      var newUsedPers = type === 'Bereavement' ? Math.max(0, delta) : 0;
+      return ptoSheetAppend(PTO_BALANCES_TAB, [email, year, ent.days, newUsedVac, sickDays, newUsedSick, brvmDays, newUsedPers, 0]);
+    }
     var row;
     if (type === 'Vacation') {
       row = [email, year, bal.vacTotal, Math.max(0, bal.vacUsed + delta), bal.sickTotal, bal.sickUsed, bal.persTotal, bal.persUsed, bal.vacGifted];
