@@ -9794,7 +9794,7 @@ function ptoLoad() {
   if (yearInput && !yearInput.value) yearInput.value = year;
 
   Promise.all([
-    ptoSheetRead(CRED_GS_PERMS_TAB, 'A:F'),
+    ptoSheetRead(CRED_GS_PERMS_TAB, 'A:G'),
     ptoSheetRead(PTO_BALANCES_TAB,  'A:I'),
     ptoSheetRead(PTO_REQUESTS_TAB,  'A:O')
   ]).then(function(results) {
@@ -10369,6 +10369,32 @@ function ptoIncrementUsed(email, type, delta) {
 }
 
 // -- Admin: load all balances --
+// Returns {days, label} based on hire date + employee type from UserPermissions
+function ptoVacationEntitlement(email) {
+  var empType = '', hireDate = '';
+  for (var i = 1; i < ptoPermsData.length; i++) {
+    if ((ptoPermsData[i][0] || '').trim().toLowerCase() === email.toLowerCase()) {
+      empType  = (ptoPermsData[i][5] || '').trim().toUpperCase();
+      hireDate = (ptoPermsData[i][6] || '').trim();
+      break;
+    }
+  }
+  if (empType === '1099') return { days: 5, label: '1099' };
+  if (!hireDate) return { days: 10, label: 'W2 · no hire date' };
+  var hire  = new Date(hireDate);
+  var years = (new Date() - hire) / (365.25 * 24 * 60 * 60 * 1000);
+  if (years >= 5) return { days: 22, label: 'W2 · 5+ yrs' };
+  if (years >= 3) return { days: 17, label: 'W2 · 3+ yrs' };
+  if (years >= 1) return { days: 15, label: 'W2 · 1+ yr' };
+  return { days: 10, label: 'W2 · Year 1' };
+}
+
+function ptoApplyEntitlement(btn) {
+  var tr  = btn.closest('tr');
+  var inp = tr.querySelector('.pto-bal-inp[data-field="vacTotal"]');
+  if (inp) inp.value = parseFloat(tr.dataset.entitlement) || 0;
+}
+
 function ptoAdminLoadBalances() {
   var year = parseInt(document.getElementById('pto-admin-year').value) || new Date().getFullYear();
   var container = document.getElementById('pto-admin-bal-container');
@@ -10382,6 +10408,7 @@ function ptoAdminLoadBalances() {
     var html = '<div style="overflow-x:auto;"><table class="pto-bal-table">' +
       '<thead><tr>' +
         '<th>Employee</th>' +
+        '<th style="color:#4A90D9;">Entitled</th>' +
         '<th>Vac Total</th><th>Vac Used</th>' +
         '<th>Sick Total</th><th>Sick Used</th>' +
         '<th>Brvmt Total</th><th>Brvmt Used</th>' +
@@ -10390,9 +10417,19 @@ function ptoAdminLoadBalances() {
       '</tr></thead><tbody>' +
       bals.map(function(b) {
         var name = ptoDisplayName(b.email);
-        return '<tr data-email="' + ptoEsc(b.email) + '" data-row="' + b.row + '" data-year="' + year + '" data-vac-gifted="' + (b.vacGifted || 0) + '">' +
+        var ent  = ptoVacationEntitlement(b.email);
+        var match = ent.days === b.vacTotal;
+        return '<tr data-email="' + ptoEsc(b.email) + '" data-row="' + b.row + '" data-year="' + year + '" data-vac-gifted="' + (b.vacGifted || 0) + '" data-entitlement="' + ent.days + '">' +
           '<td><div style="color:#1e293b;font-weight:600;">' + ptoEsc(name) + '</div>' +
               '<div style="font-size:0.68rem;color:#64748b;">' + ptoEsc(b.email) + '</div></td>' +
+          '<td style="text-align:center;white-space:nowrap;">' +
+            '<div style="color:#2563eb;font-weight:700;font-size:0.95rem;">' + ent.days + '</div>' +
+            '<div style="color:#94a3b8;font-size:0.6rem;margin-bottom:4px;">' + ptoEsc(ent.label) + '</div>' +
+            (match
+              ? '<span style="color:#8DC63F;font-size:0.68rem;font-weight:600;">&#10003; set</span>'
+              : '<button class="btn btn-sm" style="font-size:0.62rem;padding:2px 8px;background:#dbeafe;color:#2563eb;border:1px solid #bfdbfe;border-radius:5px;" onclick="ptoApplyEntitlement(this)">&#8593; Apply</button>'
+            ) +
+          '</td>' +
           '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.vacTotal   + '" data-field="vacTotal"></td>' +
           '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.vacUsed    + '" data-field="vacUsed"></td>' +
           '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.sickTotal  + '" data-field="sickTotal"></td>' +
@@ -10436,8 +10473,9 @@ function ptoAdminAddEmployee() {
   if (!email) return;
   email = email.trim().toLowerCase();
   var year = parseInt(document.getElementById('pto-admin-year').value) || new Date().getFullYear();
-  ptoSheetAppend(PTO_BALANCES_TAB, [email, year, 0, 0, 0, 0, 0, 0, 0]).then(function() {
-    showSchedToast('st-success', 'Added ' + email);
+  var ent  = ptoVacationEntitlement(email);
+  ptoSheetAppend(PTO_BALANCES_TAB, [email, year, ent.days, 0, 0, 0, 0, 0, 0]).then(function() {
+    showSchedToast('st-success', 'Added ' + email + ' — ' + ent.days + ' vacation days (' + ent.label + ')');
     ptoAdminLoadBalances();
   }).catch(function(e) { showSchedToast('st-error', 'Failed: ' + e.message); });
 }
