@@ -279,6 +279,8 @@
   #tab-pto hr{border-color:#e2e8f0;}
   /* Production & Claims tabs — same light theme as PTO */
   #tab-scheduler .card,#tab-smartsched .card,#tab-weather .card{background:#fff;border-color:#e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+  /* Override dark-theme CSS variables so inline var(--txt/bdr/surf) resolves correctly */
+  #tab-scheduler .card{--txt:#334155;--txt2:#475569;--txt3:#94a3b8;--bdr:#e2e8f0;--bdr2:#cbd5e1;--surf:#fff;--surf2:#f8fafc;--surf3:#f1f5f9;}
   #tab-scheduler .card h2,#tab-smartsched .card h2,#tab-weather .card h2{color:#334155;}
   #tab-scheduler label,#tab-smartsched label,#tab-weather label{color:#64748b;}
   #tab-scheduler input,#tab-scheduler textarea,#tab-smartsched input,#tab-smartsched textarea,#tab-weather input,#tab-weather textarea{background:#fff;border-color:#e2e8f0;color:#1e293b;}
@@ -289,6 +291,16 @@
   #tab-scheduler .btn-secondary:hover,#tab-smartsched .btn-secondary:hover,#tab-weather .btn-secondary:hover{background:#e2e8f0;color:#1e293b;}
   #tab-scheduler .no-results,#tab-smartsched .no-results,#tab-weather .no-results{color:#94a3b8;}
   #tab-scheduler hr,#tab-smartsched hr,#tab-weather hr{border-color:#e2e8f0;}
+  /* Calendar event rows and log boxes need light-theme text */
+  #tab-scheduler .cal-event-row{background:#f8fafc;border-color:#e2e8f0;}
+  #tab-scheduler .cal-event-row .ev-title{color:#1e293b;}
+  #tab-scheduler .cal-event-row .ev-time{color:#64748b;}
+  #tab-scheduler .log-box,#tab-scheduler .sched-log-box{background:#f8fafc;border-color:#e2e8f0;}
+  #tab-scheduler .cal-form,#tab-scheduler .reschedule-form{background:#f8fafc;border-color:#e2e8f0;}
+  #tab-scheduler .appt-type-select{background:#fff;border-color:#e2e8f0;color:#1e293b;}
+  #tab-scheduler .template-item{background:#f8fafc;border-color:#e2e8f0;}
+  #tab-scheduler .template-item h3{color:#334155;}
+  #tab-scheduler .template-body{color:#64748b;}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Karla:wght@300;400;500;600&display=swap" rel="stylesheet">
