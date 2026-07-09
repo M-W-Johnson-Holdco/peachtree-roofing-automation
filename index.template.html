@@ -9845,7 +9845,7 @@ function ptoDateShort(dateStr) {
 }
 
 function ptoCreateCalEvent(employeeName, employeeEmail, type, startDate, endDate, halfStart, halfEnd) {
-  if (!GCAL_ID_PTO) return Promise.resolve(null);
+  if (!GCAL_ID_PTO || GCAL_ID_PTO.indexOf('%%') !== -1) return Promise.resolve(null);
   var endEx = new Date(endDate + 'T12:00:00');
   endEx.setDate(endEx.getDate() + 1);
   var endStr = endEx.toISOString().slice(0, 10);
@@ -9873,10 +9873,10 @@ function ptoCreateCalEvent(employeeName, employeeEmail, type, startDate, endDate
         guestsCanModifyEvent: false
       })
     }).then(function(r) { return r.json(); }).then(function(d) {
-      if (d.error) throw new Error(d.error.message);
+      if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
       return d.id;
     });
-  }).catch(function(e) { console.warn('[PTO] Cal create failed:', e.message); return null; });
+  });
 }
 
 function ptoDeleteCalEvent(calEventId) {
@@ -10643,15 +10643,23 @@ function ptoApprove(id) {
   showSchedToast('st-info', 'Approving...');
   ptoFindRequest(id).then(function(req) {
     var now = new Date().toISOString();
-    return ptoCreateCalEvent(ptoDisplayName(req.email), req.email, req.type, req.start, req.end, req.halfStart, req.halfEnd).then(function(calId) {
-      var updated = [req.id, req.email, req.managerEmail, req.type, req.start, req.end,
-        req.halfStart ? 'TRUE' : 'FALSE', req.halfEnd ? 'TRUE' : 'FALSE',
-        req.days, req.notes, 'approved', req.submitted, now, currentUserEmail, calId || ''];
-      return ptoSheetUpdateRow(PTO_REQUESTS_TAB, req.row, updated);
-    }).then(function() {
+    var calWarning = '';
+    return ptoCreateCalEvent(ptoDisplayName(req.email), req.email, req.type, req.start, req.end, req.halfStart, req.halfEnd)
+      .then(function(calId) { return calId || ''; },
+            function(calErr) { calWarning = calErr.message; console.error('[PTO] Cal create failed:', calErr.message); return ''; })
+      .then(function(calId) {
+        var updated = [req.id, req.email, req.managerEmail, req.type, req.start, req.end,
+          req.halfStart ? 'TRUE' : 'FALSE', req.halfEnd ? 'TRUE' : 'FALSE',
+          req.days, req.notes, 'approved', req.submitted, now, currentUserEmail, calId];
+        return ptoSheetUpdateRow(PTO_REQUESTS_TAB, req.row, updated);
+      }).then(function() {
       return ptoIncrementUsed(req.email, req.type, req.days);
     }).then(function() {
-      showSchedToast('st-success', 'Request approved!');
+      if (calWarning) {
+        showSchedToast('st-warn', 'Approved, but calendar invite failed: ' + calWarning);
+      } else {
+        showSchedToast('st-success', 'Request approved + calendar invite sent!');
+      }
       var empName = ptoDisplayName(req.email);
       var subject = 'PTO Approved: ' + req.type + ' ' + req.start + (req.end !== req.start ? ' - ' + req.end : '');
       var body = '<p>Hi ' + ptoEsc(empName) + ',</p>' +
