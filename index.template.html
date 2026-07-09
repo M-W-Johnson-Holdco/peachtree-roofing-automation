@@ -10109,7 +10109,7 @@ function ptoLoad() {
   if (yearInput && !yearInput.value) yearInput.value = year;
 
   Promise.all([
-    ptoSheetRead(CRED_GS_PERMS_TAB, 'A:G'),
+    ptoSheetRead(CRED_GS_PERMS_TAB, 'A:H'),
     ptoSheetRead(PTO_BALANCES_TAB,  'A:J'),
     ptoSheetRead(PTO_REQUESTS_TAB,  'A:O')
   ]).then(function(results) {
@@ -10126,7 +10126,7 @@ function ptoLoad() {
         ptoMyManagerEmail = (ptoPermsData[i][3] || '').trim().toLowerCase();
         ptoMyPtoEligible  = (ptoPermsData[i][4] || '').trim().toUpperCase() === 'Y';
         ptoMyEmployeeType = (ptoPermsData[i][5] || '').trim().toUpperCase();
-        ptoRoleOverride   = (ptoPermsData[i][6] || '').trim().toLowerCase();
+        ptoRoleOverride   = (ptoPermsData[i][7] || '').trim().toLowerCase();
         break;
       }
     }
