@@ -85,13 +85,20 @@ function formatDateNice(dateStr) {
 }
 
 function parseHalfDayTimes(notes) {
-  // Extract "First day half: 9am-1pm" and "Last day half: 1pm-5pm" from notes
-  const firstMatch = (notes || "").match(/First day half:\s*([\w\-]+)/i);
-  const lastMatch  = (notes || "").match(/Last day half:\s*([\w\-]+)/i);
-  return {
-    firstTime: firstMatch ? firstMatch[1] : null,
-    lastTime:  lastMatch  ? lastMatch[1]  : null
-  };
+  // Parse "Half days: 2026-07-13:9am-1pm, 2026-07-15:1pm-5pm" format
+  const map = {};
+  const block = (notes || "").match(/Half days:\s*([^\|]+)/i);
+  if (block) {
+    block[1].split(",").forEach(entry => {
+      // entry format: "2026-07-13:9am-1pm"
+      // date is first 10 chars, time is everything after the 11th char
+      const trimmed = entry.trim();
+      const date = trimmed.slice(0, 10);
+      const time = trimmed.slice(11);
+      if (date && time) map[date] = time;
+    });
+  }
+  return map; // keyed by YYYY-MM-DD, value is "9am-1pm" or "1pm-5pm"
 }
 
 function friendlyTime(code) {
@@ -142,19 +149,23 @@ async function runPtoDigest() {
     const notes     = (row[9] || "").trim();
     const name      = nameMap[email] || email;
 
-    const { firstTime, lastTime } = parseHalfDayTimes(notes);
-
-    const isFirstDay  = today === start;
-    const isLastDay   = today === end;
-    const isSingleDay = start === end;
+    const halfDayMap  = parseHalfDayTimes(notes);
+    const todayTime   = halfDayMap[today];
 
     let halfDetail = "";
-    if (isSingleDay && halfStart) {
-      halfDetail = ` _(${friendlyTime(firstTime)})_`;
-    } else if (isFirstDay && halfStart) {
-      halfDetail = ` _(first day: ${friendlyTime(firstTime)})_`;
-    } else if (isLastDay && halfEnd) {
-      halfDetail = ` _(last day: ${friendlyTime(lastTime)})_`;
+    if (todayTime) {
+      const isSingleDay = start === end;
+      const isFirstDay  = today === start;
+      const isLastDay   = today === end;
+      if (isSingleDay) {
+        halfDetail = ` _(${friendlyTime(todayTime)})_`;
+      } else if (isFirstDay) {
+        halfDetail = ` _(first day: ${friendlyTime(todayTime)})_`;
+      } else if (isLastDay) {
+        halfDetail = ` _(last day: ${friendlyTime(todayTime)})_`;
+      } else {
+        halfDetail = ` _(${friendlyTime(todayTime)})_`;
+      }
     }
 
     out.push(`• *${name}* — ${type}${halfDetail}`);

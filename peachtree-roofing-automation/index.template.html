@@ -4345,32 +4345,12 @@ function printDoc() {
             <div></div>
           </div>
           <div class="grid2" style="margin-bottom:10px;">
-            <div><label>Start Date</label><input type="date" id="pto-req-start" oninput="ptoUpdateDayCount()"></div>
-            <div><label>End Date</label><input type="date" id="pto-req-end" oninput="ptoUpdateDayCount()"></div>
+            <div><label>Start Date</label><input type="date" id="pto-req-start" oninput="ptoUpdateDayCount();ptoRenderHalfDays()"></div>
+            <div><label>End Date</label><input type="date" id="pto-req-end" oninput="ptoUpdateDayCount();ptoRenderHalfDays()"></div>
           </div>
-          <div style="display:flex;gap:28px;margin-bottom:8px;flex-wrap:wrap;">
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;font-size:0.82rem;color:#94a3b8;">
-              <input type="checkbox" id="pto-half-start" onchange="ptoUpdateDayCount();ptoUpdateHalfDetail()"> First day is half day
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;font-size:0.82rem;color:#94a3b8;">
-              <input type="checkbox" id="pto-half-end" onchange="ptoUpdateDayCount();ptoUpdateHalfDetail()"> Last day is half day
-            </label>
-          </div>
-          <div id="pto-half-detail" style="display:none;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:0.8rem;color:#475569;">
-            <div id="pto-half-start-detail" style="display:none;margin-bottom:6px;">
-              <strong>First day — which half?</strong>
-              <div style="display:flex;gap:14px;margin-top:5px;">
-                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="radio" name="pto-half-start-time" value="9am-1pm" checked> 9am – 1pm</label>
-                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="radio" name="pto-half-start-time" value="1pm-5pm"> 1pm – 5pm</label>
-              </div>
-            </div>
-            <div id="pto-half-end-detail" style="display:none;">
-              <strong>Last day — which half?</strong>
-              <div style="display:flex;gap:14px;margin-top:5px;">
-                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="radio" name="pto-half-end-time" value="9am-1pm" checked> 9am – 1pm</label>
-                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="radio" name="pto-half-end-time" value="1pm-5pm"> 1pm – 5pm</label>
-              </div>
-            </div>
+          <div id="pto-half-days-section" style="display:none;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;margin-bottom:10px;">
+            <div style="font-size:0.8rem;font-weight:600;color:#475569;margin-bottom:8px;">Half Days <span style="font-weight:400;color:#94a3b8;">— check any day taken as a half day</span></div>
+            <div id="pto-half-days-list"></div>
           </div>
           <div id="pto-day-count-preview" class="pto-day-preview"></div>
           <div style="margin-top:12px;margin-bottom:14px;">
@@ -9803,39 +9783,102 @@ function ptoDeleteCalEvent(calEventId) {
 }
 
 // -- Day count (weekdays only, with half-day support) --
-function ptoCountWeekdays(startStr, endStr, halfStart, halfEnd) {
+function ptoCountWeekdays(startStr, endStr, halfDays) {
   if (!startStr || !endStr) return 0;
   var s = new Date(startStr + 'T12:00:00');
-  var e = new Date(endStr  + 'T12:00:00');
+  var e = new Date(endStr   + 'T12:00:00');
   if (e < s) return 0;
+  var halfSet = {};
+  (halfDays || []).forEach(function(h) { halfSet[h.date] = true; });
   var count = 0, cur = new Date(s);
-  while (cur <= e) { var d = cur.getDay(); if (d !== 0 && d !== 6) count++; cur.setDate(cur.getDate() + 1); }
-  if (halfStart) count -= 0.5;
-  if (halfEnd)   count -= 0.5;
+  while (cur <= e) {
+    var dow = cur.getDay();
+    if (dow !== 0 && dow !== 6) {
+      var ds = cur.toISOString().slice(0, 10);
+      count += halfSet[ds] ? 0.5 : 1;
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
   return Math.max(0, count);
 }
 
 function ptoUpdateDayCount() {
   var s = document.getElementById('pto-req-start').value;
   var e = document.getElementById('pto-req-end').value;
-  var hs = document.getElementById('pto-half-start').checked;
-  var he = document.getElementById('pto-half-end').checked;
   var preview = document.getElementById('pto-day-count-preview');
   if (!s || !e) { preview.style.display = 'none'; return; }
-  var days = ptoCountWeekdays(s, e, hs, he);
+  var days = ptoCountWeekdays(s, e, ptoGetHalfDays());
   preview.style.display = '';
   preview.textContent = days + (days === 1 ? ' business day' : ' business days');
 }
 
-function ptoUpdateHalfDetail() {
-  var hs = document.getElementById('pto-half-start').checked;
-  var he = document.getElementById('pto-half-end').checked;
-  var wrap = document.getElementById('pto-half-detail');
-  var sd   = document.getElementById('pto-half-start-detail');
-  var ed   = document.getElementById('pto-half-end-detail');
-  if (wrap) wrap.style.display = (hs || he) ? '' : 'none';
-  if (sd)   sd.style.display   = hs ? '' : 'none';
-  if (ed)   ed.style.display   = he ? '' : 'none';
+function ptoWeekdaysInRange(startStr, endStr) {
+  var days = [];
+  var d = new Date(startStr + 'T12:00:00');
+  var e = new Date(endStr   + 'T12:00:00');
+  while (d <= e) {
+    var dow = d.getDay();
+    if (dow !== 0 && dow !== 6) days.push(d.toISOString().slice(0, 10));
+    d.setDate(d.getDate() + 1);
+  }
+  return days;
+}
+
+function ptoRenderHalfDays() {
+  var start   = document.getElementById('pto-req-start').value;
+  var end     = document.getElementById('pto-req-end').value;
+  var section = document.getElementById('pto-half-days-section');
+  var list    = document.getElementById('pto-half-days-list');
+  if (!section || !list) return;
+  if (!start || !end || end < start) { section.style.display = 'none'; list.innerHTML = ''; return; }
+  var weekdays = ptoWeekdaysInRange(start, end);
+  if (!weekdays.length) { section.style.display = 'none'; list.innerHTML = ''; return; }
+  // Preserve any existing checked states before re-render
+  var existing = {};
+  list.querySelectorAll('.pto-hd-chk').forEach(function(chk) {
+    if (chk.checked) {
+      var radio = list.querySelector('input[name="pto-hd-' + chk.dataset.date + '"]:checked');
+      existing[chk.dataset.date] = radio ? radio.value : '9am-1pm';
+    }
+  });
+  var months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  list.innerHTML = weekdays.map(function(ds) {
+    var d      = new Date(ds + 'T12:00:00');
+    var label  = dayNames[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate();
+    var chkd   = existing[ds] !== undefined;
+    var selTime = chkd ? existing[ds] : '9am-1pm';
+    return '<div style="display:flex;align-items:center;gap:14px;padding:5px 0;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;">' +
+      '<label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:0.82rem;color:#475569;min-width:130px;margin-bottom:0;">' +
+        '<input type="checkbox" class="pto-hd-chk" data-date="' + ds + '"' + (chkd ? ' checked' : '') +
+        ' onchange="ptoHalfDayToggle(this);ptoUpdateDayCount()"> ' + label +
+      '</label>' +
+      '<span class="pto-hd-times" data-date="' + ds + '" style="' + (chkd ? '' : 'display:none;') + 'display:flex;gap:12px;align-items:center;">' +
+        '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.8rem;color:#64748b;margin-bottom:0;">' +
+          '<input type="radio" name="pto-hd-' + ds + '" value="9am-1pm"' + (selTime === '9am-1pm' ? ' checked' : '') + ' onchange="ptoUpdateDayCount()"> 9am–1pm' +
+        '</label>' +
+        '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.8rem;color:#64748b;margin-bottom:0;">' +
+          '<input type="radio" name="pto-hd-' + ds + '" value="1pm-5pm"' + (selTime === '1pm-5pm' ? ' checked' : '') + ' onchange="ptoUpdateDayCount()"> 1pm–5pm' +
+        '</label>' +
+      '</span>' +
+    '</div>';
+  }).join('');
+  section.style.display = '';
+}
+
+function ptoHalfDayToggle(chk) {
+  var timesEl = document.querySelector('.pto-hd-times[data-date="' + chk.dataset.date + '"]');
+  if (timesEl) timesEl.style.display = chk.checked ? 'flex' : 'none';
+}
+
+function ptoGetHalfDays() {
+  var result = [];
+  document.querySelectorAll('.pto-hd-chk:checked').forEach(function(chk) {
+    var date  = chk.dataset.date;
+    var radio = document.querySelector('input[name="pto-hd-' + date + '"]:checked');
+    result.push({ date: date, time: radio ? radio.value : '9am-1pm' });
+  });
+  return result;
 }
 
 // -- Sheet helpers --
@@ -10303,11 +10346,10 @@ function ptoToggleReqForm() {
   if (btn) btn.textContent = open ? '+ Request Time Off' : 'Cancel';
   if (!open) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
   if (open) {
-    var hs = document.getElementById('pto-half-start');
-    var he = document.getElementById('pto-half-end');
-    if (hs) hs.checked = false;
-    if (he) he.checked = false;
-    ptoUpdateHalfDetail();
+    var list = document.getElementById('pto-half-days-list');
+    var section = document.getElementById('pto-half-days-section');
+    if (list) list.innerHTML = '';
+    if (section) section.style.display = 'none';
   }
 }
 
@@ -10359,28 +10401,31 @@ function ptoSubmitRequest() {
   var type  = document.getElementById('pto-req-type').value;
   var start = document.getElementById('pto-req-start').value;
   var end   = document.getElementById('pto-req-end').value;
-  var hs    = document.getElementById('pto-half-start').checked;
-  var he    = document.getElementById('pto-half-end').checked;
   var notes = (document.getElementById('pto-req-notes').value || '').trim();
-
-  // Append half-day time selections to notes
-  if (hs) {
-    var hsTime = document.querySelector('input[name="pto-half-start-time"]:checked');
-    notes += (notes ? ' | ' : '') + 'First day half: ' + (hsTime ? hsTime.value : '9am-1pm');
-  }
-  if (he) {
-    var heTime = document.querySelector('input[name="pto-half-end-time"]:checked');
-    notes += (notes ? ' | ' : '') + 'Last day half: ' + (heTime ? heTime.value : '9am-1pm');
-  }
 
   if (!start || !end)  { showSchedToast('st-error', 'Please select start and end dates.'); return; }
   if (end < start)     { showSchedToast('st-error', 'End date must be on or after start date.'); return; }
-  if (!(document.getElementById('pto-req-notes').value || '').trim()) { showSchedToast('st-error', 'Notes are required — please describe your request.'); return; }
-  var days = ptoCountWeekdays(start, end, hs, he);
+  if (!notes) { showSchedToast('st-error', 'Notes are required — please describe your request.'); return; }
+
+  var halfDays = ptoGetHalfDays();
+
+  // Append half-day detail to notes
+  if (halfDays.length) {
+    notes += ' | Half days: ' + halfDays.map(function(h) { return h.date + ':' + h.time; }).join(', ');
+  }
+
+  var days = ptoCountWeekdays(start, end, halfDays);
   if (days <= 0) { showSchedToast('st-error', 'No business days in the selected range.'); return; }
   if (type === 'Sick' && days > 2 && ptoMyEmployeeType === 'W2') {
     if (!confirm('Per company policy, 2 or more consecutive sick days require a doctor\'s note. Do you want to submit this request?')) return;
   }
+
+  // Derive first/last-day half flags for calendar event title
+  var weekdays  = ptoWeekdaysInRange(start, end);
+  var halfSet   = {};
+  halfDays.forEach(function(h) { halfSet[h.date] = true; });
+  var hs = weekdays.length > 0 && !!halfSet[weekdays[0]];
+  var he = weekdays.length > 0 && !!halfSet[weekdays[weekdays.length - 1]];
 
   var id        = 'PTO-' + Date.now();
   var submitted = new Date().toISOString();
@@ -10392,10 +10437,12 @@ function ptoSubmitRequest() {
     showSchedToast('st-success', 'PTO request submitted!');
     document.getElementById('pto-req-start').value = '';
     document.getElementById('pto-req-end').value   = '';
-    document.getElementById('pto-half-start').checked = false;
-    document.getElementById('pto-half-end').checked   = false;
-    document.getElementById('pto-req-notes').value    = '';
+    document.getElementById('pto-req-notes').value = '';
     document.getElementById('pto-day-count-preview').style.display = 'none';
+    var list    = document.getElementById('pto-half-days-list');
+    var section = document.getElementById('pto-half-days-section');
+    if (list)    list.innerHTML = '';
+    if (section) section.style.display = 'none';
 
     if (ptoMyManagerEmail) {
       var myName  = ptoDisplayName(currentUserEmail);
@@ -10403,7 +10450,7 @@ function ptoSubmitRequest() {
       var body    = '<p>Hi,</p><p><strong>' + ptoEsc(myName) + '</strong> has submitted a PTO request:</p>' +
         '<ul><li><strong>Type:</strong> ' + type + '</li>' +
         '<li><strong>Dates:</strong> ' + start + (end !== start ? ' &mdash; ' + end : '') + '</li>' +
-        '<li><strong>Days:</strong> ' + days + (hs || he ? ' (includes half day)' : '') + '</li>' +
+        '<li><strong>Days:</strong> ' + days + (halfDays.length ? ' (includes half day' + (halfDays.length > 1 ? 's' : '') + ')' : '') + '</li>' +
         (notes ? '<li><strong>Notes:</strong> ' + ptoEsc(notes) + '</li>' : '') +
         '</ul><p>Log in to the app to approve or decline.</p>';
       ptoSendEmail(ptoMyManagerEmail, subject, body);
