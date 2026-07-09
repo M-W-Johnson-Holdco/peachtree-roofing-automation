@@ -4484,6 +4484,23 @@ function printDoc() {
     </div>
   </div>
 
+  <!-- PTO Cancel Confirmation Modal -->
+  <div id="pto-cancel-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px 30px;width:380px;max-width:94vw;box-shadow:0 12px 40px rgba(0,0,0,0.18);">
+      <div style="font-size:1.1rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Cancel PTO Request?</div>
+      <div style="font-size:0.83rem;color:#64748b;margin-bottom:18px;">This will permanently cancel the following request and notify your manager.</div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:0.85rem;color:#334155;line-height:1.8;">
+        <div><span style="color:#94a3b8;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;">Type</span><br><strong id="pto-cancel-modal-type"></strong></div>
+        <div style="margin-top:8px;"><span style="color:#94a3b8;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;">Dates</span><br><strong id="pto-cancel-modal-dates"></strong></div>
+        <div style="margin-top:8px;"><span style="color:#94a3b8;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;">Days</span><br><strong id="pto-cancel-modal-days"></strong></div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-danger" style="flex:1;" onclick="ptoCancelConfirm()">Yes, Cancel Request</button>
+        <button class="btn btn-secondary" style="flex:1;" onclick="ptoCancelDismiss()">Keep My Request</button>
+      </div>
+    </div>
+  </div>
+
   <div class="section" id="tab-smartsched">
     <div class="card" style="text-align:center;padding:48px 24px;">
       <div style="font-size:2.5rem;margin-bottom:12px;">🏠⚡</div>
@@ -10621,8 +10638,35 @@ function ptoDecline(id) {
 }
 
 // -- Cancel --
+var ptoCancelPendingId = null;
+
 function ptoCancelRequest(id) {
-  if (!confirm('Cancel this PTO request?')) return;
+  var req = ptoAllRequests.filter(function(r) { return r.id === id; })[0] ||
+            ptoMyRequests.filter(function(r) { return r.id === id; })[0];
+  if (!req) return;
+  var today = new Date().toISOString().slice(0, 10);
+  if (req.start < today && currentUserRole !== 'admin') {
+    showSchedToast('st-error', 'This request has already started and cannot be cancelled. Contact an admin.');
+    return;
+  }
+  ptoCancelPendingId = id;
+  var range = req.start === req.end ? req.start : req.start + ' – ' + req.end;
+  document.getElementById('pto-cancel-modal-type').textContent = req.type;
+  document.getElementById('pto-cancel-modal-dates').textContent = range;
+  document.getElementById('pto-cancel-modal-days').textContent = req.days + (req.days === 1 ? ' day' : ' days');
+  document.getElementById('pto-cancel-modal').style.display = 'flex';
+}
+
+function ptoCancelDismiss() {
+  document.getElementById('pto-cancel-modal').style.display = 'none';
+  ptoCancelPendingId = null;
+}
+
+function ptoCancelConfirm() {
+  document.getElementById('pto-cancel-modal').style.display = 'none';
+  var id = ptoCancelPendingId;
+  ptoCancelPendingId = null;
+  if (!id) return;
   showSchedToast('st-info', 'Cancelling...');
   ptoFindRequest(id).then(function(req) {
     var today = new Date().toISOString().slice(0, 10);
@@ -10641,7 +10685,6 @@ function ptoCancelRequest(id) {
       showSchedToast('st-success', 'Request cancelled.');
       var cancelName = ptoDisplayName(req.email);
       var cancelDateRange = req.start + (req.end !== req.start ? ' — ' + req.end : '');
-      // Email employee confirmation
       var empCancelSubject = 'PTO Cancellation Confirmed: ' + req.type + ' ' + req.start;
       var empCancelBody = '<p>Hi ' + ptoEsc(cancelName) + ',</p>' +
         '<p>Your PTO request has been <strong style="color:#f59e0b;">cancelled</strong>.</p>' +
@@ -10650,7 +10693,6 @@ function ptoCancelRequest(id) {
         '<li><strong>Previous status:</strong> ' + req.status + '</li></ul>' +
         '<p>If this was a mistake or you have questions, please reach out to your manager.</p>';
       ptoSendEmail(req.email, empCancelSubject, empCancelBody);
-      // Email manager
       if (req.managerEmail) {
         var mgrCancelSubject = 'PTO Cancelled: ' + cancelName + ' — ' + req.type + ' ' + req.start;
         var mgrCancelBody = '<p>Hi,</p><p><strong>' + ptoEsc(cancelName) + '</strong> cancelled their PTO request.</p>' +
@@ -10661,7 +10703,7 @@ function ptoCancelRequest(id) {
       }
       ptoLoad();
     });
-  }).catch(function(e) { showSchedToast('st-error', 'Cancel failed: ' + e.message); });
+  }).catch(function(e) { if (e !== 'past') showSchedToast('st-error', 'Cancel failed: ' + e.message); });
 }
 
 // -- Increment / decrement used balance --
