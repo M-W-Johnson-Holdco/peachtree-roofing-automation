@@ -9787,6 +9787,7 @@ var ptoGmailToken  = null;
 var ptoGmailExpiry = 0;
 var ptoPermsData   = [];
 var ptoIsManager   = false;
+var ptoRoleOverride    = '';
 var ptoMyManagerEmail  = '';
 var ptoMyEmployeeType  = '';
 var ptoMyPtoEligible   = false;
@@ -10125,6 +10126,7 @@ function ptoLoad() {
         ptoMyManagerEmail = (ptoPermsData[i][3] || '').trim().toLowerCase();
         ptoMyPtoEligible  = (ptoPermsData[i][4] || '').trim().toUpperCase() === 'Y';
         ptoMyEmployeeType = (ptoPermsData[i][5] || '').trim().toUpperCase();
+        ptoRoleOverride   = (ptoPermsData[i][6] || '').trim().toLowerCase();
         break;
       }
     }
@@ -10163,7 +10165,7 @@ function ptoLoad() {
     });
 
     // Team requests — default to direct reports for both managers and admins
-    if (currentUserRole === 'admin') {
+    if ((ptoRoleOverride || currentUserRole) === 'admin') {
       ptoAdminShowAll = ptoDirectReportRequests.length === 0;
       ptoTeamRequests = ptoAdminShowAll ? ptoAllStaffRequests : ptoDirectReportRequests;
     } else if (ptoIsManager) {
@@ -10175,8 +10177,8 @@ function ptoLoad() {
     // Show/hide subtabs
     var appTab = document.getElementById('pto-approvals-tab');
     var balTab = document.getElementById('pto-balances-tab');
-    if (appTab) appTab.style.display = (ptoIsManager || currentUserRole === 'admin') ? '' : 'none';
-    if (balTab) balTab.style.display = currentUserRole === 'admin' ? '' : 'none';
+    if (appTab) appTab.style.display = (ptoIsManager || (ptoRoleOverride || currentUserRole) === 'admin') ? '' : 'none';
+    if (balTab) balTab.style.display = (ptoRoleOverride || currentUserRole) === 'admin' ? '' : 'none';
 
     ptoRenderBalance();
     ptoRenderCalStrip();
@@ -10246,7 +10248,7 @@ function ptoUpdateFilterBtns() {
   var teamBtn = document.getElementById('pto-filter-team-btn');
   var allBtn  = document.getElementById('pto-filter-all-btn');
   if (teamBtn) teamBtn.style.display = ptoIsManager ? '' : 'none';
-  if (allBtn)  allBtn.style.display  = currentUserRole === 'admin' ? '' : 'none';
+  if (allBtn)  allBtn.style.display  = (ptoRoleOverride || currentUserRole) === 'admin' ? '' : 'none';
 }
 
 function ptoRenderMyRequests() {
@@ -10286,7 +10288,7 @@ function ptoRenderMyRequests() {
       var today       = new Date().toISOString().slice(0, 10);
       var startPassed = r.start < today;
       var canCancel   = (r.status === 'pending' || r.status === 'approved') && isMine &&
-                        (!startPassed || currentUserRole === 'admin');
+                        (!startPassed || (ptoRoleOverride || currentUserRole) === 'admin');
       return '<tr>' +
         (showWho ? '<td style="color:#1e293b;font-weight:600;">' + ptoEsc(ptoDisplayName(r.email)) + '</td>' : '') +
         '<td style="' + (!showWho ? 'color:#1e293b;font-weight:600;' : '') + '">' + ptoEsc(r.type) + '</td>' +
@@ -10314,7 +10316,7 @@ function ptoRenderTeamRequests() {
   // Admin toggle button
   var toggleBtn = document.getElementById('pto-toggle-all-btn');
   if (toggleBtn) {
-    toggleBtn.style.display = currentUserRole === 'admin' ? '' : 'none';
+    toggleBtn.style.display = (ptoRoleOverride || currentUserRole) === 'admin' ? '' : 'none';
     toggleBtn.textContent   = ptoAdminShowAll ? 'My team only' : 'View all staff';
   }
 
@@ -10374,7 +10376,7 @@ function ptoRenderTeamRequests() {
       }
     }
     // Admin with no direct reports — fall back to all
-    if (!teamEmails.length && currentUserRole === 'admin') {
+    if (!teamEmails.length && (ptoRoleOverride || currentUserRole) === 'admin') {
       var yr2 = new Date().getFullYear();
       ptoAllBalances.forEach(function(b) {
         if (b.year === yr2 && teamEmails.indexOf(b.email) === -1) teamEmails.push(b.email);
