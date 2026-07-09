@@ -78,7 +78,7 @@ jobs:
           mkdir -p deploy
           cp index.html deploy/index.html
           cp "logo.png" deploy/ 2>/dev/null || true
-          cp "../pto-guide.html" deploy/pto-guide.html 2>/dev/null || true
+          cp pto-guide.html deploy/pto-guide.html
           cd deploy
           git init
           git config user.name "github-actions[bot]"
