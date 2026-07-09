@@ -167,6 +167,47 @@
     #tab-scheduler .btn-sm { min-height: 38px; font-size: 0.85rem; }
   }
 
+  /* PTO tab — mobile responsive */
+  @media (max-width: 640px) {
+    /* Stat cards: compact but keep 3-up layout */
+    .pto-stat-grid { gap: 8px; }
+    .pto-stat-card { padding: 12px 8px; }
+    .pto-stat-num { font-size: 1.25rem; }
+    .pto-stat-sub { font-size: 0.62rem; }
+    /* Request form: single column */
+    #tab-pto .grid2 { grid-template-columns: 1fr !important; }
+    /* Bigger touch targets */
+    #tab-pto input[type=date],
+    #tab-pto input[type=text],
+    #tab-pto textarea,
+    #tab-pto select { font-size: 1rem; padding: 11px 12px; }
+    /* Submit/cancel buttons: stack vertically, full width */
+    .pto-form-btns { flex-direction: column; }
+    .pto-form-btns .btn { width: 100%; text-align: center; min-height: 44px; }
+    /* Filter toggle buttons: bigger tap area */
+    .pto-filter-btn { min-height: 36px; padding: 6px 12px; font-size: 0.75rem; }
+    /* Table containers: horizontal scroll */
+    #pto-my-requests-list,
+    #pto-pending-list,
+    #pto-team-history-list,
+    #pto-admin-bal-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    /* Approval cards: wrap buttons below info */
+    .pto-approval-card { flex-wrap: wrap; }
+    .pto-approval-btns { width: 100%; padding-top: 10px; flex-wrap: wrap; }
+    .pto-approval-btns .btn { flex: 1; min-height: 40px; min-width: 80px; }
+    /* Hero button: larger tap */
+    .pto-hero .btn { min-height: 40px; }
+    /* Subtab pills: bigger tap area */
+    .pto-subtab { padding: 8px 14px; min-height: 36px; }
+    /* Balance bar label: narrower on small screens */
+    .pto-bar-label { width: 68px; font-size: 0.75rem; }
+    /* Admin balance toolbar buttons */
+    #pto-panel-balances .btn-sm { min-height: 38px; }
+    /* Cancel modal buttons: stack vertically */
+    #pto-cancel-modal > div > div:last-child { flex-direction: column; }
+    #pto-cancel-modal .btn { width: 100%; min-height: 44px; }
+  }
+
   #tab-workorder .wo-frame-wrap input, #tab-workorder .wo-frame-wrap textarea, #tab-workorder .wo-frame-wrap select { color: #000 !important; background: #fff !important; border-color: #000 !important; }
   #comm-app-wrapper input, #comm-app-wrapper textarea, #comm-app-wrapper select { all: revert; }
 
@@ -4378,7 +4419,7 @@ function printDoc() {
               <li>Quarterly meeting days are <strong>blackout dates</strong> for PTO unless pre-approved by HR.</li>
             </ul>
           </div>
-          <div style="display:flex;gap:8px;">
+          <div class="pto-form-btns" style="display:flex;gap:8px;">
             <button class="btn btn-primary" onclick="ptoSubmitRequest()">Submit Request</button>
             <button class="btn btn-secondary" onclick="ptoToggleReqForm()">Cancel</button>
           </div>
