@@ -9751,20 +9751,39 @@ function ptoSendEmail(to, subject, bodyHtml) {
 }
 
 // -- Google Calendar OOO events --
-function ptoCreateCalEvent(employeeName, startDate, endDate) {
+function ptoDateShort(dateStr) {
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var p = dateStr.split('-');
+  return months[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10);
+}
+
+function ptoCreateCalEvent(employeeName, employeeEmail, type, startDate, endDate, halfStart, halfEnd) {
   if (!GCAL_ID_PTO) return Promise.resolve(null);
   var endEx = new Date(endDate + 'T12:00:00');
   endEx.setDate(endEx.getDate() + 1);
   var endStr = endEx.toISOString().slice(0, 10);
+
+  // Build descriptive title
+  var dateRange = startDate === endDate ? ptoDateShort(startDate) : ptoDateShort(startDate) + '–' + ptoDateShort(endDate);
+  var halfSuffix = '';
+  if (halfStart && halfEnd) halfSuffix = ' (both ½ days)';
+  else if (halfStart) halfSuffix = ' (first day ½)';
+  else if (halfEnd)   halfSuffix = ' (last day ½)';
+  var title = employeeName + ' — ' + type + ' | ' + dateRange + halfSuffix;
+
+  var attendees = employeeEmail ? [{ email: employeeEmail }] : [];
+
   return getGCalToken().then(function(t) {
-    return fetch('https://www.googleapis.com/calendar/v3/calendars/' + encodeURIComponent(GCAL_ID_PTO) + '/events', {
+    return fetch('https://www.googleapis.com/calendar/v3/calendars/' + encodeURIComponent(GCAL_ID_PTO) + '/events?sendUpdates=all', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        summary: employeeName + ' — PTO',
+        summary: title,
         start: { date: startDate },
         end:   { date: endStr },
-        transparency: 'opaque'
+        transparency: 'opaque',
+        attendees: attendees,
+        guestsCanModifyEvent: false
       })
     }).then(function(r) { return r.json(); }).then(function(d) {
       if (d.error) throw new Error(d.error.message);
@@ -10407,7 +10426,7 @@ function ptoApprove(id) {
   showSchedToast('st-info', 'Approving...');
   ptoFindRequest(id).then(function(req) {
     var now = new Date().toISOString();
-    return ptoCreateCalEvent(ptoDisplayName(req.email), req.start, req.end).then(function(calId) {
+    return ptoCreateCalEvent(ptoDisplayName(req.email), req.email, req.type, req.start, req.end, req.halfStart, req.halfEnd).then(function(calId) {
       var updated = [req.id, req.email, req.managerEmail, req.type, req.start, req.end,
         req.halfStart ? 'TRUE' : 'FALSE', req.halfEnd ? 'TRUE' : 'FALSE',
         req.days, req.notes, 'approved', req.submitted, now, currentUserEmail, calId || ''];
@@ -10470,14 +10489,25 @@ function ptoCancelRequest(id) {
       if (wasApproved && req.calEventId) ptoDeleteCalEvent(req.calEventId);
       if (wasApproved) ptoIncrementUsed(req.email, req.type, -req.days);
       showSchedToast('st-success', 'Request cancelled.');
+      var cancelName = ptoDisplayName(req.email);
+      var cancelDateRange = req.start + (req.end !== req.start ? ' — ' + req.end : '');
+      // Email employee confirmation
+      var empCancelSubject = 'PTO Cancellation Confirmed: ' + req.type + ' ' + req.start;
+      var empCancelBody = '<p>Hi ' + ptoEsc(cancelName) + ',</p>' +
+        '<p>Your PTO request has been <strong style="color:#f59e0b;">cancelled</strong>.</p>' +
+        '<ul><li><strong>Type:</strong> ' + req.type + '</li>' +
+        '<li><strong>Dates:</strong> ' + cancelDateRange + '</li>' +
+        '<li><strong>Previous status:</strong> ' + req.status + '</li></ul>' +
+        '<p>If this was a mistake or you have questions, please reach out to your manager.</p>';
+      ptoSendEmail(req.email, empCancelSubject, empCancelBody);
+      // Email manager
       if (req.managerEmail) {
-        var myName = ptoDisplayName(req.email);
-        var subject = 'PTO Cancelled: ' + myName + ' — ' + req.type + ' ' + req.start;
-        var body = '<p>Hi,</p><p><strong>' + ptoEsc(myName) + '</strong> cancelled their PTO request.</p>' +
+        var mgrCancelSubject = 'PTO Cancelled: ' + cancelName + ' — ' + req.type + ' ' + req.start;
+        var mgrCancelBody = '<p>Hi,</p><p><strong>' + ptoEsc(cancelName) + '</strong> cancelled their PTO request.</p>' +
           '<ul><li><strong>Type:</strong> ' + req.type + '</li>' +
-          '<li><strong>Dates:</strong> ' + req.start + (req.end !== req.start ? ' — ' + req.end : '') + '</li>' +
-          '<li><strong>Was:</strong> ' + req.status + '</li></ul>';
-        ptoSendEmail(req.managerEmail, subject, body);
+          '<li><strong>Dates:</strong> ' + cancelDateRange + '</li>' +
+          '<li><strong>Previous status:</strong> ' + req.status + '</li></ul>';
+        ptoSendEmail(req.managerEmail, mgrCancelSubject, mgrCancelBody);
       }
       ptoLoad();
     });
