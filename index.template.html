@@ -9676,6 +9676,22 @@ function calcUpgradesTotal() {
 var PTO_BALANCES_TAB = 'PTOBalances';
 var PTO_REQUESTS_TAB = 'PTORequests';
 
+// Company holidays — dates that are skipped when counting PTO days.
+// Update each year as needed (YYYY-MM-DD format).
+var PTO_HOLIDAYS = new Set([
+  '2026-01-01', // New Year's Day
+  '2026-01-02', // New Year's (observed)
+  '2026-04-03', // Good Friday
+  '2026-05-25', // Memorial Day
+  '2026-07-03', // Independence Day (observed)
+  '2026-09-07', // Labor Day
+  '2026-11-26', // Thanksgiving
+  '2026-11-27', // Day after Thanksgiving
+  '2026-12-24', // Christmas Eve
+  '2026-12-25', // Christmas
+  '2026-12-31', // New Year's Eve
+]);
+
 var ptoGmailToken  = null;
 var ptoGmailExpiry = 0;
 var ptoPermsData   = [];
@@ -9802,7 +9818,7 @@ function ptoCountWeekdays(startStr, endStr, halfDays) {
     var dow = cur.getDay();
     if (dow !== 0 && dow !== 6) {
       var ds = cur.toISOString().slice(0, 10);
-      count += halfSet[ds] ? 0.5 : 1;
+      if (!PTO_HOLIDAYS.has(ds)) count += halfSet[ds] ? 0.5 : 1;
     }
     cur.setDate(cur.getDate() + 1);
   }
@@ -9815,8 +9831,25 @@ function ptoUpdateDayCount() {
   var preview = document.getElementById('pto-day-count-preview');
   if (!s || !e) { preview.style.display = 'none'; return; }
   var days = ptoCountWeekdays(s, e, ptoGetHalfDays());
+  // Find any holidays in range to show notice
+  var holidayNames = {
+    '2026-01-01': "New Year's Day", '2026-01-02': "New Year's (observed)",
+    '2026-04-03': 'Good Friday', '2026-05-25': 'Memorial Day',
+    '2026-07-03': 'Independence Day (observed)', '2026-09-07': 'Labor Day',
+    '2026-11-26': 'Thanksgiving', '2026-11-27': 'Day after Thanksgiving',
+    '2026-12-24': 'Christmas Eve', '2026-12-25': 'Christmas',
+    '2026-12-31': "New Year's Eve"
+  };
+  var hit = [];
+  var cur = new Date(s + 'T12:00:00'), end = new Date(e + 'T12:00:00');
+  while (cur <= end) {
+    var ds = cur.toISOString().slice(0, 10);
+    if (PTO_HOLIDAYS.has(ds)) hit.push(holidayNames[ds] || ds);
+    cur.setDate(cur.getDate() + 1);
+  }
+  var note = hit.length ? ' <span style="color:#0369a1;font-size:0.75rem;">(' + hit.join(', ') + ' excluded)</span>' : '';
   preview.style.display = '';
-  preview.textContent = days + (days === 1 ? ' business day' : ' business days');
+  preview.innerHTML = (days + (days === 1 ? ' business day' : ' business days')) + note;
 }
 
 function ptoWeekdaysInRange(startStr, endStr) {
@@ -9825,7 +9858,10 @@ function ptoWeekdaysInRange(startStr, endStr) {
   var e = new Date(endStr   + 'T12:00:00');
   while (d <= e) {
     var dow = d.getDay();
-    if (dow !== 0 && dow !== 6) days.push(d.toISOString().slice(0, 10));
+    if (dow !== 0 && dow !== 6) {
+      var ds = d.toISOString().slice(0, 10);
+      if (!PTO_HOLIDAYS.has(ds)) days.push(ds);
+    }
     d.setDate(d.getDate() + 1);
   }
   return days;
