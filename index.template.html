@@ -10602,13 +10602,13 @@ function ptoSubmitRequest() {
 
     if (ptoMyManagerEmail) {
       var myName  = ptoDisplayName(currentUserEmail);
-      var subject = 'PTO Request: ' + myName + ' — ' + type + ' (' + days + ' day' + (days !== 1 ? 's' : '') + ')';
+      var subject = 'PTO Request: ' + myName + ' - ' + type + ' (' + days + ' day' + (days !== 1 ? 's' : '') + ')';
       var body    = '<p>Hi,</p><p><strong>' + ptoEsc(myName) + '</strong> has submitted a PTO request:</p>' +
         '<ul><li><strong>Type:</strong> ' + type + '</li>' +
         '<li><strong>Dates:</strong> ' + start + (end !== start ? ' &mdash; ' + end : '') + '</li>' +
         '<li><strong>Days:</strong> ' + days + (halfDays.length ? ' (includes half day' + (halfDays.length > 1 ? 's' : '') + ')' : '') + '</li>' +
         (notes ? '<li><strong>Notes:</strong> ' + ptoEsc(notes) + '</li>' : '') +
-        '</ul><p>Log in to the app to approve or decline.</p>';
+        '</ul><p><a href="https://www.peachtreerestorations.com/employeeportal">Log in to the app</a> to approve or decline.</p>';
       ptoSendEmail(ptoMyManagerEmail, subject, body);
     }
     ptoLoad();
@@ -10639,11 +10639,11 @@ function ptoApprove(id) {
     }).then(function() {
       showSchedToast('st-success', 'Request approved!');
       var empName = ptoDisplayName(req.email);
-      var subject = 'PTO Approved: ' + req.type + ' ' + req.start + (req.end !== req.start ? ' — ' + req.end : '');
+      var subject = 'PTO Approved: ' + req.type + ' ' + req.start + (req.end !== req.start ? ' - ' + req.end : '');
       var body = '<p>Hi ' + ptoEsc(empName) + ',</p>' +
         '<p>Your PTO request has been <strong style="color:#22c55e;">approved</strong>.</p>' +
         '<ul><li><strong>Type:</strong> ' + req.type + '</li>' +
-        '<li><strong>Dates:</strong> ' + req.start + (req.end !== req.start ? ' — ' + req.end : '') + '</li>' +
+        '<li><strong>Dates:</strong> ' + req.start + (req.end !== req.start ? ' &mdash; ' + req.end : '') + '</li>' +
         '<li><strong>Days:</strong> ' + req.days + '</li></ul>' +
         '<p>Enjoy your time off!</p>';
       ptoSendEmail(req.email, subject, body);
@@ -10669,7 +10669,7 @@ function ptoDecline(id) {
       var body = '<p>Hi ' + ptoEsc(empName) + ',</p>' +
         '<p>Your PTO request has been <strong style="color:#f87171;">declined</strong>.</p>' +
         '<ul><li><strong>Type:</strong> ' + req.type + '</li>' +
-        '<li><strong>Dates:</strong> ' + req.start + (req.end !== req.start ? ' — ' + req.end : '') + '</li></ul>' +
+        '<li><strong>Dates:</strong> ' + req.start + (req.end !== req.start ? ' &mdash; ' + req.end : '') + '</li></ul>' +
         (reason ? '<p><strong>Reason:</strong> ' + ptoEsc(reason) + '</p>' : '') +
         '<p>Please reach out to your manager with any questions.</p>';
       ptoSendEmail(req.email, subject, body);
