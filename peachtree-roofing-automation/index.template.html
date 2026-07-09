@@ -28,7 +28,7 @@
   .btn{padding:11px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:0.9rem;transition:all 0.2s}
   .btn-primary{background:#4A90D9;color:#fff}.btn-primary:hover{background:#357abd}
   .btn-secondary{background:#1e2a3a;color:#4A90D9}.btn-secondary:hover{background:#253448}
-  .btn-danger{background:#7f1d1d;color:#fca5a5}
+  .btn-danger{background:#e53e3e;color:#fff;border:1px solid #c53030;}
   .btn-warn{background:#78350f;color:#fcd34d}
   .btn-sm{padding:5px 12px;font-size:0.75rem}
   .btn:disabled{opacity:0.5;cursor:not-allowed}
@@ -89,9 +89,9 @@
   .cal-event-row .ev-time{font-size:0.75rem;color:#64748b;margin-top:2px}
   .cal-event-row .ev-actions{display:flex;gap:6px;flex-shrink:0}
   .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.68rem;font-weight:600}
-  .pill-green{background:#1a2e1a;color:#8DC63F;border:1px solid #2a4a2a}
-  .pill-blue{background:#0c1a2e;color:#4A90D9;border:1px solid #1e3a5f}
-  .pill-yellow{background:#2d2008;color:#fcd34d;border:1px solid #854d0e}
+  .pill-green{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;}
+  .pill-blue{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;}
+  .pill-yellow{background:#fef3c7;color:#78350f;border:1px solid #fde68a;}
   .sched-log-box{background:#0a0d14;border:1px solid #1e2640;border-radius:8px;padding:14px;height:200px;overflow-y:auto;font-family:monospace;font-size:0.78rem;line-height:1.6}
   #sched-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:99999;padding:13px 26px;border-radius:12px;font-size:0.88rem;font-weight:600;box-shadow:0 4px 24px rgba(0,0,0,0.6);transition:opacity 0.4s;pointer-events:none;white-space:nowrap;display:none;}
   #sched-toast.st-success{background:#0d2010;border:1px solid #4ade80;color:#4ade80;}
@@ -222,6 +222,8 @@
   .pto-bal-inp:focus{border-color:#4A90D9;outline:none;}
   .pill-declined{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;}
   .pill-cancelled{background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1;}
+  .pto-filter-btn{padding:3px 11px;font-size:0.72rem;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;cursor:pointer;font-weight:500;}
+  .pto-filter-btn.active{background:#1e293b;color:#f8fafc;border-color:#1e293b;}
   /* PTO — scope global app classes to light within this tab */
   #tab-pto .card{background:#fff;border-color:#e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
   #tab-pto .card h2{color:#334155;}
@@ -4354,8 +4356,8 @@ function printDoc() {
           </div>
           <div id="pto-day-count-preview" class="pto-day-preview"></div>
           <div style="margin-top:12px;margin-bottom:14px;">
-            <label>Notes <span style="color:#ef4444;">*</span></label>
-            <textarea id="pto-req-notes" rows="2" style="resize:none;" placeholder="Required — reason for request, travel plans, etc."></textarea>
+            <label>Notes</label>
+            <textarea id="pto-req-notes" rows="2" style="resize:none;" placeholder="Optional — reason for request, travel plans, etc."></textarea>
           </div>
           <div style="background:#fef9ec;border:1px solid #fbbf24;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:0.78rem;color:#78350f;line-height:1.6;">
             <div style="font-weight:700;margin-bottom:6px;font-size:0.8rem;">Notice Requirement</div>
@@ -4370,7 +4372,14 @@ function printDoc() {
             <button class="btn btn-secondary" onclick="ptoToggleReqForm()">Cancel</button>
           </div>
         </div>
-        <div class="pto-section-head">Recent Requests</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div class="pto-section-head" style="margin-bottom:0;">Recent Requests</div>
+          <div style="display:flex;gap:4px;">
+            <button class="pto-filter-btn active" data-filter="mine" onclick="ptoSetReqFilter('mine')">Yourself</button>
+            <button class="pto-filter-btn" data-filter="team" id="pto-filter-team-btn" style="display:none;" onclick="ptoSetReqFilter('team')">Your Team</button>
+            <button class="pto-filter-btn" data-filter="all" id="pto-filter-all-btn" style="display:none;" onclick="ptoSetReqFilter('all')">All Staff</button>
+          </div>
+        </div>
         <div id="pto-my-requests-list"><div class="no-results">Loading...</div></div>
       </div>
 
@@ -10002,6 +10011,7 @@ function ptoLoad() {
         break;
       }
     }
+    ptoUpdateFilterBtns();
 
     // My balance for this year
     ptoMyBalance = null;
@@ -10095,21 +10105,61 @@ function ptoRenderBalance() {
 }
 
 // -- Render my requests (table) --
+var ptoReqFilter = 'mine';
+
+function ptoSetReqFilter(f) {
+  ptoReqFilter = f;
+  document.querySelectorAll('.pto-filter-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  ptoRenderMyRequests();
+}
+
+function ptoUpdateFilterBtns() {
+  var teamBtn = document.getElementById('pto-filter-team-btn');
+  var allBtn  = document.getElementById('pto-filter-all-btn');
+  if (teamBtn) teamBtn.style.display = ptoIsManager ? '' : 'none';
+  if (allBtn)  allBtn.style.display  = currentUserRole === 'admin' ? '' : 'none';
+}
+
 function ptoRenderMyRequests() {
   var el = document.getElementById('pto-my-requests-list');
   if (!el) return;
-  if (!ptoMyRequests.length) { el.innerHTML = '<div class="no-results">No requests yet.</div>'; return; }
-  var sorted = ptoMyRequests.slice().sort(function(a, b) { return (b.submitted || '').localeCompare(a.submitted || ''); });
-  el.innerHTML = '<table class="pto-req-table"><thead><tr><th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Action</th></tr></thead><tbody>' +
+
+  var rows, showWho = false;
+  if (ptoReqFilter === 'team') {
+    rows = ptoAllRequests.filter(function(r) {
+      return r.managerEmail === currentUserEmail.toLowerCase();
+    });
+    showWho = true;
+  } else if (ptoReqFilter === 'all') {
+    rows = ptoAllRequests.slice();
+    showWho = true;
+  } else {
+    rows = ptoMyRequests.slice();
+  }
+
+  if (!rows.length) {
+    var msg = ptoReqFilter === 'team' ? 'No team requests.' : ptoReqFilter === 'all' ? 'No requests found.' : 'No requests yet.';
+    el.innerHTML = '<div class="no-results">' + msg + '</div>';
+    return;
+  }
+
+  var sorted = rows.slice().sort(function(a, b) { return (b.submitted || '').localeCompare(a.submitted || ''); });
+  el.innerHTML = '<table class="pto-req-table"><thead><tr>' +
+    (showWho ? '<th>Who</th>' : '') +
+    '<th>Type</th><th>Dates</th><th>Days</th><th>Status</th><th>Action</th></tr></thead><tbody>' +
     sorted.map(function(r) {
       var range = r.start === r.end ? r.start : r.start + ' – ' + r.end;
       var half = [];
       if (r.halfStart) half.push('½ start');
       if (r.halfEnd)   half.push('½ end');
       var halfStr = half.length ? ' <span style="color:#475569;font-size:0.68rem;">(' + half.join(', ') + ')</span>' : '';
-      var canCancel = r.status === 'pending' || r.status === 'approved';
+      var isMine    = r.email.toLowerCase() === currentUserEmail.toLowerCase();
+      var canCancel = (r.status === 'pending' || r.status === 'approved') && isMine;
       return '<tr>' +
-        '<td style="color:#1e293b;font-weight:600;">' + ptoEsc(r.type) + '</td>' +
+        (showWho ? '<td style="color:#1e293b;font-weight:600;">' + ptoEsc(ptoDisplayName(r.email)) + '</td>' : '') +
+        '<td style="' + (!showWho ? 'color:#1e293b;font-weight:600;' : '') + '">' + ptoEsc(r.type) + '</td>' +
         '<td>' + ptoEsc(range) + halfStr + '</td>' +
         '<td>' + r.days + '</td>' +
         '<td>' + ptoPill(r.status) + '</td>' +
@@ -10405,7 +10455,6 @@ function ptoSubmitRequest() {
 
   if (!start || !end)  { showSchedToast('st-error', 'Please select start and end dates.'); return; }
   if (end < start)     { showSchedToast('st-error', 'End date must be on or after start date.'); return; }
-  if (!notes) { showSchedToast('st-error', 'Notes are required — please describe your request.'); return; }
 
   var halfDays = ptoGetHalfDays();
 
