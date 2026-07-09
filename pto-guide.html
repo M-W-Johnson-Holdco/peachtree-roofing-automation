@@ -1,0 +1,1234 @@
+<title>PTO System — Staff Guide | Peachtree Roofing & Exteriors</title>
+<style>
+:root {
+  --blue: #4A90D9;
+  --blue-dim: #357abd;
+  --green: #8DC63F;
+  --purple: #a78bfa;
+  --amber: #f59e0b;
+  --red: #ef4444;
+
+  --bg: #f1f5f9;
+  --bg2: #e8eef6;
+  --surf: #ffffff;
+  --surf2: #f8fafc;
+  --bdr: #d1dae8;
+  --bdr2: #c3cfe2;
+
+  --txt: #1e293b;
+  --txt2: #475569;
+  --txt3: #64748b;
+  --txt4: #94a3b8;
+
+  --role-emp: #4A90D9;
+  --role-mgr: #10b981;
+  --role-adm: #a78bfa;
+
+  --step-sz: 28px;
+  --radius: 10px;
+  --tab-h: 58px;
+}
+
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header ── */
+.site-header {
+  background: var(--surf);
+  border-bottom: 3px solid var(--blue);
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.header-brand {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--blue);
+  letter-spacing: -0.01em;
+}
+.header-brand span { color: var(--green); }
+.header-doc-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--txt3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-left: 4px;
+  padding-left: 16px;
+  border-left: 1px solid var(--bdr);
+}
+.header-meta {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--txt4);
+  text-align: right;
+}
+
+/* ── Role tabs ── */
+.role-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surf);
+  border-bottom: 1px solid var(--bdr);
+  display: flex;
+  gap: 0;
+  padding: 0 28px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.role-tab {
+  padding: 0 22px;
+  height: var(--tab-h);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--txt3);
+  border-bottom: 3px solid transparent;
+  transition: color 0.18s, border-color 0.18s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.role-tab:hover { color: var(--txt); }
+.role-tab.active[data-role="emp"] { color: var(--role-emp); border-color: var(--role-emp); }
+.role-tab.active[data-role="mgr"] { color: var(--role-mgr); border-color: var(--role-mgr); }
+.role-tab.active[data-role="adm"] { color: var(--role-adm); border-color: var(--role-adm); }
+.role-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+[data-role="emp"] .role-dot { background: var(--role-emp); }
+[data-role="mgr"] .role-dot { background: var(--role-mgr); }
+[data-role="adm"] .role-dot { background: var(--role-adm); }
+
+/* ── Panels ── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── Page layout ── */
+.page-wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 36px 24px 80px;
+}
+
+/* ── Part heading ── */
+.part-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 32px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--bdr);
+}
+.part-icon {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+.part-icon.emp { background: #dbeafe; }
+.part-icon.mgr { background: #d1fae5; }
+.part-icon.adm { background: #ede9fe; }
+[data-theme="dark"] .part-icon.emp,
+@media (prefers-color-scheme: dark) { .part-icon.emp { background: #1e3a5f; } }
+
+.part-icon.emp { background: color-mix(in srgb, var(--role-emp) 15%, var(--surf)); }
+.part-icon.mgr { background: color-mix(in srgb, var(--role-mgr) 15%, var(--surf)); }
+.part-icon.adm { background: color-mix(in srgb, var(--role-adm) 15%, var(--surf)); }
+
+.part-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--txt);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  line-height: 1.2;
+}
+.part-subtitle {
+  font-size: 0.82rem;
+  color: var(--txt3);
+  margin-top: 4px;
+}
+.role-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 20px;
+  margin-bottom: 4px;
+}
+.badge-emp { background: color-mix(in srgb, var(--role-emp) 18%, var(--surf)); color: var(--role-emp); }
+.badge-mgr { background: color-mix(in srgb, var(--role-mgr) 18%, var(--surf)); color: var(--role-mgr); }
+.badge-adm { background: color-mix(in srgb, var(--role-adm) 18%, var(--surf)); color: var(--role-adm); }
+
+/* ── Section ── */
+.guide-section {
+  background: var(--surf);
+  border: 1px solid var(--bdr);
+  border-radius: var(--radius);
+  padding: 24px 26px;
+  margin-bottom: 20px;
+}
+.section-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--txt4);
+  margin-bottom: 8px;
+}
+.section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--txt);
+  margin-bottom: 14px;
+  letter-spacing: -0.01em;
+}
+
+/* ── Steps ── */
+.steps { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.step {
+  display: grid;
+  grid-template-columns: var(--step-sz) 1fr;
+  gap: 12px;
+  align-items: start;
+}
+.step-num {
+  width: var(--step-sz);
+  height: var(--step-sz);
+  border-radius: 50%;
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.step-num.emp { background: color-mix(in srgb, var(--role-emp) 18%, var(--surf)); color: var(--role-emp); }
+.step-num.mgr { background: color-mix(in srgb, var(--role-mgr) 18%, var(--surf)); color: var(--role-mgr); }
+.step-num.adm { background: color-mix(in srgb, var(--role-adm) 18%, var(--surf)); color: var(--role-adm); }
+.step-body { padding-top: 4px; }
+.step-body strong { color: var(--txt); font-weight: 700; display: block; margin-bottom: 3px; font-size: 0.9rem; }
+.step-body p { color: var(--txt2); font-size: 0.86rem; line-height: 1.6; }
+.step-body p + p { margin-top: 8px; }
+
+/* ── Callouts ── */
+.callout {
+  border-radius: 8px;
+  padding: 13px 15px;
+  font-size: 0.83rem;
+  line-height: 1.55;
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+.callout-icon { font-size: 0.9rem; line-height: 1.4; }
+.callout-body { color: var(--txt2); }
+.callout-body strong { display: block; margin-bottom: 3px; }
+.callout.info {
+  background: color-mix(in srgb, var(--blue) 10%, var(--surf));
+  border: 1px solid color-mix(in srgb, var(--blue) 25%, var(--surf));
+  color: var(--blue);
+}
+.callout.info .callout-body { color: var(--txt2); }
+.callout.warn {
+  background: color-mix(in srgb, var(--amber) 10%, var(--surf));
+  border: 1px solid color-mix(in srgb, var(--amber) 30%, var(--surf));
+}
+.callout.warn .callout-body { color: var(--txt2); }
+.callout.policy {
+  background: color-mix(in srgb, var(--red) 8%, var(--surf));
+  border: 1px solid color-mix(in srgb, var(--red) 22%, var(--surf));
+}
+.callout.policy .callout-body { color: var(--txt2); }
+.callout.tip {
+  background: color-mix(in srgb, var(--green) 10%, var(--surf));
+  border: 1px solid color-mix(in srgb, var(--green) 25%, var(--surf));
+}
+.callout.tip .callout-body { color: var(--txt2); }
+
+/* ── Info list ── */
+.info-list { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.info-list li {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px;
+  font-size: 0.86rem;
+  align-items: baseline;
+}
+.info-list li .lk {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--txt4);
+  padding-top: 2px;
+}
+.info-list li .lv { color: var(--txt2); }
+
+/* ── Status pills ── */
+.pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.pill-dot { width: 7px; height: 7px; border-radius: 50%; }
+.pill.pending { background: color-mix(in srgb, var(--amber) 14%, var(--surf)); color: #92400e; border: 1px solid color-mix(in srgb, var(--amber) 35%, var(--surf)); }
+[data-theme="dark"] .pill.pending { color: #fcd34d; }
+@media (prefers-color-scheme: dark) { .pill.pending { color: #fcd34d; } }
+.pill.pending .pill-dot { background: var(--amber); }
+.pill.approved { background: color-mix(in srgb, var(--green) 14%, var(--surf)); color: #1a4d00; border: 1px solid color-mix(in srgb, var(--green) 35%, var(--surf)); }
+[data-theme="dark"] .pill.approved, @media (prefers-color-scheme: dark) { .pill.approved { color: var(--green); } }
+.pill.approved .pill-dot { background: var(--green); }
+.pill.declined { background: color-mix(in srgb, var(--red) 12%, var(--surf)); color: #7f1d1d; border: 1px solid color-mix(in srgb, var(--red) 28%, var(--surf)); }
+[data-theme="dark"] .pill.declined { color: #fca5a5; }
+@media (prefers-color-scheme: dark) { .pill.declined { color: #fca5a5; } }
+.pill.declined .pill-dot { background: var(--red); }
+.pill.cancelled { background: var(--surf2); color: var(--txt3); border: 1px solid var(--bdr); }
+.pill.cancelled .pill-dot { background: var(--txt4); }
+
+/* ── Entitlement table ── */
+.ent-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; margin-top: 12px; }
+.ent-table th {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--txt4);
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--bdr);
+}
+.ent-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--bdr2);
+  color: var(--txt2);
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+.ent-table tr:last-child td { border-bottom: none; }
+.ent-table td strong { color: var(--txt); font-weight: 600; }
+.ent-table .num { text-align: center; color: var(--blue); font-weight: 700; }
+
+/* ── Divider between sections ── */
+.section-gap { height: 1px; background: transparent; margin: 0; }
+
+/* ── Email chips ── */
+.email-row { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.email-chip {
+  background: var(--surf2);
+  border: 1px solid var(--bdr);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+}
+.email-chip .ec-trigger {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--txt4);
+  margin-bottom: 3px;
+}
+.email-chip .ec-subject { color: var(--txt); font-weight: 600; }
+.email-chip .ec-goes-to { color: var(--txt3); font-size: 0.78rem; margin-top: 2px; }
+
+/* ── Inline tag ── */
+.tag {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  vertical-align: middle;
+  margin-left: 3px;
+}
+.tag-blue { background: color-mix(in srgb, var(--blue) 15%, var(--surf)); color: var(--blue); }
+.tag-green { background: color-mix(in srgb, var(--green) 15%, var(--surf)); color: #166534; }
+[data-theme="dark"] .tag-green { color: var(--green); }
+@media (prefers-color-scheme: dark) { .tag-green { color: var(--green); } }
+.tag-purple { background: color-mix(in srgb, var(--purple) 15%, var(--surf)); color: #5b21b6; }
+[data-theme="dark"] .tag-purple { color: var(--purple); }
+@media (prefers-color-scheme: dark) { .tag-purple { color: var(--purple); } }
+
+/* ── ToC ── */
+.toc {
+  background: var(--surf);
+  border: 1px solid var(--bdr);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 28px;
+}
+.toc-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--txt4);
+  margin-bottom: 10px;
+}
+.toc-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.toc-list li a {
+  font-size: 0.84rem;
+  color: var(--txt2);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  transition: color 0.15s;
+}
+.toc-list li a:hover { color: var(--blue); }
+.toc-list li a .toc-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--bdr2); flex-shrink: 0;
+}
+
+/* ── Horizontal rule between major sub-sections ── */
+.sub-divider {
+  border: none;
+  border-top: 1px dashed var(--bdr);
+  margin: 22px 0;
+}
+
+/* ── Quick ref bar ── */
+.quick-ref {
+  background: color-mix(in srgb, var(--blue) 8%, var(--surf));
+  border: 1px solid color-mix(in srgb, var(--blue) 20%, var(--surf));
+  border-radius: 8px;
+  padding: 13px 16px;
+  margin-top: 14px;
+  font-size: 0.84rem;
+  color: var(--txt2);
+}
+.quick-ref strong { color: var(--blue); }
+
+@media (max-width: 600px) {
+  .site-header { padding: 14px 16px; flex-wrap: wrap; gap: 8px; }
+  .header-doc-title { border-left: none; padding-left: 0; }
+  .header-meta { display: none; }
+  .role-tabs { padding: 0 8px; }
+  .role-tab { padding: 0 12px; font-size: 0.76rem; }
+  .page-wrap { padding: 24px 14px 60px; }
+  .info-list li { grid-template-columns: 1fr; gap: 2px; }
+  .ent-table { display: block; overflow-x: auto; }
+}
+</style>
+
+<header class="site-header">
+  <div>
+    <div class="header-brand">Peachtree <span>Roofing & Exteriors</span></div>
+  </div>
+  <div class="header-doc-title">PTO System — Staff Guide</div>
+  <div class="header-meta">Employee Portal<br>v2025 · For internal use</div>
+</header>
+
+<nav class="role-tabs" role="tablist">
+  <button class="role-tab active" data-role="emp" role="tab" aria-selected="true" onclick="switchTab('emp')">
+    <span class="role-dot"></span>Employees
+  </button>
+  <button class="role-tab" data-role="mgr" role="tab" aria-selected="false" onclick="switchTab('mgr')">
+    <span class="role-dot"></span>Managers
+  </button>
+  <button class="role-tab" data-role="adm" role="tab" aria-selected="false" onclick="switchTab('adm')">
+    <span class="role-dot"></span>Admins
+  </button>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     EMPLOYEE PANEL
+══════════════════════════════════════════ -->
+<div class="panel active" id="panel-emp">
+<div class="page-wrap">
+
+  <div class="part-heading">
+    <div class="part-icon emp">&#128197;</div>
+    <div>
+      <div class="role-badge badge-emp">Employee Guide</div>
+      <div class="part-title">Managing Your PTO</div>
+      <div class="part-subtitle">Submit requests, track status, and understand your balance</div>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">In this section</div>
+    <ul class="toc-list">
+      <li><a href="#e-access"><span class="toc-dot"></span>Accessing the PTO Tab</a></li>
+      <li><a href="#e-balance"><span class="toc-dot"></span>Reading Your Balance Dashboard</a></li>
+      <li><a href="#e-submit"><span class="toc-dot"></span>Submitting a PTO Request</a></li>
+      <li><a href="#e-track"><span class="toc-dot"></span>Tracking Your Requests</a></li>
+      <li><a href="#e-cancel"><span class="toc-dot"></span>Cancelling a Request</a></li>
+      <li><a href="#e-policy"><span class="toc-dot"></span>Company Policy Summary</a></li>
+      <li><a href="#e-holidays"><span class="toc-dot"></span>Observed Holidays</a></li>
+    </ul>
+  </div>
+
+  <!-- ACCESS -->
+  <div class="guide-section" id="e-access">
+    <div class="section-eyebrow">Getting started</div>
+    <div class="section-title">Accessing the PTO Tab</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num emp">1</div>
+        <div class="step-body">
+          <strong>Sign in to the Employee Portal</strong>
+          <p>Go to <strong>peachtreerestorations.com/employeeportal</strong> and click <em>Sign in with Google</em>. Use your work email address — @peachtreerestorations.com for Peachtree Roofing & Exteriors employees, or @nickgipsonpa.com if you work for NGPA.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num emp">2</div>
+        <div class="step-body">
+          <strong>Click the PTO tab</strong>
+          <p>In the main navigation row, click <strong>PTO</strong>. The tab will load your balance dashboard and recent requests automatically.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num emp">3</div>
+        <div class="step-body">
+          <strong>If you don't see the PTO tab</strong>
+          <p>Your account may not yet be enrolled in the PTO program. Contact HR or your manager to get added. Once enrolled, the tab appears on your next login.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BALANCE DASHBOARD -->
+  <div class="guide-section" id="e-balance">
+    <div class="section-eyebrow">Dashboard overview</div>
+    <div class="section-title">Reading Your Balance Dashboard</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:16px;">When you open the PTO tab, the top area shows your current time-off position at a glance.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num emp">&#9679;</div>
+        <div class="step-body">
+          <strong>Stat cards (top row)</strong>
+          <p><strong>Available</strong> — vacation days you can still use this year (includes any gifted or waived-insurance days added by your manager).<br>
+          <strong>Used</strong> — vacation days already taken and approved.<br>
+          <strong>Pending</strong> — total days across requests not yet approved by a manager.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num emp">&#9679;</div>
+        <div class="step-body">
+          <strong>Balance breakdown bars</strong>
+          <p>Each leave type has its own bar showing <em>[Used] / [Total] days</em>:</p>
+          <ul style="margin-top:6px;padding-left:16px;color:var(--txt2);font-size:0.86rem;display:flex;flex-direction:column;gap:5px;">
+            <li><span class="tag tag-blue">Vacation</span> — your main paid time-off bucket. A <span style="color:var(--green);font-weight:700">(+N gifted)</span> tag appears if your manager has added gifted days; a <span style="color:var(--purple);font-weight:700">(+N waived ins)</span> tag appears for waived-insurance days.</li>
+            <li><span style="color:#f59e0b;font-weight:700">Sick</span> — W2 employees receive 3 sick days per year. This bar only appears for W2 employees.</li>
+            <li><span style="color:#ef4444;font-weight:700">Bereavement</span> — W2 employees receive 3 bereavement days per year. 1099 contractors do not have this category.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num emp">&#9679;</div>
+        <div class="step-body">
+          <strong>Two-week calendar strip</strong>
+          <p>Below the bars, a 14-business-day strip highlights any days you have approved or pending PTO, so you can see at a glance how your upcoming schedule looks.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="sub-divider">
+
+    <div style="font-size:0.84rem;font-weight:700;color:var(--txt);margin-bottom:10px;">Vacation day entitlements by type and tenure</div>
+    <div style="overflow-x:auto;">
+    <table class="ent-table">
+      <thead>
+        <tr>
+          <th>Employee type</th>
+          <th>Tenure</th>
+          <th>Vacation days</th>
+          <th>Sick</th>
+          <th>Bereavement</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>W2</strong></td><td>Year 1</td><td class="num">10</td><td class="num">3</td><td class="num">3</td></tr>
+        <tr><td><strong>W2</strong></td><td>After 1 year</td><td class="num">15</td><td class="num">3</td><td class="num">3</td></tr>
+        <tr><td><strong>W2</strong></td><td>After 3 years</td><td class="num">17</td><td class="num">3</td><td class="num">3</td></tr>
+        <tr><td><strong>W2</strong></td><td>After 5 years</td><td class="num">22</td><td class="num">3</td><td class="num">3</td></tr>
+        <tr><td><strong>1099</strong></td><td>All tenures</td><td style="text-align:center;color:var(--txt3);font-style:italic;">As contracted</td><td style="text-align:center;color:var(--txt4)">—</td><td style="text-align:center;color:var(--txt4)">—</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="callout tip" style="margin-top:12px;">
+      <div class="callout-icon">&#8617;</div>
+      <div class="callout-body"><strong>Rollover</strong> Up to 5 unused vacation days carry forward to the next calendar year automatically. Anything above that does not roll over.</div>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="guide-section" id="e-submit">
+    <div class="section-eyebrow">Making a request</div>
+    <div class="section-title">Submitting a PTO Request</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num emp">1</div>
+        <div class="step-body">
+          <strong>Click "+ Request Time Off"</strong>
+          <p>In the My PTO panel, click the blue <em>+ Request Time Off</em> button. The request form expands below it.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num emp">2</div>
+        <div class="step-body">
+          <strong>Select a leave type</strong>
+          <p>Choose <strong>Vacation</strong> or <strong>Bereavement</strong> from the dropdown. Sick days are not submitted through the portal — speak with your manager or HR directly.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num emp">3</div>
+        <div class="step-body">
+          <strong>Set your start and end dates</strong>
+          <p>Pick the first and last dates of your time off. As soon as both dates are filled in, the system calculates and shows the number of business days automatically, excluding weekends and observed holidays.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num emp">4</div>
+        <div class="step-body">
+          <strong>Mark any half days (optional)</strong>
+          <p>If you'll be working a partial day on any day in your range, a <em>Half Days</em> section appears automatically. Check the box next to any day you want as a half day, then choose the shift window — <strong>9am–1pm</strong> (morning off) or <strong>1pm–5pm</strong> (afternoon off). You can mark multiple days as half days. Each half day counts as 0.5 instead of 1.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num emp">5</div>
+        <div class="step-body">
+          <strong>Add notes (optional)</strong>
+          <p>Use the Notes field for anything relevant — travel context, coverage plans, or a brief reason. This text is visible to your manager in the approval email and card.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num emp">6</div>
+        <div class="step-body">
+          <strong>Click "Submit Request"</strong>
+          <p>The request is saved and a notification email is sent to your manager automatically. You'll see the new request appear in the <em>Recent Requests</em> table with a <span class="pill pending" style="display:inline-flex;vertical-align:middle;padding:2px 8px;font-size:0.7rem;"><span class="pill-dot"></span> Pending</span> status.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warn" style="margin-top:18px;">
+      <div class="callout-icon">&#9888;</div>
+      <div class="callout-body">
+        <strong>2 or more consecutive sick days</strong>
+        If your manager manually records two or more consecutive sick days on your behalf, company policy requires a doctor's note. HR will follow up directly.
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACKING -->
+  <div class="guide-section" id="e-track">
+    <div class="section-eyebrow">After you submit</div>
+    <div class="section-title">Tracking Your Requests</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:14px;">The <em>Recent Requests</em> table shows all your submissions. Each row shows the type, date range, number of days, and current status.</p>
+    <div class="pill-row">
+      <span class="pill pending"><span class="pill-dot"></span>Pending</span>
+      <span class="pill approved"><span class="pill-dot"></span>Approved</span>
+      <span class="pill declined"><span class="pill-dot"></span>Declined</span>
+      <span class="pill cancelled"><span class="pill-dot"></span>Cancelled</span>
+    </div>
+    <ul class="info-list" style="margin-top:16px;">
+      <li><span class="lk">Pending</span><span class="lv">Your request is waiting for manager action. Your balance is not yet reduced.</span></li>
+      <li><span class="lk">Approved</span><span class="lv">Your manager approved the request. Your used-day count is updated and a Google Calendar event is created on the company PTO calendar.</span></li>
+      <li><span class="lk">Declined</span><span class="lv">Your manager declined the request. You receive an email with the reason (if one was given). No balance change occurs.</span></li>
+      <li><span class="lk">Cancelled</span><span class="lv">You or an admin cancelled the request. If it was approved, the calendar event is removed and your used-day count is reversed.</span></li>
+    </ul>
+    <div class="callout info" style="margin-top:14px;">
+      <div class="callout-icon">&#8505;</div>
+      <div class="callout-body">You receive an email notification any time your request moves to Approved, Declined, or Cancelled.</div>
+    </div>
+  </div>
+
+  <!-- CANCEL -->
+  <div class="guide-section" id="e-cancel">
+    <div class="section-eyebrow">Changing your plans</div>
+    <div class="section-title">Cancelling a Request</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num emp">1</div>
+        <div class="step-body">
+          <strong>Find the request in Recent Requests</strong>
+          <p>In the My PTO panel, locate the request you want to cancel. A <em>Cancel</em> button appears on the row if the request is <span class="pill pending" style="display:inline-flex;vertical-align:middle;padding:1px 7px;font-size:0.7rem;"><span class="pill-dot"></span>Pending</span> or <span class="pill approved" style="display:inline-flex;vertical-align:middle;padding:1px 7px;font-size:0.7rem;"><span class="pill-dot"></span>Approved</span> and the start date has not yet passed.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num emp">2</div>
+        <div class="step-body">
+          <strong>Click Cancel and confirm</strong>
+          <p>A confirmation dialog shows the type, dates, and day count. Click <em>Yes, Cancel Request</em> to proceed, or <em>Keep My Request</em> to go back.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num emp">3</div>
+        <div class="step-body">
+          <strong>What happens next</strong>
+          <p>The request status changes to Cancelled. If it was approved: the Google Calendar event is deleted and your used-day count is reduced by the number of days. Both you and your manager receive a cancellation confirmation email.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout warn" style="margin-top:14px;">
+      <div class="callout-icon">&#9888;</div>
+      <div class="callout-body">You cannot cancel a request whose start date has already passed. If you need to adjust a past-dated request, contact an admin.</div>
+    </div>
+  </div>
+
+  <!-- POLICY -->
+  <div class="guide-section" id="e-policy">
+    <div class="section-eyebrow">Rules to know</div>
+    <div class="section-title">Company Policy Summary</div>
+    <ul class="info-list">
+      <li>
+        <span class="lk">Advance notice</span>
+        <span class="lv">Requests should be submitted at least <strong>two weeks in advance</strong>. Requests with less notice may be declined unless HR pre-approves an exception.</span>
+      </li>
+      <li>
+        <span class="lk">Blackout dates</span>
+        <span class="lv">Quarterly all-hands meeting days are blackout dates. Requests covering those days require prior approval from HR before submission.</span>
+      </li>
+      <li>
+        <span class="lk">Weekends & holidays</span>
+        <span class="lv">Weekend days and observed company holidays are automatically excluded from your day count — you are not charged PTO for them.</span>
+      </li>
+      <li>
+        <span class="lk">Rollover cap</span>
+        <span class="lv">Up to 5 unused vacation days carry forward to January 1 of the next year. Unused days above that do not roll over.</span>
+      </li>
+      <li>
+        <span class="lk">Gifted / Waived days</span>
+        <span class="lv">Your manager or HR may add extra days to your vacation bucket as <em>Gifted</em> (a bonus) or <em>Waived Insurance</em> (given in exchange for waiving an insurance option). Both types show in your balance as additional available days.</span>
+      </li>
+      <li>
+        <span class="lk">Bereavement</span>
+        <span class="lv">W2 employees may request up to 3 bereavement days per year. Submit through the portal using the Bereavement type. 1099 contractors are not eligible for bereavement leave.</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- HOLIDAYS -->
+  <div class="guide-section" id="e-holidays">
+    <div class="section-eyebrow">Observed holidays — excluded from PTO counts</div>
+    <div class="section-title">Company Holidays</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:14px;">These dates are treated as non-working days and are never counted against your PTO balance:</p>
+    <ul style="columns:2;gap:24px;padding-left:18px;color:var(--txt2);font-size:0.86rem;line-height:2;">
+      <li>New Year's Day</li>
+      <li>New Year's Day (observed)</li>
+      <li>Good Friday</li>
+      <li>Memorial Day</li>
+      <li>Independence Day (observed)</li>
+      <li>Labor Day</li>
+      <li>Thanksgiving Day</li>
+      <li>Day after Thanksgiving</li>
+      <li>Christmas Eve</li>
+      <li>Christmas Day</li>
+      <li>New Year's Eve</li>
+    </ul>
+    <div class="callout info" style="margin-top:14px;">
+      <div class="callout-icon">&#8505;</div>
+      <div class="callout-body">When you enter a date range in the request form, the system shows which holidays fall within it and excludes them from the day count automatically.</div>
+    </div>
+  </div>
+
+</div><!-- /page-wrap emp -->
+</div><!-- /panel-emp -->
+
+
+<!-- ══════════════════════════════════════════
+     MANAGER PANEL
+══════════════════════════════════════════ -->
+<div class="panel" id="panel-mgr">
+<div class="page-wrap">
+
+  <div class="part-heading">
+    <div class="part-icon mgr">&#9989;</div>
+    <div>
+      <div class="role-badge badge-mgr">Manager Guide</div>
+      <div class="part-title">Approving & Tracking Team Requests</div>
+      <div class="part-subtitle">Review pending requests, approve or decline, and monitor your team's schedule</div>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">In this section</div>
+    <ul class="toc-list">
+      <li><a href="#m-access"><span class="toc-dot"></span>Accessing Team Requests</a></li>
+      <li><a href="#m-approve"><span class="toc-dot"></span>Approving a Request</a></li>
+      <li><a href="#m-decline"><span class="toc-dot"></span>Declining a Request</a></li>
+      <li><a href="#m-overview"><span class="toc-dot"></span>Team Overview Table</a></li>
+      <li><a href="#m-emails"><span class="toc-dot"></span>Automated Emails Reference</a></li>
+    </ul>
+  </div>
+
+  <!-- ACCESS -->
+  <div class="guide-section" id="m-access">
+    <div class="section-eyebrow">Getting started</div>
+    <div class="section-title">Accessing Team Requests</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num mgr">1</div>
+        <div class="step-body">
+          <strong>Open the PTO tab and click "Team Requests"</strong>
+          <p>If your account has manager permissions, a second subtab — <em>Team Requests</em> — appears next to <em>My PTO</em>. Click it to see your team's pending and recent requests.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num mgr">2</div>
+        <div class="step-body">
+          <strong>If you don't see "Team Requests"</strong>
+          <p>Manager access is configured in the UserPermissions sheet by an admin. Contact HR or an admin to have your role set correctly.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout info" style="margin-top:14px;">
+      <div class="callout-icon">&#8505;</div>
+      <div class="callout-body">You also receive an email notification whenever one of your direct reports submits a new request. The email contains the request details and a link directly to the portal.</div>
+    </div>
+  </div>
+
+  <!-- APPROVE -->
+  <div class="guide-section" id="m-approve">
+    <div class="section-eyebrow">Approving requests</div>
+    <div class="section-title">Approving a Request</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:16px;">Pending requests from your direct reports appear as cards at the top of the Team Requests panel. Each card shows the employee name, leave type, date range, day count, and any notes they added.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num mgr">1</div>
+        <div class="step-body">
+          <strong>Review the request card</strong>
+          <p>Read the type, dates, day count, and notes. Check the Team Overview table below to see if other team members are also out during that period.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num mgr">2</div>
+        <div class="step-body">
+          <strong>Click "Approve"</strong>
+          <p>Click the green <em>Approve</em> button on the card. The system will:</p>
+          <ul style="margin-top:8px;padding-left:16px;color:var(--txt2);font-size:0.86rem;display:flex;flex-direction:column;gap:6px;">
+            <li>Update the request status to <span class="pill approved" style="display:inline-flex;vertical-align:middle;padding:1px 7px;font-size:0.7rem;"><span class="pill-dot"></span>Approved</span></li>
+            <li>Create a Google Calendar event on the company PTO calendar, with the employee's email added as an attendee</li>
+            <li>Deduct the approved days from the employee's used-day count</li>
+            <li>Send the employee a confirmation email</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num mgr">3</div>
+        <div class="step-body">
+          <strong>Watch for a calendar warning</strong>
+          <p>If the company PTO calendar isn't configured, you'll see a yellow warning toast: <em>"Approved, but calendar invite failed."</em> The approval goes through regardless — only the calendar event is affected. Notify an admin if you see this repeatedly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECLINE -->
+  <div class="guide-section" id="m-decline">
+    <div class="section-eyebrow">Declining requests</div>
+    <div class="section-title">Declining a Request</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num mgr">1</div>
+        <div class="step-body">
+          <strong>Click "Decline" on the request card</strong>
+          <p>The portal will prompt you with a text field to enter a reason. This is optional — you may leave it blank.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num mgr">2</div>
+        <div class="step-body">
+          <strong>Confirm the decline</strong>
+          <p>Click OK in the prompt. The request status changes to <span class="pill declined" style="display:inline-flex;vertical-align:middle;padding:1px 7px;font-size:0.7rem;"><span class="pill-dot"></span>Declined</span>. The employee receives an email with your reason included (if you provided one). No balance change is made.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num mgr">3</div>
+        <div class="step-body">
+          <strong>To abort the decline</strong>
+          <p>Click Cancel in the reason prompt. The request stays in Pending status — nothing changes.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout warn" style="margin-top:14px;">
+      <div class="callout-icon">&#9888;</div>
+      <div class="callout-body">Once declined, the employee will need to submit a new request if they want to re-request different dates. Declined requests cannot be converted to approved directly.</div>
+    </div>
+  </div>
+
+  <!-- TEAM OVERVIEW -->
+  <div class="guide-section" id="m-overview">
+    <div class="section-eyebrow">Visibility tools</div>
+    <div class="section-title">Team Overview Table</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:14px;">Below the pending cards, the Team Overview table shows a snapshot of your direct reports' time-off status:</p>
+    <ul class="info-list">
+      <li><span class="lk">Employee</span><span class="lv">Name and role of each team member</span></li>
+      <li><span class="lk">Days Used</span><span class="lv">Vacation days taken so far this year</span></li>
+      <li><span class="lk">Days Left</span><span class="lv">Remaining vacation balance (including gifted and waived days)</span></li>
+      <li><span class="lk">Next PTO</span><span class="lv">The start date of their next approved time-off block</span></li>
+      <li><span class="lk">Status</span><span class="lv">A yellow <span class="pill pending" style="display:inline-flex;vertical-align:middle;padding:1px 7px;font-size:0.7rem;"><span class="pill-dot"></span>Pending</span> badge if they have an open request awaiting approval; otherwise "All clear"</span></li>
+    </ul>
+    <div class="callout tip" style="margin-top:14px;">
+      <div class="callout-icon">&#128065;</div>
+      <div class="callout-body">The Recent Requests table also has a <strong>Your Team</strong> filter so you can scan all open and historical requests from your direct reports in one view.</div>
+    </div>
+  </div>
+
+  <!-- EMAILS -->
+  <div class="guide-section" id="m-emails">
+    <div class="section-eyebrow">Email notifications</div>
+    <div class="section-title">Automated Emails Reference</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:14px;">These are the automated emails that flow between employees and managers:</p>
+    <div class="email-row">
+      <div class="email-chip">
+        <div class="ec-trigger">Trigger: employee submits request</div>
+        <div class="ec-subject">PTO Request: [Name] - [Type] ([N] days)</div>
+        <div class="ec-goes-to">&#8594; To: Manager — includes type, dates, day count, notes, and portal link</div>
+      </div>
+      <div class="email-chip">
+        <div class="ec-trigger">Trigger: manager approves</div>
+        <div class="ec-subject">PTO Approved: [Type] [Start] - [End]</div>
+        <div class="ec-goes-to">&#8594; To: Employee — confirms approval with type, dates, and day count</div>
+      </div>
+      <div class="email-chip">
+        <div class="ec-trigger">Trigger: manager declines</div>
+        <div class="ec-subject">PTO Declined: [Type] [Start]</div>
+        <div class="ec-goes-to">&#8594; To: Employee — includes decline reason if provided</div>
+      </div>
+      <div class="email-chip">
+        <div class="ec-trigger">Trigger: employee cancels request</div>
+        <div class="ec-subject">PTO Cancelled: [Name] - [Type] [Start]</div>
+        <div class="ec-goes-to">&#8594; To: Manager — notifies you that the employee withdrew the request</div>
+      </div>
+    </div>
+    <div class="callout info" style="margin-top:14px;">
+      <div class="callout-icon">&#8505;</div>
+      <div class="callout-body">All emails are sent from <strong>pto@peachtreerestorations.com</strong>. This is a no-reply address — do not reply to these emails. Contact your manager or HR directly with any questions.</div>
+    </div>
+  </div>
+
+</div><!-- /page-wrap mgr -->
+</div><!-- /panel-mgr -->
+
+
+<!-- ══════════════════════════════════════════
+     ADMIN PANEL
+══════════════════════════════════════════ -->
+<div class="panel" id="panel-adm">
+<div class="page-wrap">
+
+  <div class="part-heading">
+    <div class="part-icon adm">&#9881;</div>
+    <div>
+      <div class="role-badge badge-adm">Admin Guide</div>
+      <div class="part-title">Managing Balances & Records</div>
+      <div class="part-subtitle">Load, edit, and sync PTO balances; run rollovers; add records; gift extra days</div>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">In this section</div>
+    <ul class="toc-list">
+      <li><a href="#a-access"><span class="toc-dot"></span>Accessing the Manage Balances Tab</a></li>
+      <li><a href="#a-load"><span class="toc-dot"></span>Loading & Reading Balances</a></li>
+      <li><a href="#a-edit"><span class="toc-dot"></span>Editing a Balance Row</a></li>
+      <li><a href="#a-gift"><span class="toc-dot"></span>Gifting Extra Days / Waived Insurance</a></li>
+      <li><a href="#a-add-emp"><span class="toc-dot"></span>Adding an Employee</a></li>
+      <li><a href="#a-sync"><span class="toc-dot"></span>Sync All</a></li>
+      <li><a href="#a-record"><span class="toc-dot"></span>Adding a Manual Record</a></li>
+      <li><a href="#a-rollover"><span class="toc-dot"></span>Running Year-End Rollover</a></li>
+    </ul>
+  </div>
+
+  <!-- ACCESS -->
+  <div class="guide-section" id="a-access">
+    <div class="section-eyebrow">Getting started</div>
+    <div class="section-title">Accessing the Manage Balances Tab</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num adm">1</div>
+        <div class="step-body">
+          <strong>Open PTO and click "Manage Balances"</strong>
+          <p>Admins see a third subtab labeled <em>Manage Balances</em>. This tab is not visible to regular employees or managers.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num adm">2</div>
+        <div class="step-body">
+          <strong>Select the year</strong>
+          <p>Use the year dropdown at the top of the panel to choose which year's balances you want to work with. The system defaults to the current year.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num adm">3</div>
+        <div class="step-body">
+          <strong>Click "Load"</strong>
+          <p>Click the <em>Load</em> button to pull balances from the PTOBalances Google Sheet. The balance table will populate below.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOAD & READ -->
+  <div class="guide-section" id="a-load">
+    <div class="section-eyebrow">Understanding what you see</div>
+    <div class="section-title">Loading & Reading Balances</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:14px;">The balance table shows one row per employee per year. Each row contains:</p>
+    <ul class="info-list">
+      <li><span class="lk">Employee</span><span class="lv">Email address and name (from UserPermissions)</span></li>
+      <li><span class="lk">Vac Total</span><span class="lv">Total vacation days allocated for the year (editable)</span></li>
+      <li><span class="lk">Vac Used</span><span class="lv">Vacation days approved and taken (editable)</span></li>
+      <li><span class="lk">Sick Total / Used</span><span class="lv">Sick day allocation and usage (editable)</span></li>
+      <li><span class="lk">Brvmt Total / Used</span><span class="lv">Bereavement allocation and usage (editable)</span></li>
+      <li><span class="lk">Gifted <span class="tag tag-green">green</span></span><span class="lv">Extra vacation days gifted by management — read-only display; use the + Gift button to change</span></li>
+      <li><span class="lk">Waived Ins <span class="tag tag-purple">purple</span></span><span class="lv">Vacation days awarded in exchange for waiving insurance — read-only display; use + Gift button</span></li>
+      <li><span class="lk">Entitled</span><span class="lv">Calculated from hire date and employee type. If it doesn't match Vac Total, an <em>Apply</em> button appears to update the row.</span></li>
+    </ul>
+  </div>
+
+  <!-- EDIT -->
+  <div class="guide-section" id="a-edit">
+    <div class="section-eyebrow">Direct edits</div>
+    <div class="section-title">Editing a Balance Row</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num adm">1</div>
+        <div class="step-body">
+          <strong>Click into any editable field on the row</strong>
+          <p>The Vac Total, Vac Used, Sick Total, Sick Used, Brvmt Total, and Brvmt Used fields are all directly editable inline. Gifted and Waived Ins are display-only here — use the <em>+ Gift</em> button instead.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num adm">2</div>
+        <div class="step-body">
+          <strong>Make your changes, then click "Save"</strong>
+          <p>Click the <em>Save</em> button on that row. The values are saved immediately. A success toast confirms the write.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num adm">3</div>
+        <div class="step-body">
+          <strong>If Entitled doesn't match Vac Total</strong>
+          <p>An <em>Apply</em> button appears next to the Entitled value. Clicking it sets Vac Total to the calculated entitlement for that employee's tenure and type, then saves the row.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout warn" style="margin-top:14px;">
+      <div class="callout-icon">&#9888;</div>
+      <div class="callout-body">Direct edits to Used counts should match approved requests in the system. If they drift out of sync, use the <em>Sync All</em> function to recalculate.</div>
+    </div>
+  </div>
+
+  <!-- GIFT -->
+  <div class="guide-section" id="a-gift">
+    <div class="section-eyebrow">Adding extra days</div>
+    <div class="section-title">Gifting Extra Days / Waived Insurance</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:16px;">The <em>+ Gift</em> button on each row opens the <strong>Add Extra Days</strong> modal. Use this any time you need to add days to an employee's vacation bucket outside of their standard entitlement.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num adm">1</div>
+        <div class="step-body">
+          <strong>Click "+ Gift" on the employee's row</strong>
+          <p>The Add Extra Days modal opens, pre-labeled with the employee's name.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num adm">2</div>
+        <div class="step-body">
+          <strong>Choose the type of extra days</strong>
+          <p>Two radio options appear:</p>
+          <ul style="margin-top:6px;padding-left:16px;color:var(--txt2);font-size:0.86rem;display:flex;flex-direction:column;gap:5px;">
+            <li><strong>Gifted</strong> — a bonus day or days from management (e.g., a performance reward or appreciation). Shows as a <span style="color:var(--green);font-weight:700">(+N gifted)</span> tag on the employee's balance bar.</li>
+            <li><strong>Waived Insurance</strong> — days given in exchange for the employee opting out of an insurance benefit. Shows as a <span style="color:var(--purple);font-weight:700">(+N waived ins)</span> tag on the employee's balance bar.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num adm">3</div>
+        <div class="step-body">
+          <strong>Enter the number of days and confirm</strong>
+          <p>Enter the days to add (you can use 0.5 increments). Click <em>Confirm</em>. The system adds the value on top of any existing gifted or waived days — it does not replace them. The employee's available day count updates immediately.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout info" style="margin-top:14px;">
+      <div class="callout-icon">&#8505;</div>
+      <div class="callout-body">Both Gifted and Waived Insurance days are included in the employee's <strong>Available</strong> total and in the rollover calculation at year end. They count exactly like regular vacation days from the employee's perspective.</div>
+    </div>
+  </div>
+
+  <!-- ADD EMPLOYEE -->
+  <div class="guide-section" id="a-add-emp">
+    <div class="section-eyebrow">Onboarding</div>
+    <div class="section-title">Adding an Employee to a Year</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num adm">1</div>
+        <div class="step-body">
+          <strong>Click "+ Add Employee"</strong>
+          <p>A prompt asks for the employee's email address. Enter their full @peachtreerestorations.com address and click OK.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num adm">2</div>
+        <div class="step-body">
+          <strong>The system creates a balance row automatically</strong>
+          <p>Vacation entitlement is calculated from the employee's hire date and type (W2 or 1099) as recorded in UserPermissions. W2 employees also get 3 sick days and 3 bereavement days. Used counts start at 0.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout warn" style="margin-top:14px;">
+      <div class="callout-icon">&#9888;</div>
+      <div class="callout-body">The employee must already be set up in the system with PTO eligibility enabled before you add them here. If they are missing or marked ineligible, their balance will not be created correctly. Contact the portal administrator if needed.</div>
+    </div>
+  </div>
+
+  <!-- SYNC ALL -->
+  <div class="guide-section" id="a-sync">
+    <div class="section-eyebrow">Bulk onboarding</div>
+    <div class="section-title">Sync All</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:14px;"><em>Sync All</em> is a one-click way to ensure every eligible employee has a balance entry for the selected year. Use it at the start of a new year or any time you've added multiple employees to the system.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num adm">1</div>
+        <div class="step-body">
+          <strong>Select the target year and click "Sync All"</strong>
+          <p>The system reads all PTO-eligible employees and compares them against the selected year's balances.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num adm">2</div>
+        <div class="step-body">
+          <strong>Missing employees are added automatically</strong>
+          <p>Any employee who doesn't yet have a balance row for the selected year gets one created with their correct entitlement. Employees who already have a row are left completely unchanged.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout tip" style="margin-top:14px;">
+      <div class="callout-icon">&#10003;</div>
+      <div class="callout-body">Sync All is safe to run at any time. It never overwrites existing data — it only fills in gaps.</div>
+    </div>
+  </div>
+
+  <!-- ADD RECORD -->
+  <div class="guide-section" id="a-record">
+    <div class="section-eyebrow">Manual entries</div>
+    <div class="section-title">Adding a Manual Record</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:14px;">Use <em>+ Add Record</em> when you need to log a PTO event that didn't go through the normal employee submission flow — for example, recording retroactive sick days or a pre-approved verbal request. Note that this creates a request record but does <strong>not</strong> automatically adjust the balance; adjust the balance separately if needed.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num adm">1</div>
+        <div class="step-body">
+          <strong>Click "+ Add Record" (green border button)</strong>
+          <p>The Add Record modal opens.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num adm">2</div>
+        <div class="step-body">
+          <strong>Fill in the fields</strong>
+          <ul style="margin-top:6px;padding-left:16px;color:var(--txt2);font-size:0.86rem;display:flex;flex-direction:column;gap:4px;">
+            <li><strong>Employee</strong> — dropdown of all PTO-eligible staff</li>
+            <li><strong>Type</strong> — Vacation or Bereavement</li>
+            <li><strong>Start Date / End Date</strong> — date range of the event</li>
+            <li><strong>Half day start / Half day end</strong> — checkboxes for partial-day events</li>
+            <li><strong>Status</strong> — Approved or Pending</li>
+            <li><strong>Notes</strong> — any context for the record</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num adm">3</div>
+        <div class="step-body">
+          <strong>Click "Add Record"</strong>
+          <p>The record is saved. If the status is Approved, manually update the employee's Vac Used or Sick Used in the balance table to reflect the days, then save.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROLLOVER -->
+  <div class="guide-section" id="a-rollover">
+    <div class="section-eyebrow">Year-end process</div>
+    <div class="section-title">Running Year-End Rollover</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:16px;">Run rollover in January once all prior-year requests have been finalized. This creates next-year balances for every employee who has a current-year balance but not yet a next-year one.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num adm">1</div>
+        <div class="step-body">
+          <strong>Select the current year and click "Rollover" (purple border button)</strong>
+          <p>A confirmation dialog tells you exactly what will happen. Click OK to proceed.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num adm">2</div>
+        <div class="step-body">
+          <strong>The system calculates unused days for each employee</strong>
+          <p>Formula: <code style="font-size:0.8rem;background:var(--surf2);padding:1px 5px;border-radius:4px;border:1px solid var(--bdr)">vacTotal + vacGifted + vacWaived - vacUsed</code>. The result is capped at 5 days.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num adm">3</div>
+        <div class="step-body">
+          <strong>Next-year rows are created</strong>
+          <p>Each employee gets a new balance entry for the next year with their correct tenure-based entitlement plus their rollover days. Gifted and Waived Insurance start at 0 for the new year. Employees who already have a next-year balance are skipped.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout policy" style="margin-top:14px;">
+      <div class="callout-icon">&#8505;</div>
+      <div class="callout-body"><strong>Before running rollover</strong> — make sure all prior-year requests are finalized (approved or declined) and all balance edits are saved. Any pending requests that haven't been reviewed will skew the unused-day calculation.</div>
+    </div>
+  </div>
+
+
+</div><!-- /page-wrap adm -->
+</div><!-- /panel-adm -->
+
+<script>
+function switchTab(role) {
+  document.querySelectorAll('.role-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.role === role);
+    t.setAttribute('aria-selected', t.dataset.role === role);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + role).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Smooth scroll for in-page anchor links
+document.addEventListener('click', function(e) {
+  const a = e.target.closest('a[href^="#"]');
+  if (!a) return;
+  const target = document.querySelector(a.getAttribute('href'));
+  if (!target) return;
+  e.preventDefault();
+  const offset = 70; // tab bar height
+  const top = target.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({ top, behavior: 'smooth' });
+});
+</script>
