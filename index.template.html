@@ -10200,6 +10200,7 @@ function ptoToggleReqForm() {
   var open = form.style.display !== 'none';
   form.style.display = open ? 'none' : 'block';
   if (btn) btn.textContent = open ? '+ Request Time Off' : 'Cancel';
+  if (!open) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // -- Admin: toggle between my team and all staff --
