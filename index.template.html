@@ -4394,6 +4394,8 @@ function printDoc() {
             <button class="btn btn-secondary btn-sm" onclick="ptoAdminLoadBalances()">Load</button>
             <button class="btn btn-primary btn-sm" onclick="ptoAdminAddEmployee()">+ Add Employee</button>
             <button class="btn btn-secondary btn-sm" onclick="ptoAdminSyncAll()" title="Add all PTO-eligible employees not yet in this year">Sync All</button>
+            <button class="btn btn-secondary btn-sm" onclick="ptoAdminAddRecord()" title="Add an approved or pending PTO entry for any employee" style="color:#8DC63F;border-color:#8DC63F;">+ Add Record</button>
+            <button class="btn btn-secondary btn-sm" onclick="ptoAdminRunRollover()" title="Carry up to 5 unused vacation days into next year for all employees" style="color:#a78bfa;border-color:#a78bfa;">↻ Rollover</button>
           </div>
         </div>
         <div id="pto-admin-bal-container"><div class="no-results">Select a year and click Load.</div></div>
@@ -4409,6 +4411,49 @@ function printDoc() {
             <div class="btn-row">
               <button class="btn btn-primary" onclick="ptoAdminGiveExtraConfirm()">Add Days</button>
               <button class="btn btn-secondary" onclick="ptoCloseGiveModal()">Cancel</button>
+            </div>
+          </div>
+        <!-- Add Record modal -->
+        <div id="pto-record-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9999;align-items:center;justify-content:center;">
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:28px;width:420px;max-width:95vw;box-shadow:0 8px 30px rgba(0,0,0,0.12);">
+            <h3 style="font-size:0.95rem;color:#1e293b;margin-bottom:4px;font-weight:700;">Add PTO Record</h3>
+            <div style="font-size:0.73rem;color:#64748b;margin-bottom:16px;">Creates a request entry without changing balances — use when balances are already manually set.</div>
+            <div class="grid2" style="gap:10px;margin-bottom:12px;">
+              <div>
+                <label>Employee</label>
+                <select id="pto-rec-email" style="width:100%;"></select>
+              </div>
+              <div>
+                <label>Type</label>
+                <select id="pto-rec-type">
+                  <option value="Vacation">Vacation</option>
+                  <option value="Sick">Sick</option>
+                  <option value="Bereavement">Bereavement</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid2" style="gap:10px;margin-bottom:10px;">
+              <div><label>Start Date</label><input type="date" id="pto-rec-start"></div>
+              <div><label>End Date</label><input type="date" id="pto-rec-end"></div>
+            </div>
+            <div style="display:flex;gap:16px;margin-bottom:12px;font-size:0.8rem;color:#475569;">
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" id="pto-rec-hs"> Half day start</label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" id="pto-rec-he"> Half day end</label>
+            </div>
+            <div style="margin-bottom:12px;">
+              <label>Status</label>
+              <select id="pto-rec-status">
+                <option value="approved">Approved</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
+            <div style="margin-bottom:18px;">
+              <label>Notes (optional)</label>
+              <textarea id="pto-rec-notes" rows="2" style="resize:none;" placeholder="e.g. Pre-approved vacation"></textarea>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="ptoAdminAddRecordConfirm()">Save Record</button>
+              <button class="btn btn-secondary" onclick="ptoCloseRecordModal()">Cancel</button>
             </div>
           </div>
         </div>
@@ -9934,10 +9979,12 @@ function ptoRenderBalance() {
   if (bars) {
     if (!b) { bars.innerHTML = '<div class="no-results">No balance on file.</div>'; return; }
     var types = [
-      { label: 'Vacation',    used: b.vacUsed,  total: vacEffective, color: '#4A90D9', gifted: b.vacGifted },
-      { label: 'Sick',        used: b.sickUsed, total: b.sickTotal,  color: '#f59e0b', gifted: 0 },
-      { label: 'Bereavement', used: b.persUsed, total: b.persTotal,  color: '#ef4444', gifted: 0 }
+      { label: 'Vacation', used: b.vacUsed, total: vacEffective, color: '#4A90D9', gifted: b.vacGifted }
     ];
+    if (ptoMyEmployeeType !== '1099') {
+      types.push({ label: 'Sick',        used: b.sickUsed, total: b.sickTotal, color: '#f59e0b', gifted: 0 });
+      types.push({ label: 'Bereavement', used: b.persUsed, total: b.persTotal, color: '#ef4444', gifted: 0 });
+    }
     bars.innerHTML = types.map(function(t) {
       var pct = t.total > 0 ? Math.min(100, Math.round((t.used / t.total) * 100)) : 0;
       var giftTag = t.gifted > 0 ? ' <span style="color:#8DC63F;font-size:0.62rem;font-weight:700;">(+' + t.gifted + ' gifted)</span>' : '';
@@ -10622,6 +10669,105 @@ function ptoAdminGiveExtraConfirm() {
     showSchedToast('st-success', 'Gifted ' + days + ' vacation day' + (days !== 1 ? 's' : '') + ' to ' + target.name + '.');
     ptoAdminLoadBalances();
   }).catch(function(e) { showSchedToast('st-error', 'Failed: ' + e.message); });
+}
+
+// -- Add Record modal --
+function ptoAdminAddRecord() {
+  // Populate employee dropdown from permsData
+  var sel = document.getElementById('pto-rec-email');
+  if (!sel) return;
+  sel.innerHTML = '';
+  for (var i = 1; i < ptoPermsData.length; i++) {
+    var r = ptoPermsData[i];
+    var email = (r[0] || '').trim().toLowerCase();
+    var name  = (r[2] || '').trim();
+    var elig  = (r[4] || '').trim().toUpperCase() === 'Y';
+    if (email && elig) {
+      var opt = document.createElement('option');
+      opt.value = email;
+      opt.textContent = (name || email) + ' (' + email + ')';
+      sel.appendChild(opt);
+    }
+  }
+  document.getElementById('pto-rec-start').value  = '';
+  document.getElementById('pto-rec-end').value    = '';
+  document.getElementById('pto-rec-hs').checked   = false;
+  document.getElementById('pto-rec-he').checked   = false;
+  document.getElementById('pto-rec-notes').value  = '';
+  document.getElementById('pto-rec-status').value = 'approved';
+  var modal = document.getElementById('pto-record-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function ptoCloseRecordModal() {
+  var modal = document.getElementById('pto-record-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function ptoAdminAddRecordConfirm() {
+  var email  = document.getElementById('pto-rec-email').value;
+  var type   = document.getElementById('pto-rec-type').value;
+  var start  = document.getElementById('pto-rec-start').value;
+  var end    = document.getElementById('pto-rec-end').value;
+  var hs     = document.getElementById('pto-rec-hs').checked;
+  var he     = document.getElementById('pto-rec-he').checked;
+  var status = document.getElementById('pto-rec-status').value;
+  var notes  = (document.getElementById('pto-rec-notes').value || '').trim();
+  if (!email || !start || !end) { showSchedToast('st-error', 'Email, start, and end date are required.'); return; }
+  if (end < start) { showSchedToast('st-error', 'End date must be on or after start date.'); return; }
+  var days = ptoCountWeekdays(start, end, hs, he);
+  if (days <= 0) { showSchedToast('st-error', 'No business days in selected range.'); return; }
+  var mgr = '';
+  for (var i = 1; i < ptoPermsData.length; i++) {
+    if ((ptoPermsData[i][0] || '').trim().toLowerCase() === email) { mgr = (ptoPermsData[i][3] || '').trim().toLowerCase(); break; }
+  }
+  var id   = 'PTO-ADM-' + Date.now();
+  var now  = new Date().toISOString();
+  var row  = [id, email, mgr, type, start, end,
+              hs ? 'TRUE' : 'FALSE', he ? 'TRUE' : 'FALSE',
+              days, notes, status, now, status === 'approved' ? now : '', status === 'approved' ? currentUserEmail : '', ''];
+  ptoCloseRecordModal();
+  showSchedToast('st-info', 'Saving record...');
+  ptoSheetAppend(PTO_REQUESTS_TAB, row).then(function() {
+    showSchedToast('st-success', 'Record added: ' + email + ' · ' + type + ' · ' + days + ' day(s) · ' + status);
+    ptoLoad();
+  }).catch(function(e) { showSchedToast('st-error', 'Failed: ' + e.message); });
+}
+
+// -- Year-end rollover --
+function ptoAdminRunRollover() {
+  var currentYear = new Date().getFullYear();
+  var nextYear    = currentYear + 1;
+  if (!confirm('Run year-end rollover ' + currentYear + ' → ' + nextYear + '?\n\nFor each employee: unused vacation (up to 5 days max) carries into ' + nextYear + '. Employees who already have a ' + nextYear + ' row are skipped.')) return;
+  Promise.all([
+    ptoSheetRead(CRED_GS_PERMS_TAB, 'A:G'),
+    ptoSheetRead(PTO_BALANCES_TAB, 'A:I')
+  ]).then(function(results) {
+    ptoPermsData = results[0];
+    var allBals     = ptoParseBalances(results[1]);
+    var currentBals = allBals.filter(function(b) { return b.year === currentYear; });
+    var nextEmails  = allBals.filter(function(b) { return b.year === nextYear; }).map(function(b) { return b.email; });
+    var chain = Promise.resolve();
+    var added = 0;
+    currentBals.forEach(function(b) {
+      if (nextEmails.indexOf(b.email) !== -1) return;
+      chain = chain.then(function() {
+        var ent      = ptoVacationEntitlement(b.email);
+        var unused   = Math.max(0, b.vacTotal + (b.vacGifted || 0) - b.vacUsed);
+        var rollover = Math.min(unused, 5);
+        var isW2     = ent.label.indexOf('1099') === -1;
+        added++;
+        return ptoSheetAppend(PTO_BALANCES_TAB,
+          [b.email, nextYear, ent.days + rollover, 0, isW2 ? 3 : 0, 0, isW2 ? 3 : 0, 0, 0]);
+      });
+    });
+    return chain.then(function() {
+      showSchedToast('st-success', 'Rollover complete — ' + added + ' employee(s) added for ' + nextYear + ' (year input set to ' + nextYear + ')');
+      var yi = document.getElementById('pto-admin-year');
+      if (yi) yi.value = nextYear;
+      ptoAdminLoadBalances();
+    });
+  }).catch(function(e) { showSchedToast('st-error', 'Rollover failed: ' + e.message); });
 }
 
 // -- PTO subtab switching + modal outside-click close --
