@@ -10201,8 +10201,11 @@ function ptoRenderMyRequests() {
       if (r.halfStart) half.push('½ start');
       if (r.halfEnd)   half.push('½ end');
       var halfStr = half.length ? ' <span style="color:#475569;font-size:0.68rem;">(' + half.join(', ') + ')</span>' : '';
-      var isMine    = r.email.toLowerCase() === currentUserEmail.toLowerCase();
-      var canCancel = (r.status === 'pending' || r.status === 'approved') && isMine;
+      var isMine      = r.email.toLowerCase() === currentUserEmail.toLowerCase();
+      var today       = new Date().toISOString().slice(0, 10);
+      var startPassed = r.start < today;
+      var canCancel   = (r.status === 'pending' || r.status === 'approved') && isMine &&
+                        (!startPassed || currentUserRole === 'admin');
       return '<tr>' +
         (showWho ? '<td style="color:#1e293b;font-weight:600;">' + ptoEsc(ptoDisplayName(r.email)) + '</td>' : '') +
         '<td style="' + (!showWho ? 'color:#1e293b;font-weight:600;' : '') + '">' + ptoEsc(r.type) + '</td>' +
@@ -10622,6 +10625,11 @@ function ptoCancelRequest(id) {
   if (!confirm('Cancel this PTO request?')) return;
   showSchedToast('st-info', 'Cancelling...');
   ptoFindRequest(id).then(function(req) {
+    var today = new Date().toISOString().slice(0, 10);
+    if (req.start < today && currentUserRole !== 'admin') {
+      showSchedToast('st-error', 'This request has already started and cannot be cancelled. Contact an admin.');
+      return Promise.reject('past');
+    }
     var now = new Date().toISOString();
     var wasApproved = req.status === 'approved';
     var updated = [req.id, req.email, req.managerEmail, req.type, req.start, req.end,
