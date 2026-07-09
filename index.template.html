@@ -9837,12 +9837,12 @@ function ptoCreateCalEvent(employeeName, employeeEmail, type, startDate, endDate
   var endStr = endEx.toISOString().slice(0, 10);
 
   // Build descriptive title
-  var dateRange = startDate === endDate ? ptoDateShort(startDate) : ptoDateShort(startDate) + '–' + ptoDateShort(endDate);
+  var dateRange = startDate === endDate ? ptoDateShort(startDate) : ptoDateShort(startDate) + ' - ' + ptoDateShort(endDate);
   var halfSuffix = '';
-  if (halfStart && halfEnd) halfSuffix = ' (both ½ days)';
-  else if (halfStart) halfSuffix = ' (first day ½)';
-  else if (halfEnd)   halfSuffix = ' (last day ½)';
-  var title = employeeName + ' — ' + type + ' | ' + dateRange + halfSuffix;
+  if (halfStart && halfEnd) halfSuffix = ' (both half days)';
+  else if (halfStart) halfSuffix = ' (first day half)';
+  else if (halfEnd)   halfSuffix = ' (last day half)';
+  var title = employeeName + ' - ' + type + ' | ' + dateRange + halfSuffix;
 
   var attendees = employeeEmail ? [{ email: employeeEmail }] : [];
 
