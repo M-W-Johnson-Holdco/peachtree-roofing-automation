@@ -4358,8 +4358,16 @@ function printDoc() {
           </div>
           <div id="pto-day-count-preview" class="pto-day-preview"></div>
           <div style="margin-top:12px;margin-bottom:14px;">
-            <label>Notes (optional)</label>
-            <textarea id="pto-req-notes" rows="2" style="resize:none;" placeholder="Any details for your manager..."></textarea>
+            <label>Notes <span style="color:#ef4444;">*</span></label>
+            <textarea id="pto-req-notes" rows="2" style="resize:none;" placeholder="Required — reason for request, travel plans, etc."></textarea>
+          </div>
+          <div style="background:#fef9ec;border:1px solid #fbbf24;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:0.78rem;color:#78350f;line-height:1.6;">
+            <div style="font-weight:700;margin-bottom:6px;font-size:0.8rem;">Notice Requirement</div>
+            <ul style="margin:0;padding-left:18px;">
+              <li>PTO requests must be submitted at least <strong>two (2) weeks in advance</strong>.</li>
+              <li>Requests submitted with less than two weeks' notice may be denied unless HR approves an exception based on documented extenuating circumstances.</li>
+              <li>Quarterly meeting days are <strong>blackout dates</strong> for PTO unless pre-approved by HR.</li>
+            </ul>
           </div>
           <div style="display:flex;gap:8px;">
             <button class="btn btn-primary" onclick="ptoSubmitRequest()">Submit Request</button>
@@ -10304,6 +10312,7 @@ function ptoSubmitRequest() {
 
   if (!start || !end)  { showSchedToast('st-error', 'Please select start and end dates.'); return; }
   if (end < start)     { showSchedToast('st-error', 'End date must be on or after start date.'); return; }
+  if (!notes)          { showSchedToast('st-error', 'Notes are required — please describe your request.'); return; }
   var days = ptoCountWeekdays(start, end, hs, he);
   if (days <= 0) { showSchedToast('st-error', 'No business days in the selected range.'); return; }
   if (type === 'Sick' && days > 2 && ptoMyEmployeeType === 'W2') {
