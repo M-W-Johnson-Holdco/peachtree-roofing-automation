@@ -10118,8 +10118,8 @@ function ptoRenderBalance() {
   if (heroSub) heroSub.textContent = year + ' balance — last updated today';
 
   var vacEffective = b ? b.vacTotal + b.vacGifted : 0;
-  var totalUsed    = b ? b.vacUsed + b.sickUsed + b.persUsed : 0;
-  var totalAvail   = b ? Math.max(0, vacEffective - b.vacUsed) + Math.max(0, b.sickTotal - b.sickUsed) + Math.max(0, b.persTotal - b.persUsed) : 0;
+  var totalUsed    = b ? b.vacUsed : 0;
+  var totalAvail   = b ? Math.max(0, vacEffective - b.vacUsed) : 0;
   var pendingDays  = ptoMyRequests.filter(function(r) { return r.status === 'pending'; })
                                   .reduce(function(s, r) { return s + r.days; }, 0);
 
@@ -10309,8 +10309,8 @@ function ptoRenderTeamRequests() {
     ptoAllBalances.forEach(function(b) { if (b.email === email && b.year === yr3) bal = b; });
 
     var vacEff    = bal ? bal.vacTotal + bal.vacGifted : 0;
-    var totalUsed = bal ? bal.vacUsed + bal.sickUsed + bal.persUsed : 0;
-    var totalLeft = bal ? Math.max(0, vacEff - bal.vacUsed) + Math.max(0, bal.sickTotal - bal.sickUsed) + Math.max(0, bal.persTotal - bal.persUsed) : 0;
+    var totalUsed = bal ? bal.vacUsed : 0;
+    var totalLeft = bal ? Math.max(0, vacEff - bal.vacUsed) : 0;
 
     var nextReq = null;
     ptoAllRequests.forEach(function(r) {
