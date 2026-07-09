@@ -10648,6 +10648,8 @@ function ptoApprove(id) {
       .then(function(calId) { return calId || ''; },
             function(calErr) { calWarning = calErr.message; console.error('[PTO] Cal create failed:', calErr.message); return ''; })
       .then(function(calId) {
+        if (!calId && !calWarning) calWarning = 'GCAL_ID_PTO not set — add it as a GitHub Secret (see PTO calendar settings in Google Calendar)';
+
         var updated = [req.id, req.email, req.managerEmail, req.type, req.start, req.end,
           req.halfStart ? 'TRUE' : 'FALSE', req.halfEnd ? 'TRUE' : 'FALSE',
           req.days, req.notes, 'approved', req.submitted, now, currentUserEmail, calId];
