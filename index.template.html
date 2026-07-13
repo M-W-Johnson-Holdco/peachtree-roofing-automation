@@ -4422,6 +4422,7 @@ function printDoc() {
             <div id="pto-half-days-list"></div>
           </div>
           <div id="pto-day-count-preview" class="pto-day-preview"></div>
+          <div id="pto-overlap-warn" style="display:none;margin-top:8px;padding:9px 13px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;font-size:0.8rem;color:#b91c1c;line-height:1.55;"></div>
           <div style="margin-top:12px;margin-bottom:14px;">
             <label>Notes</label>
             <textarea id="pto-req-notes" rows="2" style="resize:none;" placeholder="Optional — reason for request, travel plans, etc."></textarea>
@@ -9918,11 +9919,16 @@ function ptoCountWeekdays(startStr, endStr, halfDays) {
   return Math.max(0, count);
 }
 
+function ptoDatesOverlap(startA, endA, startB, endB) {
+  return startA <= endB && endA >= startB;
+}
+
 function ptoUpdateDayCount() {
   var s = document.getElementById('pto-req-start').value;
   var e = document.getElementById('pto-req-end').value;
   var preview = document.getElementById('pto-day-count-preview');
-  if (!s || !e) { preview.style.display = 'none'; return; }
+  var warnEl  = document.getElementById('pto-overlap-warn');
+  if (!s || !e) { preview.style.display = 'none'; if (warnEl) warnEl.style.display = 'none'; return; }
   var days = ptoCountWeekdays(s, e, ptoGetHalfDays());
   // Find any holidays in range to show notice
   var holidayNames = {
@@ -9943,6 +9949,20 @@ function ptoUpdateDayCount() {
   var note = hit.length ? ' <span style="color:#0369a1;font-size:0.75rem;">(' + hit.join(', ') + ' excluded)</span>' : '';
   preview.style.display = '';
   preview.innerHTML = (days + (days === 1 ? ' business day' : ' business days')) + note;
+  // Overlap warning — show other staff with approved PTO in this range
+  if (warnEl) {
+    var conflicts = (ptoAllRequests || []).filter(function(r) {
+      return r.status === 'approved' && r.email !== currentUserEmail && r.start && r.end && ptoDatesOverlap(s, e, r.start, r.end);
+    });
+    if (conflicts.length) {
+      var names = conflicts.map(function(r) { return ptoDisplayName(r.email); });
+      var unique = names.filter(function(n, i) { return names.indexOf(n) === i; });
+      warnEl.style.display = '';
+      warnEl.innerHTML = '&#9888; <strong>Scheduling conflict:</strong> ' + unique.join(', ') + (unique.length === 1 ? ' has' : ' have') + ' approved PTO overlapping these dates.';
+    } else {
+      warnEl.style.display = 'none';
+    }
+  }
 }
 
 function ptoWeekdaysInRange(startStr, endStr) {
@@ -10334,7 +10354,17 @@ function ptoRenderTeamRequests() {
         if (r.halfStart) half.push('first half');
         if (r.halfEnd)   half.push('last half');
         var metaStr = r.type + ' · ' + range + (half.length ? ' (' + half.join(', ') + ')' : '');
-        return '<div class="pto-approval-card">' +
+        // Find other team members with approved PTO overlapping this request
+        var teamEmails = ptoTeamRequests.map(function(tr) { return tr.email; });
+        var conflicts = (ptoAllRequests || []).filter(function(ar) {
+          return ar.status === 'approved' && ar.email !== r.email && teamEmails.indexOf(ar.email) !== -1 && ar.start && ar.end && ptoDatesOverlap(r.start, r.end, ar.start, ar.end);
+        });
+        var conflictNames = conflicts.map(function(ar) { return ptoDisplayName(ar.email); });
+        var uniqueConflicts = conflictNames.filter(function(n, i) { return conflictNames.indexOf(n) === i; });
+        var conflictHtml = uniqueConflicts.length
+          ? '<div style="width:100%;margin-top:8px;padding:8px 12px;background:#fef2f2;border:1px solid #fca5a5;border-radius:7px;font-size:0.78rem;color:#b91c1c;line-height:1.5;">&#9888; <strong>Conflict:</strong> ' + uniqueConflicts.join(', ') + (uniqueConflicts.length === 1 ? ' has' : ' have') + ' approved PTO overlapping these dates.</div>'
+          : '';
+        return '<div class="pto-approval-card" style="flex-wrap:wrap;">' +
           '<div class="pto-avatar" style="width:40px;height:40px;font-size:0.82rem;background:' + ptoAvatarColor(r.email) + ';">' + ptoEsc(ptoInitials(name)) + '</div>' +
           '<div class="pto-approval-info">' +
             '<div class="pto-approval-name">' + ptoEsc(name) +
@@ -10347,6 +10377,7 @@ function ptoRenderTeamRequests() {
             '<button class="btn btn-primary btn-sm" onclick="ptoApprove(\'' + r.id + '\')">Approve</button>' +
             '<button class="btn btn-danger btn-sm" onclick="ptoDecline(\'' + r.id + '\')">Decline</button>' +
           '</div>' +
+          conflictHtml +
         '</div>';
       }).join('');
     }
