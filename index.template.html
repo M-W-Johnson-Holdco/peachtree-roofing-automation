@@ -4422,6 +4422,7 @@ function printDoc() {
             <div id="pto-half-days-list"></div>
           </div>
           <div id="pto-day-count-preview" class="pto-day-preview"></div>
+          <div id="pto-blackout-warn" style="display:none;margin-top:8px;padding:9px 13px;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;font-size:0.8rem;color:#92400e;line-height:1.55;"></div>
           <div id="pto-overlap-warn" style="display:none;margin-top:8px;padding:9px 13px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;font-size:0.8rem;color:#b91c1c;line-height:1.55;"></div>
           <div style="margin-top:12px;margin-bottom:14px;">
             <label>Notes</label>
@@ -9878,6 +9879,28 @@ var PTO_HOLIDAYS = new Set([
   '2026-12-31', // New Year's Eve
 ]);
 
+// Quarterly all-hands meeting days — PTO requests covering these need HR
+// pre-approval before submission. Update each year as needed (YYYY-MM-DD).
+var PTO_BLACKOUT_DATES = {
+  '2026-04-10': 'Q2 All-Hands Meeting',
+  '2026-07-17': 'Q3 All-Hands Meeting',
+  '2026-10-09': 'Q4 All-Hands Meeting'
+};
+
+// Returns the blackout-date labels (e.g. "Q3 All-Hands Meeting") that fall
+// within [startStr, endStr] (inclusive, YYYY-MM-DD strings).
+function ptoBlackoutHitsInRange(startStr, endStr) {
+  if (!startStr || !endStr) return [];
+  var hit = [];
+  var cur = new Date(startStr + 'T12:00:00'), end = new Date(endStr + 'T12:00:00');
+  while (cur <= end) {
+    var ds = cur.toISOString().slice(0, 10);
+    if (PTO_BLACKOUT_DATES[ds]) hit.push(PTO_BLACKOUT_DATES[ds]);
+    cur.setDate(cur.getDate() + 1);
+  }
+  return hit;
+}
+
 var ptoGmailToken  = null;
 var ptoGmailExpiry = 0;
 var ptoPermsData   = [];
@@ -10021,7 +10044,13 @@ function ptoUpdateDayCount() {
   var e = document.getElementById('pto-req-end').value;
   var preview = document.getElementById('pto-day-count-preview');
   var warnEl  = document.getElementById('pto-overlap-warn');
-  if (!s || !e) { preview.style.display = 'none'; if (warnEl) warnEl.style.display = 'none'; return; }
+  var blackoutEl = document.getElementById('pto-blackout-warn');
+  if (!s || !e) {
+    preview.style.display = 'none';
+    if (warnEl) warnEl.style.display = 'none';
+    if (blackoutEl) blackoutEl.style.display = 'none';
+    return;
+  }
   var days = ptoCountWeekdays(s, e, ptoGetHalfDays());
   // Find any holidays in range to show notice
   var holidayNames = {
@@ -10042,6 +10071,17 @@ function ptoUpdateDayCount() {
   var note = hit.length ? ' <span style="color:#0369a1;font-size:0.75rem;">(' + hit.join(', ') + ' excluded)</span>' : '';
   preview.style.display = '';
   preview.innerHTML = (days + (days === 1 ? ' business day' : ' business days')) + note;
+  // Blackout warning — quarterly all-hands days need HR pre-approval
+  if (blackoutEl) {
+    var blackoutHits = ptoBlackoutHitsInRange(s, e);
+    if (blackoutHits.length) {
+      blackoutEl.style.display = '';
+      blackoutEl.innerHTML = '&#9888; <strong>Blackout date' + (blackoutHits.length > 1 ? 's' : '') + ':</strong> this range includes ' +
+        blackoutHits.join(', ') + '. Get HR pre-approval before submitting, or your manager may need to decline it.';
+    } else {
+      blackoutEl.style.display = 'none';
+    }
+  }
   // Overlap warning — show other staff with approved PTO in this range
   if (warnEl) {
     var conflicts = (ptoAllRequests || []).filter(function(r) {
@@ -10457,6 +10497,10 @@ function ptoRenderTeamRequests() {
         var conflictHtml = uniqueConflicts.length
           ? '<div style="width:100%;margin-top:8px;padding:8px 12px;background:#fef2f2;border:1px solid #fca5a5;border-radius:7px;font-size:0.78rem;color:#b91c1c;line-height:1.5;">&#9888; <strong>Conflict:</strong> ' + uniqueConflicts.join(', ') + (uniqueConflicts.length === 1 ? ' has' : ' have') + ' approved PTO overlapping these dates.</div>'
           : '';
+        var blackoutHits = ptoBlackoutHitsInRange(r.start, r.end);
+        var blackoutHtml = blackoutHits.length
+          ? '<div style="width:100%;margin-top:8px;padding:8px 12px;background:#fffbeb;border:1px solid #fcd34d;border-radius:7px;font-size:0.78rem;color:#92400e;line-height:1.5;">&#9888; <strong>Blackout date' + (blackoutHits.length > 1 ? 's' : '') + ':</strong> overlaps ' + blackoutHits.join(', ') + ' — confirm HR pre-approval before approving.</div>'
+          : '';
         return '<div class="pto-approval-card" style="flex-wrap:wrap;">' +
           '<div class="pto-avatar" style="width:40px;height:40px;font-size:0.82rem;background:' + ptoAvatarColor(r.email) + ';">' + ptoEsc(ptoInitials(name)) + '</div>' +
           '<div class="pto-approval-info">' +
@@ -10470,6 +10514,7 @@ function ptoRenderTeamRequests() {
             '<button class="btn btn-primary btn-sm" onclick="ptoApprove(\'' + r.id + '\')">Approve</button>' +
             '<button class="btn btn-danger btn-sm" onclick="ptoDecline(\'' + r.id + '\')">Decline</button>' +
           '</div>' +
+          blackoutHtml +
           conflictHtml +
         '</div>';
       }).join('');
