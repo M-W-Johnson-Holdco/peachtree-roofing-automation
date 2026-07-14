@@ -4705,6 +4705,10 @@ function applyRolePermissions(role) {
     var activeSect = document.getElementById("tab-" + firstVisible);
     if (activeTab)  activeTab.classList.add("active");
     if (activeSect) activeSect.classList.add("active");
+    // Tabs that fetch their own data on click (see the .tab click handler)
+    // need that same fetch kicked off here too when they're auto-landed on,
+    // since this path never goes through that click handler.
+    if (firstVisible === "pto") ptoLoad();
   }
 }
 
