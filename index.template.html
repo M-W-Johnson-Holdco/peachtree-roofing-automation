@@ -4520,7 +4520,7 @@ function printDoc() {
         <div id="pto-record-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9999;align-items:center;justify-content:center;">
           <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:28px;width:420px;max-width:95vw;box-shadow:0 8px 30px rgba(0,0,0,0.12);">
             <h3 style="font-size:0.95rem;color:#1e293b;margin-bottom:4px;font-weight:700;">Add PTO Record</h3>
-            <div style="font-size:0.73rem;color:#64748b;margin-bottom:16px;">Creates a request entry without changing balances — use when balances are already manually set.</div>
+            <div style="font-size:0.73rem;color:#64748b;margin-bottom:16px;">Log a PTO event that didn't go through the normal request flow — e.g. a verbal pre-approval or a backfilled entry.</div>
             <div class="grid2" style="gap:10px;margin-bottom:12px;">
               <div>
                 <label>Employee</label>
@@ -4543,13 +4543,7 @@ function printDoc() {
               <div style="font-size:0.8rem;font-weight:600;color:#475569;margin-bottom:8px;">Half Days <span style="font-weight:400;color:#94a3b8;">— check any day taken as a half day</span></div>
               <div id="pto-rec-half-days-list"></div>
             </div>
-            <div style="margin-bottom:12px;">
-              <label>Status</label>
-              <select id="pto-rec-status">
-                <option value="approved">Approved</option>
-                <option value="pending">Pending</option>
-              </select>
-            </div>
+            <div style="font-size:0.73rem;color:#64748b;margin-bottom:12px;">Saved as <strong>approved</strong> — updates the balance and creates a calendar event, same as approving a normal request.</div>
             <div style="margin-bottom:18px;">
               <label>Notes (optional)</label>
               <textarea id="pto-rec-notes" rows="2" style="resize:none;" placeholder="e.g. Pre-approved vacation"></textarea>
@@ -11344,7 +11338,6 @@ function ptoAdminAddRecord() {
   document.getElementById('pto-rec-start').value  = '';
   document.getElementById('pto-rec-end').value    = '';
   document.getElementById('pto-rec-notes').value  = '';
-  document.getElementById('pto-rec-status').value = 'approved';
   ptoRenderRecHalfDays();
   var modal = document.getElementById('pto-record-modal');
   if (modal) modal.style.display = 'flex';
@@ -11360,7 +11353,7 @@ function ptoAdminAddRecordConfirm() {
   var type   = document.getElementById('pto-rec-type').value;
   var start  = document.getElementById('pto-rec-start').value;
   var end    = document.getElementById('pto-rec-end').value;
-  var status = document.getElementById('pto-rec-status').value;
+  var status = 'approved';
   var notes  = (document.getElementById('pto-rec-notes').value || '').trim();
   if (!email || !start || !end) { showSchedToast('st-error', 'Email, start, and end date are required.'); return; }
   if (end < start) { showSchedToast('st-error', 'End date must be on or after start date.'); return; }
@@ -11382,15 +11375,32 @@ function ptoAdminAddRecordConfirm() {
   }
   var id   = 'PTO-ADM-' + Date.now();
   var now  = new Date().toISOString();
-  var row  = [id, email, mgr, type, start, end,
-              hs ? 'TRUE' : 'FALSE', he ? 'TRUE' : 'FALSE',
-              days, notes, status, now, status === 'approved' ? now : '', status === 'approved' ? currentUserEmail : '', ''];
+  var empName = ptoDisplayName(email);
   ptoCloseRecordModal();
   showSchedToast('st-info', 'Saving record...');
-  ptoSheetAppend(PTO_REQUESTS_TAB, row).then(function() {
-    showSchedToast('st-success', 'Record added: ' + email + ' · ' + type + ' · ' + days + ' day(s) · ' + status);
-    ptoLoad();
-  }).catch(function(e) { showSchedToast('st-error', 'Failed: ' + e.message); });
+  var calWarning = '';
+  ptoCreateCalEvent(empName, email, type, start, end, hs, he, halfDays)
+    .then(function(calId) { return calId || ''; },
+          function(calErr) { calWarning = calErr.message; console.error('[PTO] Cal create failed:', calErr.message); return ''; })
+    .then(function(calId) {
+      if (!calId && !calWarning) calWarning = 'GCAL_ID_PTO not set — add it as a GitHub Secret (see PTO calendar settings in Google Calendar)';
+      var row = [id, email, mgr, type, start, end,
+                 hs ? 'TRUE' : 'FALSE', he ? 'TRUE' : 'FALSE',
+                 days, notes, status, now, now, currentUserEmail, calId];
+      return ptoSheetAppend(PTO_REQUESTS_TAB, row);
+    })
+    .then(function() {
+      return ptoIncrementUsed(email, type, days);
+    })
+    .then(function() {
+      if (calWarning) {
+        showSchedToast('st-warn', 'Record added, but calendar invite failed: ' + calWarning);
+      } else {
+        showSchedToast('st-success', 'Record added: ' + email + ' · ' + type + ' · ' + days + ' day(s) — balance updated + calendar invite sent.');
+      }
+      ptoLoad();
+    })
+    .catch(function(e) { showSchedToast('st-error', 'Failed: ' + e.message); });
 }
 
 // -- Year-end rollover --
