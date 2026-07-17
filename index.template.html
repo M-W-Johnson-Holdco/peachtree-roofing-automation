@@ -11307,7 +11307,10 @@ function ptoAdminAddRecordConfirm() {
   var notes  = (document.getElementById('pto-rec-notes').value || '').trim();
   if (!email || !start || !end) { showSchedToast('st-error', 'Email, start, and end date are required.'); return; }
   if (end < start) { showSchedToast('st-error', 'End date must be on or after start date.'); return; }
-  var days = ptoCountWeekdays(start, end, hs, he);
+  var halfDays = [];
+  if (hs) halfDays.push({ date: start });
+  if (he && end !== start) halfDays.push({ date: end });
+  var days = ptoCountWeekdays(start, end, halfDays);
   if (days <= 0) { showSchedToast('st-error', 'No business days in selected range.'); return; }
   var mgr = '';
   for (var i = 1; i < ptoPermsData.length; i++) {
