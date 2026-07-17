@@ -9882,9 +9882,9 @@ var PTO_HOLIDAYS = new Set([
 // Quarterly all-hands meeting days — PTO requests covering these need HR
 // pre-approval before submission. Update each year as needed (YYYY-MM-DD).
 var PTO_BLACKOUT_DATES = {
-  '2026-04-10': 'Q2 All-Hands Meeting',
-  '2026-07-17': 'Q3 All-Hands Meeting',
-  '2026-10-09': 'Q4 All-Hands Meeting'
+  '2026-04-10': 'Quarterly Company Meeting',
+  '2026-07-17': 'Quarterly Company Meeting',
+  '2026-10-09': 'Quarterly Company Meeting'
 };
 
 // Returns the blackout-date labels (e.g. "Q3 All-Hands Meeting") that fall
@@ -9970,7 +9970,19 @@ function ptoDateShort(dateStr) {
   return months[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10);
 }
 
-function ptoCreateCalEvent(employeeName, employeeEmail, type, startDate, endDate, halfStart, halfEnd) {
+// The exact half-day window(s) chosen at submission (e.g. "1pm-5pm") only
+// ever gets saved as a suffix on the request's Notes field — pull it back
+// out so the calendar event description can show which half was taken.
+function ptoExtractHalfDayDetail(notes) {
+  var m = (notes || '').match(/\|\s*Half days:\s*(.+)$/);
+  if (!m) return [];
+  return m[1].split(',').map(function(s) { return s.trim(); }).filter(Boolean).map(function(entry) {
+    var idx = entry.indexOf(':');
+    return idx === -1 ? { date: entry, time: '' } : { date: entry.slice(0, idx), time: entry.slice(idx + 1) };
+  });
+}
+
+function ptoCreateCalEvent(employeeName, employeeEmail, type, startDate, endDate, halfStart, halfEnd, halfDayDetail) {
   if (!GCAL_ID_PTO || GCAL_ID_PTO.indexOf('%%') !== -1) return Promise.resolve(null);
   var endEx = new Date(endDate + 'T12:00:00');
   endEx.setDate(endEx.getDate() + 1);
@@ -9978,11 +9990,14 @@ function ptoCreateCalEvent(employeeName, employeeEmail, type, startDate, endDate
 
   // Build descriptive title
   var dateRange = startDate === endDate ? ptoDateShort(startDate) : ptoDateShort(startDate) + ' - ' + ptoDateShort(endDate);
-  var halfSuffix = '';
-  if (halfStart && halfEnd) halfSuffix = ' (both half days)';
-  else if (halfStart) halfSuffix = ' (first day half)';
-  else if (halfEnd)   halfSuffix = ' (last day half)';
+  var halfParts  = ptoHalfDayParts(startDate, endDate, halfStart, halfEnd);
+  var halfSuffix = halfParts.length ? ' (' + halfParts.join(', ') + ')' : '';
   var title = employeeName + ' - ' + type + ' | ' + dateRange + halfSuffix;
+
+  // Description — spell out which half of the day is off, per date
+  var description = (halfDayDetail || []).map(function(h) {
+    return 'Half day off (' + (h.time || 'time not recorded') + ') on ' + ptoDateShort(h.date);
+  }).join('\n');
 
   var attendees = employeeEmail ? [{ email: employeeEmail }] : [];
 
@@ -9992,6 +10007,7 @@ function ptoCreateCalEvent(employeeName, employeeEmail, type, startDate, endDate
       headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         summary: title,
+        description: description,
         start: { date: startDate },
         end:   { date: endStr },
         transparency: 'opaque',
@@ -10037,6 +10053,18 @@ function ptoCountWeekdays(startStr, endStr, halfDays) {
 
 function ptoDatesOverlap(startA, endA, startB, endB) {
   return startA <= endB && endA >= startB;
+}
+
+// A single-day request stores its one half-day flag in BOTH halfStart and
+// halfEnd (there's no "first day" vs "last day" distinction when they're
+// the same day), so callers must special-case start === end rather than
+// treating "both true" as "two half days" (which would read as a full day).
+function ptoHalfDayParts(start, end, halfStart, halfEnd) {
+  if (start === end) return (halfStart || halfEnd) ? ['half day'] : [];
+  var parts = [];
+  if (halfStart) parts.push('first day half');
+  if (halfEnd)   parts.push('last day half');
+  return parts;
 }
 
 function ptoUpdateDayCount() {
@@ -10435,8 +10463,12 @@ function ptoRenderMyRequests() {
     sorted.map(function(r) {
       var range = r.start === r.end ? r.start : r.start + ' – ' + r.end;
       var half = [];
-      if (r.halfStart) half.push('½ start');
-      if (r.halfEnd)   half.push('½ end');
+      if (r.start === r.end) {
+        if (r.halfStart || r.halfEnd) half.push('½ day');
+      } else {
+        if (r.halfStart) half.push('½ start');
+        if (r.halfEnd)   half.push('½ end');
+      }
       var halfStr = half.length ? ' <span style="color:#475569;font-size:0.68rem;">(' + half.join(', ') + ')</span>' : '';
       var isMine      = r.email.toLowerCase() === currentUserEmail.toLowerCase();
       var today       = new Date().toISOString().slice(0, 10);
@@ -10484,8 +10516,12 @@ function ptoRenderTeamRequests() {
         var name  = ptoDisplayName(r.email);
         var range = r.start === r.end ? r.start : r.start + ' – ' + r.end;
         var half  = [];
-        if (r.halfStart) half.push('first half');
-        if (r.halfEnd)   half.push('last half');
+        if (r.start === r.end) {
+          if (r.halfStart || r.halfEnd) half.push('half day');
+        } else {
+          if (r.halfStart) half.push('first half');
+          if (r.halfEnd)   half.push('last half');
+        }
         var metaStr = r.type + ' · ' + range + (half.length ? ' (' + half.join(', ') + ')' : '');
         // Find other team members with approved PTO overlapping this request
         var teamEmails = ptoTeamRequests.map(function(tr) { return tr.email; });
@@ -10825,7 +10861,7 @@ function ptoApprove(id) {
   ptoFindRequest(id).then(function(req) {
     var now = new Date().toISOString();
     var calWarning = '';
-    return ptoCreateCalEvent(ptoDisplayName(req.email), req.email, req.type, req.start, req.end, req.halfStart, req.halfEnd)
+    return ptoCreateCalEvent(ptoDisplayName(req.email), req.email, req.type, req.start, req.end, req.halfStart, req.halfEnd, ptoExtractHalfDayDetail(req.notes))
       .then(function(calId) { return calId || ''; },
             function(calErr) { calWarning = calErr.message; console.error('[PTO] Cal create failed:', calErr.message); return ''; })
       .then(function(calId) {
