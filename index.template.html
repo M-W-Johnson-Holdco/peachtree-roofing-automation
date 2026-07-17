@@ -4530,17 +4530,18 @@ function printDoc() {
                 <label>Type</label>
                 <select id="pto-rec-type">
                   <option value="Vacation">Vacation</option>
+                  <option value="Sick">Sick</option>
                   <option value="Bereavement">Bereavement</option>
                 </select>
               </div>
             </div>
             <div class="grid2" style="gap:10px;margin-bottom:10px;">
-              <div><label>Start Date</label><input type="date" id="pto-rec-start"></div>
-              <div><label>End Date</label><input type="date" id="pto-rec-end"></div>
+              <div><label>Start Date</label><input type="date" id="pto-rec-start" oninput="ptoRenderRecHalfDays()"></div>
+              <div><label>End Date</label><input type="date" id="pto-rec-end" oninput="ptoRenderRecHalfDays()"></div>
             </div>
-            <div style="display:flex;gap:16px;margin-bottom:12px;font-size:0.8rem;color:#475569;">
-              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" id="pto-rec-hs"> Half day start</label>
-              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" id="pto-rec-he"> Half day end</label>
+            <div id="pto-rec-half-days-section" style="display:none;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;margin-bottom:10px;">
+              <div style="font-size:0.8rem;font-weight:600;color:#475569;margin-bottom:8px;">Half Days <span style="font-weight:400;color:#94a3b8;">— check any day taken as a half day</span></div>
+              <div id="pto-rec-half-days-list"></div>
             </div>
             <div style="margin-bottom:12px;">
               <label>Status</label>
@@ -10211,6 +10212,65 @@ function ptoGetHalfDays() {
   return result;
 }
 
+// -- Admin "Add Record" half-day picker — same per-day/AM-PM UI as the
+// employee request form, kept as separate ids/classes (pto-rec-*) so the
+// two forms never collide when both happen to be in the DOM at once.
+function ptoRenderRecHalfDays() {
+  var start   = document.getElementById('pto-rec-start').value;
+  var end     = document.getElementById('pto-rec-end').value;
+  var section = document.getElementById('pto-rec-half-days-section');
+  var list    = document.getElementById('pto-rec-half-days-list');
+  if (!section || !list) return;
+  if (!start || !end || end < start) { section.style.display = 'none'; list.innerHTML = ''; return; }
+  var weekdays = ptoWeekdaysInRange(start, end);
+  if (!weekdays.length) { section.style.display = 'none'; list.innerHTML = ''; return; }
+  var existing = {};
+  list.querySelectorAll('.pto-rec-hd-chk').forEach(function(chk) {
+    if (chk.checked) {
+      var radio = list.querySelector('input[name="pto-rec-hd-' + chk.dataset.date + '"]:checked');
+      existing[chk.dataset.date] = radio ? radio.value : '9am-1pm';
+    }
+  });
+  var months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  list.innerHTML = weekdays.map(function(ds) {
+    var d      = new Date(ds + 'T12:00:00');
+    var label  = dayNames[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate();
+    var chkd   = existing[ds] !== undefined;
+    var selTime = chkd ? existing[ds] : '9am-1pm';
+    return '<div style="display:flex;align-items:center;gap:14px;padding:5px 0;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;">' +
+      '<label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:0.82rem;color:#475569;min-width:130px;margin-bottom:0;">' +
+        '<input type="checkbox" class="pto-rec-hd-chk" data-date="' + ds + '"' + (chkd ? ' checked' : '') +
+        ' onchange="ptoRecHalfDayToggle(this)"> ' + label +
+      '</label>' +
+      '<span class="pto-rec-hd-times" data-date="' + ds + '" style="' + (chkd ? '' : 'display:none;') + 'display:flex;gap:12px;align-items:center;">' +
+        '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.8rem;color:#64748b;margin-bottom:0;">' +
+          '<input type="radio" name="pto-rec-hd-' + ds + '" value="9am-1pm"' + (selTime === '9am-1pm' ? ' checked' : '') + '> 9am–1pm' +
+        '</label>' +
+        '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.8rem;color:#64748b;margin-bottom:0;">' +
+          '<input type="radio" name="pto-rec-hd-' + ds + '" value="1pm-5pm"' + (selTime === '1pm-5pm' ? ' checked' : '') + '> 1pm–5pm' +
+        '</label>' +
+      '</span>' +
+    '</div>';
+  }).join('');
+  section.style.display = '';
+}
+
+function ptoRecHalfDayToggle(chk) {
+  var timesEl = document.querySelector('.pto-rec-hd-times[data-date="' + chk.dataset.date + '"]');
+  if (timesEl) timesEl.style.display = chk.checked ? 'flex' : 'none';
+}
+
+function ptoGetRecHalfDays() {
+  var result = [];
+  document.querySelectorAll('.pto-rec-hd-chk:checked').forEach(function(chk) {
+    var date  = chk.dataset.date;
+    var radio = document.querySelector('input[name="pto-rec-hd-' + date + '"]:checked');
+    result.push({ date: date, time: radio ? radio.value : '9am-1pm' });
+  });
+  return result;
+}
+
 // -- Sheet helpers --
 function ptoSheetRead(tab, range) {
   return getGSToken().then(function(t) {
@@ -11283,10 +11343,9 @@ function ptoAdminAddRecord() {
   }
   document.getElementById('pto-rec-start').value  = '';
   document.getElementById('pto-rec-end').value    = '';
-  document.getElementById('pto-rec-hs').checked   = false;
-  document.getElementById('pto-rec-he').checked   = false;
   document.getElementById('pto-rec-notes').value  = '';
   document.getElementById('pto-rec-status').value = 'approved';
+  ptoRenderRecHalfDays();
   var modal = document.getElementById('pto-record-modal');
   if (modal) modal.style.display = 'flex';
 }
@@ -11301,17 +11360,22 @@ function ptoAdminAddRecordConfirm() {
   var type   = document.getElementById('pto-rec-type').value;
   var start  = document.getElementById('pto-rec-start').value;
   var end    = document.getElementById('pto-rec-end').value;
-  var hs     = document.getElementById('pto-rec-hs').checked;
-  var he     = document.getElementById('pto-rec-he').checked;
   var status = document.getElementById('pto-rec-status').value;
   var notes  = (document.getElementById('pto-rec-notes').value || '').trim();
   if (!email || !start || !end) { showSchedToast('st-error', 'Email, start, and end date are required.'); return; }
   if (end < start) { showSchedToast('st-error', 'End date must be on or after start date.'); return; }
-  var halfDays = [];
-  if (hs) halfDays.push({ date: start });
-  if (he && end !== start) halfDays.push({ date: end });
+  var halfDays = ptoGetRecHalfDays();
   var days = ptoCountWeekdays(start, end, halfDays);
   if (days <= 0) { showSchedToast('st-error', 'No business days in selected range.'); return; }
+  if (halfDays.length) {
+    notes += ' | Half days: ' + halfDays.map(function(h) { return h.date + ':' + h.time; }).join(', ');
+  }
+  // Derive first/last-day half flags (same convention as the employee form)
+  var weekdays = ptoWeekdaysInRange(start, end);
+  var halfSet  = {};
+  halfDays.forEach(function(h) { halfSet[h.date] = true; });
+  var hs = weekdays.length > 0 && !!halfSet[weekdays[0]];
+  var he = weekdays.length > 0 && !!halfSet[weekdays[weekdays.length - 1]];
   var mgr = '';
   for (var i = 1; i < ptoPermsData.length; i++) {
     if ((ptoPermsData[i][0] || '').trim().toLowerCase() === email) { mgr = (ptoPermsData[i][3] || '').trim().toLowerCase(); break; }
