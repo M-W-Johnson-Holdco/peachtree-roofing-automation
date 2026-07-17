@@ -4451,13 +4451,16 @@ function printDoc() {
             <button class="btn btn-secondary" onclick="ptoToggleReqForm()">Cancel</button>
           </div>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
           <div class="pto-section-head" style="margin-bottom:0;">Recent Requests</div>
           <div style="display:flex;gap:4px;">
             <button class="pto-filter-btn active" data-filter="mine" onclick="ptoSetReqFilter('mine')">Yourself</button>
             <button class="pto-filter-btn" data-filter="team" id="pto-filter-team-btn" style="display:none;" onclick="ptoSetReqFilter('team')">Your Team</button>
             <button class="pto-filter-btn" data-filter="all" id="pto-filter-all-btn" style="display:none;" onclick="ptoSetReqFilter('all')">All Staff</button>
           </div>
+        </div>
+        <div id="pto-req-search-row" style="display:none;margin-bottom:10px;">
+          <input type="text" id="pto-req-search" placeholder="Search by employee name or email..." oninput="ptoRenderMyRequests()" style="width:100%;max-width:340px;">
         </div>
         <div id="pto-my-requests-list"><div class="no-results">Loading...</div></div>
       </div>
@@ -10460,9 +10463,24 @@ function ptoRenderMyRequests() {
     rows = ptoMyRequests.slice();
   }
 
+  // Search by name/email — only meaningful (and shown) once there's more
+  // than just your own requests in the list, e.g. HR looking up one
+  // employee's full history out of everyone's requests.
+  var searchRow = document.getElementById('pto-req-search-row');
+  var searchBox = document.getElementById('pto-req-search');
+  if (searchRow) searchRow.style.display = showWho ? '' : 'none';
+  var searchTerm = (showWho && searchBox) ? searchBox.value.trim().toLowerCase() : '';
+  if (searchTerm) {
+    rows = rows.filter(function(r) {
+      return r.email.toLowerCase().indexOf(searchTerm) !== -1 ||
+             ptoDisplayName(r.email).toLowerCase().indexOf(searchTerm) !== -1;
+    });
+  }
+
   if (!rows.length) {
-    var msg = ptoReqFilter === 'team' ? 'No team requests.' : ptoReqFilter === 'all' ? 'No requests found.' : 'No requests yet.';
-    el.innerHTML = '<div class="no-results">' + msg + '</div>';
+    var msg = searchTerm ? 'No requests match "' + searchTerm + '".'
+      : ptoReqFilter === 'team' ? 'No team requests.' : ptoReqFilter === 'all' ? 'No requests found.' : 'No requests yet.';
+    el.innerHTML = '<div class="no-results">' + ptoEsc(msg) + '</div>';
     return;
   }
 
