@@ -341,6 +341,7 @@
     <div class="tab" data-tab="pto">🏖️ PTO</div>
     <div class="tab" data-tab="prodc">🏗️ Production &amp; Claims</div>
     <div class="tab" data-tab="metrics">📊 Company Metrics</div>
+    <div class="tab" data-tab="fieldinspection" onclick="window.open('https://m-w-johnson-holdco.github.io/field-inspection-system/#/login','_blank');return false;">Field Inspection 🔍</div>
   </div>
   <div id="prodc-subtabs">
     <div class="tab" data-tab="scheduler">📅 Scheduler</div>
@@ -5478,6 +5479,7 @@ document.addEventListener("click",function(e){
   var t=e.target;
   if(t.classList.contains("tab")&&t.dataset.tab){
     if(t.dataset.tab==="prewo")return;
+    if(t.dataset.tab==="fieldinspection")return;
     var adminSub=document.getElementById("admin-subtabs");
     var prodcSub=document.getElementById("prodc-subtabs");
     var isAdminChild=adminSub&&adminSub.contains(t);
