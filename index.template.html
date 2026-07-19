@@ -9444,7 +9444,7 @@ window.receiveCalcData = function(d) {
     'No Warranty / GAF Lim. Lifetime (incl.)':  'GAF Limited Lifetime Warranty',
   };
   function normalize(name) {
-    var s = (name||'').replace(/\s*\(\d+LF\)/i,'').trim();
+    var s = (name||'').replace(/\s*\(\d+LF\)/i,'').replace(/\s*\(\d+BD\)/i,'').trim();
     return nameMap[name] || nameMap[s] || s;
   }
   function setDropdown(selId, targetText) {
