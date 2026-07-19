@@ -81,10 +81,11 @@ jobs:
           cp login-bg.jpg deploy/ 2>/dev/null || true
           cp favicon.png deploy/ 2>/dev/null || true
           cp pto-guide.html deploy/pto-guide.html
+          cp wo-offline-guide.html deploy/wo-offline-guide.html
           cd deploy
           git init
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html "black new logo.png" login-bg.jpg favicon.png pto-guide.html
+          git add index.html "black new logo.png" login-bg.jpg favicon.png pto-guide.html wo-offline-guide.html
           git commit -m "Deploy [skip ci]"
           git push --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:gh-pages
