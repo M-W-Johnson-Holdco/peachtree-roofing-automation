@@ -11176,8 +11176,7 @@ function ptoRecalcNetAvail(el) {
     var inp = tr.querySelector('.pto-bal-inp[data-field="' + field + '"]');
     return inp ? (parseFloat(inp.value) || 0) : 0;
   };
-  var vacRollover = parseFloat(tr.dataset.vacRollover) || 0;
-  var net = Math.max(0, get('vacTotal') + get('vacGifted') + get('vacWaived') + vacRollover - get('vacUsed'));
+  var net = Math.max(0, get('vacTotal') + get('vacGifted') + get('vacWaived') + get('vacRollover') - get('vacUsed'));
   var span = tr.querySelector('.pto-net-avail');
   if (span) span.textContent = net;
 }
@@ -11216,7 +11215,7 @@ function ptoAdminLoadBalances() {
         var ent  = ptoVacationEntitlement(b.email);
         var match = ent.days === b.vacTotal;
         var netAvail = Math.max(0, b.vacTotal + (b.vacGifted || 0) + (b.vacWaived || 0) + (b.vacRollover || 0) - b.vacUsed);
-        return '<tr data-email="' + ptoEsc(b.email) + '" data-row="' + b.row + '" data-year="' + year + '" data-vac-gifted="' + (b.vacGifted || 0) + '" data-vac-waived="' + (b.vacWaived || 0) + '" data-vac-rollover="' + (b.vacRollover || 0) + '" data-entitlement="' + ent.days + '">' +
+        return '<tr data-email="' + ptoEsc(b.email) + '" data-row="' + b.row + '" data-year="' + year + '" data-entitlement="' + ent.days + '">' +
           '<td style="max-width:100px;"><div style="color:#1e293b;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + ptoEsc(name) + '</div>' +
               '<div style="font-size:0.68rem;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;" title="' + ptoEsc(b.email) + '">' + ptoEsc(b.email) + '</div></td>' +
           '<td style="text-align:center;white-space:nowrap;">' +
@@ -11235,7 +11234,7 @@ function ptoAdminLoadBalances() {
           '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + b.persUsed   + '" data-field="persUsed"></td>' +
           '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + (b.vacGifted || 0) + '" data-field="vacGifted" style="color:#8DC63F;font-weight:600;" oninput="ptoRecalcNetAvail(this)"></td>' +
           '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + (b.vacWaived || 0) + '" data-field="vacWaived" style="color:#a78bfa;font-weight:600;" oninput="ptoRecalcNetAvail(this)"></td>' +
-          '<td style="color:#0891b2;font-weight:600;text-align:center;">' + (b.vacRollover || 0) + '</td>' +
+          '<td><input class="pto-bal-inp" type="number" min="0" step="0.5" value="' + (b.vacRollover || 0) + '" data-field="vacRollover" style="color:#0891b2;font-weight:600;" oninput="ptoRecalcNetAvail(this)"></td>' +
           '<td style="text-align:center;"><span class="pto-net-avail" style="color:#16a34a;font-weight:700;">' + netAvail + '</span></td>' +
           '<td style="white-space:nowrap;">' +
             '<button class="btn btn-primary btn-sm" onclick="ptoAdminSaveBalance(this)" style="margin-right:4px;">Save</button>' +
@@ -11253,12 +11252,11 @@ function ptoAdminSaveBalance(btn) {
   var email  = tr.dataset.email;
   var rowNum = parseInt(tr.dataset.row);
   var year   = parseInt(tr.dataset.year);
-  var vacRollover = parseFloat(tr.dataset.vacRollover) || 0;
   var vals = {};
   tr.querySelectorAll('.pto-bal-inp').forEach(function(inp) { vals[inp.dataset.field] = parseFloat(inp.value) || 0; });
   btn.disabled = true;
   ptoSheetUpdateRow(PTO_BALANCES_TAB, rowNum,
-    [email, year, vals.vacTotal, vals.vacUsed, vals.sickTotal, vals.sickUsed, vals.persTotal, vals.persUsed, vals.vacGifted, vals.vacWaived, vacRollover]
+    [email, year, vals.vacTotal, vals.vacUsed, vals.sickTotal, vals.sickUsed, vals.persTotal, vals.persUsed, vals.vacGifted, vals.vacWaived, vals.vacRollover]
   ).then(function() {
     showSchedToast('st-success', 'Saved for ' + email);
     btn.disabled = false;
@@ -11272,14 +11270,35 @@ function ptoAdminAddEmployee() {
   var email = prompt('Employee email address:');
   if (!email) return;
   email = email.trim().toLowerCase();
+  var typeInput = prompt('Employee type for ' + email + ' — enter "W2" or "1099":', 'W2');
+  if (typeInput === null) return;
+  var empType = typeInput.trim().toUpperCase() === '1099' ? '1099' : 'W2';
   var year = parseInt(document.getElementById('pto-admin-year').value) || new Date().getFullYear();
-  var ent      = ptoVacationEntitlement(email);
-  var isW2     = ent.label.indexOf('1099') === -1;
-  var sickDays = isW2 ? 3 : 0;
-  var brvmDays = isW2 ? 3 : 0;
-  ptoSheetAppend(PTO_BALANCES_TAB, [email, year, ent.days, 0, sickDays, 0, brvmDays, 0, 0, 0, 0]).then(function() {
-    showSchedToast('st-success', 'Added ' + email + ' — ' + ent.days + ' vacation, ' + sickDays + ' sick, ' + brvmDays + ' bereavement (' + ent.label + ')');
-    ptoAdminLoadBalances();
+
+  var permRowIdx = -1;
+  for (var i = 1; i < ptoPermsData.length; i++) {
+    if ((ptoPermsData[i][0] || '').trim().toLowerCase() === email) { permRowIdx = i; break; }
+  }
+
+  var persistType = Promise.resolve();
+  if (permRowIdx > -1) {
+    var permRow = ptoPermsData[permRowIdx].slice();
+    while (permRow.length < 7) permRow.push('');
+    permRow[5] = empType;
+    ptoPermsData[permRowIdx][5] = empType; // reflect immediately so entitlement below picks it up
+    persistType = ptoSheetUpdateRow(CRED_GS_PERMS_TAB, permRowIdx + 1, permRow);
+  }
+
+  persistType.then(function() {
+    var ent      = ptoVacationEntitlement(email);
+    var isW2     = empType !== '1099';
+    var sickDays = isW2 ? 3 : 0;
+    var brvmDays = isW2 ? 3 : 0;
+    return ptoSheetAppend(PTO_BALANCES_TAB, [email, year, ent.days, 0, sickDays, 0, brvmDays, 0, 0, 0, 0]).then(function() {
+      showSchedToast('st-success', 'Added ' + email + ' — ' + ent.days + ' vacation, ' + sickDays + ' sick, ' + brvmDays + ' bereavement (' + ent.label + ')');
+      if (permRowIdx === -1) showSchedToast('st-warn', email + ' was not found in UserPermissions, so the ' + empType + ' designation could not be saved there — this balance still uses it, but fix their UserPermissions row so future syncs stay correct.');
+      ptoAdminLoadBalances();
+    });
   }).catch(function(e) { showSchedToast('st-error', 'Failed: ' + e.message); });
 }
 
