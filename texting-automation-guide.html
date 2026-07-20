@@ -64,8 +64,6 @@ body {
   font-size: 1.25rem; flex-shrink: 0;
   background: color-mix(in srgb, var(--blue) 15%, var(--surf));
 }
-[data-theme="dark"] .part-icon { background: #1e3a5f; }
-@media (prefers-color-scheme: dark) { .part-icon { background: #1e3a5f; } }
 .part-title { font-size: 1.5rem; font-weight: 800; color: var(--txt); letter-spacing: -0.02em; text-wrap: balance; line-height: 1.2; }
 .part-subtitle { font-size: 0.82rem; color: var(--txt3); margin-top: 4px; }
 
@@ -119,14 +117,8 @@ body {
 }
 .tag-blue { background: color-mix(in srgb, var(--blue) 15%, var(--surf)); color: var(--blue); }
 .tag-green { background: color-mix(in srgb, var(--green) 15%, var(--surf)); color: #166534; }
-[data-theme="dark"] .tag-green { color: var(--green); }
-@media (prefers-color-scheme: dark) { .tag-green { color: var(--green); } }
 .tag-amber { background: color-mix(in srgb, var(--amber) 18%, var(--surf)); color: #92400e; }
-[data-theme="dark"] .tag-amber { color: #fcd34d; }
-@media (prefers-color-scheme: dark) { .tag-amber { color: #fcd34d; } }
 .tag-purple { background: color-mix(in srgb, var(--purple) 18%, var(--surf)); color: #6d28d9; }
-[data-theme="dark"] .tag-purple { color: var(--purple); }
-@media (prefers-color-scheme: dark) { .tag-purple { color: var(--purple); } }
 
 kbd, .btnlabel {
   display: inline-block; font-family: inherit; font-size: 0.82rem; font-weight: 700;
@@ -149,8 +141,6 @@ kbd, .btnlabel {
   white-space: pre-line; max-width: 100%;
 }
 .msg-bubble .mv { color: var(--blue-dim); font-weight: 700; }
-[data-theme="dark"] .msg-bubble .mv { color: #8fc0f0; }
-@media (prefers-color-scheme: dark) { .msg-bubble .mv { color: #8fc0f0; } }
 .msg-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--txt4); margin: 14px 0 4px; }
 .msg-img { margin-top: 10px; }
 .msg-img img { max-width: 260px; width: 100%; border-radius: 10px; border: 1px solid var(--bdr2); display: block; }
@@ -163,18 +153,6 @@ table.ref-table td { color: var(--txt2); }
 table.ref-table td strong { color: var(--txt); }
 .ref-table-wrap { overflow-x: auto; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f1720; --bg2: #131c27; --surf: #182430; --surf2: #1e2b38;
-    --bdr: #2c3b4a; --bdr2: #364a5c;
-    --txt: #e2e8f0; --txt2: #b8c4d0; --txt3: #8fa0b3; --txt4: #64748b;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0f1720; --bg2: #131c27; --surf: #182430; --surf2: #1e2b38;
-  --bdr: #2c3b4a; --bdr2: #364a5c;
-  --txt: #e2e8f0; --txt2: #b8c4d0; --txt3: #8fa0b3; --txt4: #64748b;
-}
 :root[data-theme="light"] {
   --bg: #f1f5f9; --bg2: #e8eef6; --surf: #ffffff; --surf2: #f8fafc;
   --bdr: #d1dae8; --bdr2: #c3cfe2;
