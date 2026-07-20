@@ -1,0 +1,399 @@
+<title>Text Automation (T1–T8) — Customer Update Guide | Peachtree Roofing & Exteriors</title>
+<style>
+:root {
+  --blue: #4A90D9;
+  --blue-dim: #357abd;
+  --green: #8DC63F;
+  --purple: #a78bfa;
+  --amber: #f59e0b;
+  --red: #ef4444;
+
+  --bg: #f1f5f9;
+  --bg2: #e8eef6;
+  --surf: #ffffff;
+  --surf2: #f8fafc;
+  --bdr: #d1dae8;
+  --bdr2: #c3cfe2;
+
+  --txt: #1e293b;
+  --txt2: #475569;
+  --txt3: #64748b;
+  --txt4: #94a3b8;
+
+  --step-sz: 28px;
+  --radius: 10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.site-header {
+  background: var(--surf);
+  border-bottom: 3px solid var(--blue);
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.header-brand { font-size: 1rem; font-weight: 800; color: var(--blue); letter-spacing: -0.01em; }
+.header-brand span { color: var(--green); }
+.header-doc-title {
+  font-size: 0.78rem; font-weight: 600; color: var(--txt3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-left: 4px; padding-left: 16px; border-left: 1px solid var(--bdr);
+}
+.header-meta { margin-left: auto; font-size: 0.72rem; color: var(--txt4); text-align: right; }
+
+.page-wrap { max-width: 780px; margin: 0 auto; padding: 36px 24px 80px; }
+
+.part-heading {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 32px; padding-bottom: 18px; border-bottom: 1px solid var(--bdr);
+}
+.part-icon {
+  width: 46px; height: 46px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; flex-shrink: 0;
+  background: color-mix(in srgb, var(--blue) 15%, var(--surf));
+}
+[data-theme="dark"] .part-icon { background: #1e3a5f; }
+@media (prefers-color-scheme: dark) { .part-icon { background: #1e3a5f; } }
+.part-title { font-size: 1.5rem; font-weight: 800; color: var(--txt); letter-spacing: -0.02em; text-wrap: balance; line-height: 1.2; }
+.part-subtitle { font-size: 0.82rem; color: var(--txt3); margin-top: 4px; }
+
+.guide-section {
+  background: var(--surf); border: 1px solid var(--bdr); border-radius: var(--radius);
+  padding: 24px 26px; margin-bottom: 20px;
+}
+.section-eyebrow {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--txt4); margin-bottom: 8px;
+}
+.section-title { font-size: 1.05rem; font-weight: 700; color: var(--txt); margin-bottom: 14px; letter-spacing: -0.01em; }
+
+.steps { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.step { display: grid; grid-template-columns: var(--step-sz) 1fr; gap: 12px; align-items: start; }
+.step-num {
+  width: var(--step-sz); height: var(--step-sz); border-radius: 50%;
+  font-size: 0.72rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+  background: color-mix(in srgb, var(--blue) 18%, var(--surf)); color: var(--blue);
+}
+.step-body { padding-top: 4px; }
+.step-body strong { color: var(--txt); font-weight: 700; display: block; margin-bottom: 3px; font-size: 0.9rem; }
+.step-body p { color: var(--txt2); font-size: 0.86rem; line-height: 1.6; }
+.step-body p + p { margin-top: 8px; }
+
+.callout {
+  border-radius: 8px; padding: 13px 15px; font-size: 0.83rem; line-height: 1.55; margin-top: 14px;
+  display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start;
+}
+.callout-icon { font-size: 0.9rem; line-height: 1.4; }
+.callout-body { color: var(--txt2); }
+.callout-body strong { display: block; margin-bottom: 3px; color: var(--txt); }
+.callout.info { background: color-mix(in srgb, var(--blue) 10%, var(--surf)); border: 1px solid color-mix(in srgb, var(--blue) 25%, var(--surf)); }
+.callout.warn { background: color-mix(in srgb, var(--amber) 10%, var(--surf)); border: 1px solid color-mix(in srgb, var(--amber) 30%, var(--surf)); }
+.callout.policy { background: color-mix(in srgb, var(--red) 8%, var(--surf)); border: 1px solid color-mix(in srgb, var(--red) 22%, var(--surf)); }
+.callout.tip { background: color-mix(in srgb, var(--green) 10%, var(--surf)); border: 1px solid color-mix(in srgb, var(--green) 25%, var(--surf)); }
+
+.toc { background: var(--surf); border: 1px solid var(--bdr); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px; }
+.toc-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--txt4); margin-bottom: 10px; }
+.toc-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.toc-list li a { font-size: 0.84rem; color: var(--txt2); text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 3px 0; transition: color 0.15s; }
+.toc-list li a:hover { color: var(--blue); }
+.toc-list li a .toc-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--bdr2); flex-shrink: 0; }
+
+.sub-divider { border: none; border-top: 1px dashed var(--bdr); margin: 22px 0; }
+
+.tag {
+  display: inline-block; padding: 1px 7px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;
+  vertical-align: middle; margin-left: 3px;
+}
+.tag-blue { background: color-mix(in srgb, var(--blue) 15%, var(--surf)); color: var(--blue); }
+.tag-green { background: color-mix(in srgb, var(--green) 15%, var(--surf)); color: #166534; }
+[data-theme="dark"] .tag-green { color: var(--green); }
+@media (prefers-color-scheme: dark) { .tag-green { color: var(--green); } }
+.tag-amber { background: color-mix(in srgb, var(--amber) 18%, var(--surf)); color: #92400e; }
+[data-theme="dark"] .tag-amber { color: #fcd34d; }
+@media (prefers-color-scheme: dark) { .tag-amber { color: #fcd34d; } }
+.tag-purple { background: color-mix(in srgb, var(--purple) 18%, var(--surf)); color: #6d28d9; }
+[data-theme="dark"] .tag-purple { color: var(--purple); }
+@media (prefers-color-scheme: dark) { .tag-purple { color: var(--purple); } }
+
+kbd, .btnlabel {
+  display: inline-block; font-family: inherit; font-size: 0.82rem; font-weight: 700;
+  background: var(--surf2); border: 1px solid var(--bdr2); border-radius: 6px; padding: 1px 8px; color: var(--txt);
+}
+
+.checklist { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.checklist li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.86rem; color: var(--txt2); }
+.checklist li::before { content: "☐"; color: var(--blue); font-size: 1rem; line-height: 1.3; flex-shrink: 0; }
+
+/* Template-specific additions */
+.tmpl-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+.tmpl-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.msg-thread { display: flex; flex-direction: column; align-items: flex-start; margin-top: 12px; }
+.msg-bubble {
+  background: color-mix(in srgb, var(--blue) 12%, var(--surf));
+  border: 1px solid color-mix(in srgb, var(--blue) 22%, var(--surf));
+  border-radius: 16px; border-top-left-radius: 4px;
+  padding: 13px 16px; font-size: 0.86rem; line-height: 1.6; color: var(--txt);
+  white-space: pre-line; max-width: 100%;
+}
+.msg-bubble .mv { color: var(--blue-dim); font-weight: 700; }
+[data-theme="dark"] .msg-bubble .mv { color: #8fc0f0; }
+@media (prefers-color-scheme: dark) { .msg-bubble .mv { color: #8fc0f0; } }
+.msg-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--txt4); margin: 14px 0 4px; }
+.msg-img { margin-top: 10px; }
+.msg-img img { max-width: 260px; width: 100%; border-radius: 10px; border: 1px solid var(--bdr2); display: block; }
+.msg-img-caption { font-size: 0.76rem; color: var(--txt3); margin-top: 6px; }
+
+table.ref-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 4px; }
+table.ref-table th, table.ref-table td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--bdr); vertical-align: top; }
+table.ref-table th { color: var(--txt4); font-weight: 700; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; }
+table.ref-table td { color: var(--txt2); }
+table.ref-table td strong { color: var(--txt); }
+.ref-table-wrap { overflow-x: auto; }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1720; --bg2: #131c27; --surf: #182430; --surf2: #1e2b38;
+    --bdr: #2c3b4a; --bdr2: #364a5c;
+    --txt: #e2e8f0; --txt2: #b8c4d0; --txt3: #8fa0b3; --txt4: #64748b;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1720; --bg2: #131c27; --surf: #182430; --surf2: #1e2b38;
+  --bdr: #2c3b4a; --bdr2: #364a5c;
+  --txt: #e2e8f0; --txt2: #b8c4d0; --txt3: #8fa0b3; --txt4: #64748b;
+}
+:root[data-theme="light"] {
+  --bg: #f1f5f9; --bg2: #e8eef6; --surf: #ffffff; --surf2: #f8fafc;
+  --bdr: #d1dae8; --bdr2: #c3cfe2;
+  --txt: #1e293b; --txt2: #475569; --txt3: #64748b; --txt4: #94a3b8;
+}
+
+@media (max-width: 600px) {
+  .site-header { padding: 14px 16px; flex-wrap: wrap; gap: 8px; }
+  .page-wrap { padding: 24px 14px 60px; }
+}
+</style>
+
+<header class="site-header">
+  <div><div class="header-brand">Peachtree <span>Roofing & Exteriors</span></div></div>
+  <div class="header-doc-title">Text Automation Guide</div>
+  <div class="header-meta">Employee Portal<br>For internal use</div>
+</header>
+
+<div class="page-wrap">
+
+  <div class="part-heading">
+    <div class="part-icon">💬</div>
+    <div>
+      <div class="part-title">Customer Text Automation — T1 Through T8</div>
+      <div class="part-subtitle">What each automated group text says, when it fires, and what happens behind the scenes in AccuLynx. Does not cover appointment reminder/event texts — that's a separate system.</div>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">In this guide</div>
+    <ul class="toc-list">
+      <li><a href="#how-it-works"><span class="toc-dot"></span>How this works — the group text & the AccuLynx thread</a></li>
+      <li><a href="#go-live"><span class="toc-dot"></span>Go-live: July 22, 2026</a></li>
+      <li><a href="#t1"><span class="toc-dot"></span>T1 — Welcome</a></li>
+      <li><a href="#t2"><span class="toc-dot"></span>T2 — LGIB Insurance Update</a></li>
+      <li><a href="#t3"><span class="toc-dot"></span>T3 — LGIB Materials</a></li>
+      <li><a href="#t4"><span class="toc-dot"></span>T4 — Roof Completed</a></li>
+      <li><a href="#t5"><span class="toc-dot"></span>T5 — Other Trades Completed</a></li>
+      <li><a href="#t6"><span class="toc-dot"></span>T6 — Settlement Reached</a></li>
+      <li><a href="#t7"><span class="toc-dot"></span>T7 — Post-Adjuster</a></li>
+      <li><a href="#t8"><span class="toc-dot"></span>T8 — Work Order Approved</a></li>
+      <li><a href="#reference"><span class="toc-dot"></span>Quick reference table</a></li>
+    </ul>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="guide-section" id="how-it-works">
+    <div class="section-eyebrow">Read this first</div>
+    <div class="section-title">How This Works</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:4px;">Every job that qualifies gets exactly one running conversation, not eight separate one-off texts. As the job hits each milestone below, the next template gets added to the <strong>same group thread</strong> that started with T1.</p>
+    <div class="callout policy">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body"><strong>All customer communication happens through this group text</strong> The customer, their assigned salesperson, and the office/production lines are all in the same group message from T1 onward. This is the channel — customers can reply to it any time and reach the right people, and it's how everyone (sales, production, estimating) stays in the loop on what the customer has already been told.</div>
+    </div>
+    <div class="callout info">
+      <div class="callout-icon">🔗</div>
+      <div class="callout-body"><strong>Every text is auto-posted to AccuLynx, in one running thread</strong> After each T1–T8 message sends, the system automatically posts it as a note on that job's AccuLynx file — prefixed <span class="btnlabel">[Auto-Text Sent]</span>. The first template for a job creates the message thread on the file; every template after that replies into that same thread, so anyone opening the AccuLynx file sees the full customer text history in one place, in order, without needing access to the texting dashboard itself.</div>
+    </div>
+    <div class="callout warn">
+      <div class="callout-icon">⏰</div>
+      <div class="callout-body"><strong>Texts only send 8:00 AM–8:00 PM Eastern</strong> The automation is batch-run (someone pastes the AccuLynx CSV export and clicks Run Now) rather than instant/live, and it will not send outside that window.</div>
+    </div>
+  </div>
+
+  <!-- GO LIVE -->
+  <div class="guide-section" id="go-live">
+    <div class="section-eyebrow">Effective July 22, 2026</div>
+    <div class="section-title">Go-Live: New Jobs Only, From Contract/Estimate Signed Onward</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">●</div>
+        <div class="step-body">
+          <strong>A job becomes eligible for T1–T8 the day it moves to Contract/Estimate Signed status, on or after 7/22/2026</strong>
+          <p>That status change is also what fires T1 (Welcome) — see below. Jobs that reached Contract/Estimate Signed <em>before</em> 7/22/2026 are not retroactively pulled into the automation.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">●</div>
+        <div class="step-body">
+          <strong>Once a job clears that gate, it stays in for the rest of its lifecycle</strong>
+          <p>T2 through T8 keep firing for that job as its status moves forward (LGIB, completed, invoiced, etc.) — the 7/22 rule only controls whether the job gets pulled into the automation in the first place, not each individual template after that.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T1 -->
+  <div class="guide-section" id="t1">
+    <div class="tmpl-head">
+      <div class="section-title" style="margin-bottom:0;">T1 — Welcome</div>
+      <div class="tmpl-badges"><span class="tag tag-blue">Has image</span><span class="tag tag-green">Posts to AccuLynx</span></div>
+    </div>
+    <div class="section-eyebrow" style="margin-top:10px;">Trigger</div>
+    <p style="color:var(--txt2);font-size:0.86rem;">Fires the <strong>day</strong> a job's Current Status changes to <strong>Contract/Estimate Signed</strong>.</p>
+    <div class="msg-label">Message</div>
+    <div class="msg-thread"><div class="msg-bubble">Hi <span class="mv">{{First Name}}</span>, thank you for choosing Peachtree Roofing &amp; Exteriors! We're excited to get started with you at <span class="mv">{{Address}}</span>. Check out the image below for important contact information throughout the process. Text in this group message at any point throughout your project to reach your dedicated team.</div></div>
+    <div class="msg-img">
+      <img src="https://raw.githubusercontent.com/M-W-Johnson-Holdco/peachtree-roofing-automation/main/support-team.png" alt="Support Team contact card sent with T1">
+      <div class="msg-img-caption">Sent as a follow-up image (support-team.png) a few seconds after the text above.</div>
+    </div>
+  </div>
+
+  <!-- T2 -->
+  <div class="guide-section" id="t2">
+    <div class="tmpl-head">
+      <div class="section-title" style="margin-bottom:0;">T2 — LGIB Insurance Update</div>
+      <div class="tmpl-badges"><span class="tag tag-green">Posts to AccuLynx</span></div>
+    </div>
+    <div class="section-eyebrow" style="margin-top:10px;">Trigger</div>
+    <p style="color:var(--txt2);font-size:0.86rem;">Fires the day a job's Current Status changes to <strong>LGIB</strong> (Letter Grade Insurance Battle / insurance claim negotiation).</p>
+    <div class="msg-label">Message</div>
+    <div class="msg-thread"><div class="msg-bubble">This is an important message from Peachtree Roofing &amp; Exteriors. We have an update on your insurance claim. Please reach out to <span class="mv">{{Primary Salesperson}}</span> at <span class="mv">{{Salesperson Phone}}</span> ASAP.</div></div>
+  </div>
+
+  <!-- T3 -->
+  <div class="guide-section" id="t3">
+    <div class="tmpl-head">
+      <div class="section-title" style="margin-bottom:0;">T3 — LGIB Materials</div>
+      <div class="tmpl-badges"><span class="tag tag-green">Posts to AccuLynx</span></div>
+    </div>
+    <div class="section-eyebrow" style="margin-top:10px;">Trigger</div>
+    <p style="color:var(--txt2);font-size:0.86rem;">Fires about 2 days after the LGIB status date, prompting the customer to pick materials — but is skipped if T8's own condition (Work Order already submitted for approval) is also true, so a job doesn't get both at once.</p>
+    <div class="msg-label">Message</div>
+    <div class="msg-thread"><div class="msg-bubble">This is an important message from Peachtree Roofing &amp; Exteriors. Your roof replacement has been scheduled. Please reach out to <span class="mv">{{Primary Salesperson}}</span> ASAP at <span class="mv">{{Salesperson Phone}}</span> to choose roof materials if haven't scheduled appointment already.</div></div>
+  </div>
+
+  <!-- T4 -->
+  <div class="guide-section" id="t4">
+    <div class="tmpl-head">
+      <div class="section-title" style="margin-bottom:0;">T4 — Roof Completed</div>
+      <div class="tmpl-badges"><span class="tag tag-green">Posts to AccuLynx</span></div>
+    </div>
+    <div class="section-eyebrow" style="margin-top:10px;">Trigger</div>
+    <p style="color:var(--txt2);font-size:0.86rem;">Fires within 4 days of the job's <strong>Completed Date</strong>.</p>
+    <div class="msg-label">Message</div>
+    <div class="msg-thread"><div class="msg-bubble">Hi <span class="mv">{{First Name}}</span>! Congrats on your new roof! Do you have any questions or concerns regarding how your roof replacement went? Feel free to respond to this text or call Production directly at (770) 226-5514. Our Estimating Dept is submitting supplemental documentation to <span class="mv">{{Insurance Company}}</span>, so please keep an eye out for any funds released.
+
+Next steps: If you haven't had your final walk-through and attic inspection please reach out to <span class="mv">{{Primary Salesperson}}</span> to schedule.</div></div>
+  </div>
+
+  <!-- T5 -->
+  <div class="guide-section" id="t5">
+    <div class="tmpl-head">
+      <div class="section-title" style="margin-bottom:0;">T5 — Other Trades Completed</div>
+      <div class="tmpl-badges"><span class="tag tag-green">Posts to AccuLynx</span></div>
+    </div>
+    <div class="section-eyebrow" style="margin-top:10px;">Trigger</div>
+    <p style="color:var(--txt2);font-size:0.86rem;">Fires within 4 days of the job's Current Status changing to <strong>Other Trade(s) Completed</strong>.</p>
+    <div class="msg-label">Message</div>
+    <div class="msg-thread"><div class="msg-bubble">Hi <span class="mv">{{First Name}}</span>! All work has now been completed with Peachtree Roofing! Do you have any questions or concerns regarding work recently completed? Feel free to respond to this text or call Production directly at (770) 226-5514. Our Estimating Dept is submitting final documentation to <span class="mv">{{Insurance Company}}</span>, so please keep an eye out for any funds released.</div></div>
+  </div>
+
+  <!-- T6 -->
+  <div class="guide-section" id="t6">
+    <div class="tmpl-head">
+      <div class="section-title" style="margin-bottom:0;">T6 — Settlement Reached</div>
+      <div class="tmpl-badges"><span class="tag tag-blue">Has image</span><span class="tag tag-green">Posts to AccuLynx</span></div>
+    </div>
+    <div class="section-eyebrow" style="margin-top:10px;">Trigger</div>
+    <p style="color:var(--txt2);font-size:0.86rem;">Fires within 2 days of the job's <strong>Invoiced Date</strong>.</p>
+    <div class="msg-label">Message</div>
+    <div class="msg-thread"><div class="msg-bubble">Peachtree Roofing &amp; Exteriors has an important update regarding your claim. Settlement on your claim with <span class="mv">{{Insurance Company}}</span> has been reached.</div></div>
+    <div class="msg-img">
+      <img src="https://raw.githubusercontent.com/M-W-Johnson-Holdco/peachtree-roofing-automation/main/PT%20Invoice%20Final%20Steps%20Text.png" alt="Invoice final steps card sent with T6">
+      <div class="msg-img-caption">Sent as a follow-up image (PT Invoice Final Steps Text.png) a few seconds after the text above.</div>
+    </div>
+  </div>
+
+  <!-- T7 -->
+  <div class="guide-section" id="t7">
+    <div class="tmpl-head">
+      <div class="section-title" style="margin-bottom:0;">T7 — Post-Adjuster</div>
+      <div class="tmpl-badges"><span class="tag tag-green">Posts to AccuLynx</span></div>
+    </div>
+    <div class="section-eyebrow" style="margin-top:10px;">Trigger</div>
+    <p style="color:var(--txt2);font-size:0.86rem;">Fires in a 3-day window starting the day after the job's <strong>Met With Adjuster Date</strong> — but is skipped if T2's condition (Current Status = LGIB, within 5 days) is also true, so a job doesn't get both at once.</p>
+    <div class="msg-label">Message</div>
+    <div class="msg-thread"><div class="msg-bubble">Your adjustment appointment with <span class="mv">{{Insurance Company}}</span> has completed. It typically takes about 3-5 days for the first insurance estimate to be released post-adjustment. Please make sure to forward any email communication to our estimating department at estimating@peachtreeroof.com, so we can review and assist ASAP to keep your project moving. Feel free to respond to this text at any time with any questions. Thank you for choosing Peachtree Roofing &amp; Exteriors!</div></div>
+  </div>
+
+  <!-- T8 -->
+  <div class="guide-section" id="t8">
+    <div class="tmpl-head">
+      <div class="section-title" style="margin-bottom:0;">T8 — Work Order Approved</div>
+      <div class="tmpl-badges"><span class="tag tag-blue">Has image</span><span class="tag tag-green">Posts to AccuLynx</span></div>
+    </div>
+    <div class="section-eyebrow" style="margin-top:10px;">Trigger</div>
+    <p style="color:var(--txt2);font-size:0.86rem;">Fires within 2 days of the job's <strong>Submitted for Approval Date</strong>.</p>
+    <div class="msg-label">Message</div>
+    <div class="msg-thread"><div class="msg-bubble">Hi <span class="mv">{{First Name}}</span>! EXCITING NEWS from Peachtree Roofing! Your Work Order is officially COMPLETED, which means you are on the final path to your brand-new roof! We can't wait to get started! Let us know if you have any questions!</div></div>
+    <div class="msg-img">
+      <img src="https://raw.githubusercontent.com/M-W-Johnson-Holdco/peachtree-roofing-automation/main/PT%20WO%20Text.png" alt="Work Order approved card sent with T8">
+      <div class="msg-img-caption">Sent as a follow-up image (PT WO Text.png) a few seconds after the text above.</div>
+    </div>
+  </div>
+
+  <!-- REFERENCE -->
+  <div class="guide-section" id="reference">
+    <div class="section-eyebrow">Recap</div>
+    <div class="section-title">Quick Reference</div>
+    <div class="ref-table-wrap">
+      <table class="ref-table">
+        <thead><tr><th>#</th><th>Name</th><th>Sends when…</th><th>Image</th></tr></thead>
+        <tbody>
+          <tr><td><strong>T1</strong></td><td>Welcome</td><td>Status → Contract/Estimate Signed, day of</td><td>support-team.png</td></tr>
+          <tr><td><strong>T2</strong></td><td>LGIB Insurance Update</td><td>Status → LGIB, day of</td><td>—</td></tr>
+          <tr><td><strong>T3</strong></td><td>LGIB Materials</td><td>~2 days after LGIB status date</td><td>—</td></tr>
+          <tr><td><strong>T4</strong></td><td>Roof Completed</td><td>Within 4 days of Completed Date</td><td>—</td></tr>
+          <tr><td><strong>T5</strong></td><td>Other Trades Completed</td><td>Within 4 days of status → Other Trade(s) Completed</td><td>—</td></tr>
+          <tr><td><strong>T6</strong></td><td>Settlement Reached</td><td>Within 2 days of Invoiced Date</td><td>PT Invoice Final Steps Text.png</td></tr>
+          <tr><td><strong>T7</strong></td><td>Post-Adjuster</td><td>1–3 days after Met With Adjuster Date</td><td>—</td></tr>
+          <tr><td><strong>T8</strong></td><td>Work Order Approved</td><td>Within 2 days of Submitted for Approval Date</td><td>PT WO Text.png</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout tip">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body"><strong>The two things to remember</strong> One continuous group text per job (customer + salesperson + office, everyone in the loop), and every message in it auto-lands on the AccuLynx file as a reply in the same thread. Go-live for this version is <strong>7/22/2026</strong> — only jobs that hit Contract/Estimate Signed on or after that date are included.</div>
+    </div>
+  </div>
+
+</div>

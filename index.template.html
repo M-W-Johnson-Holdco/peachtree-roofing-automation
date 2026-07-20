@@ -356,6 +356,9 @@
   </div>
 
   <div class="section active" id="tab-dashboard">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+      <a href="https://m-w-johnson-holdco.github.io/peachtree-roofing-automation/texting-automation-guide.html" target="_blank" rel="noopener" class="wo-guide-link">&#10067; Texting Automation Guide</a>
+    </div>
     <div class="stats">
       <div class="stat"><div class="num" id="stat-sent">0</div><div class="lbl">Texts Sent</div></div>
       <div class="stat"><div class="num" id="stat-skipped">0</div><div class="lbl">Skipped</div></div>
@@ -5028,8 +5031,8 @@ var imageStore = {
 };
 
 var TEMPLATES = [
-  {id:"T1",name:"Welcome",trigger:"Submitted as Prospect Date — day of",
-   check:function(row,today){var d=pd(row["Submitted as Prospect Date"]);return d&&sd(d,today);}},
+  {id:"T1",name:"Welcome",trigger:"Current Status = Contract/Estimate Signed — day of",
+   check:function(row,today){if((row["Current Status"]||"").toLowerCase()!=="contract/estimate signed")return false;var d=pd(row["Current Status Date"]);return d&&sd(d,today);}},
   {id:"T2",name:"LGIB Insurance Update",trigger:"Current Status = lgib — day of",
    check:function(row,today){if((row["Current Status"]||"").toLowerCase()!=="lgib")return false;var d=pd(row["Current Status Date"]);return d&&sd(d,today);}},
   {id:"T3",name:"LGIB Materials",trigger:"Current Status = lgib — 2 days after LGIB status date (skips if T8 ready)",
@@ -5371,10 +5374,12 @@ function processRows(rows,log,today){
     var custPhone=toE164(row["Phone Number"]||"");
     if(!custPhone){addLog("warn","Job "+jobKey+" ("+fullName+") invalid phone, skipping");stats.errors++;return next();}
     var custPhone2=toE164(row["Secondary Phone"]||"");
-    var prospectDate=pd(row["Prospect Date"]);
-    var submittedProspectDate=pd(row["Submitted as Prospect Date"]);
-    var cutoff=new Date("2026-04-06");cutoff.setHours(0,0,0,0);
-    if((!prospectDate&&!submittedProspectDate)||(prospectDate&&prospectDate<cutoff)||(submittedProspectDate&&submittedProspectDate<cutoff)){addLog("skip","Job "+jobKey+" ("+fullName+") — prospect date missing or before 4/6/2026, skipping");stats.skipped++;return next();}
+    var goLiveCutoff=new Date("2026-07-22");goLiveCutoff.setHours(0,0,0,0);
+    var currentStatus=(row["Current Status"]||"").toLowerCase();
+    var statusDate=pd(row["Current Status Date"]);
+    var alreadyEligible=log.some(function(entry){return (jobKey&&entry.jobNum===jobKey)||(jobGuidFromUrl&&(entry.jobNum===jobGuidFromUrl||entry.jobGuid===jobGuidFromUrl));});
+    var eligibleNow=currentStatus==="contract/estimate signed"&&statusDate&&statusDate>=goLiveCutoff;
+    if(!alreadyEligible&&!eligibleNow){addLog("skip","Job "+jobKey+" ("+fullName+") — not yet moved to Contract/Estimate Signed on/after 7/22/2026, skipping");stats.skipped++;return next();}
     return processTemplates(row,log,today,jobKey,fullName,custPhone,custPhone2,0).then(function(){updateStats();return next();});
   }
   return next();
