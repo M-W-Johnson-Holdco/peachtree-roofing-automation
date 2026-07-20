@@ -1035,10 +1035,20 @@ body {
       <li><span class="lk">Vac Used</span><span class="lv">Vacation days approved and taken (editable)</span></li>
       <li><span class="lk">Sick Total / Used</span><span class="lv">Sick day allocation and usage (editable)</span></li>
       <li><span class="lk">Brvmt Total / Used</span><span class="lv">Bereavement allocation and usage (editable)</span></li>
-      <li><span class="lk">Gifted <span class="tag tag-green">green</span></span><span class="lv">Extra vacation days gifted by management — read-only display; use the + Gift button to change</span></li>
-      <li><span class="lk">Waived Ins <span class="tag tag-purple">purple</span></span><span class="lv">Vacation days awarded in exchange for waiving insurance — read-only display; use + Gift button</span></li>
+      <li><span class="lk">Gifted <span class="tag tag-green">green</span></span><span class="lv">Extra vacation days gifted by management — editable directly, or use the + Gift button</span></li>
+      <li><span class="lk">Waived Ins <span class="tag tag-purple">purple</span></span><span class="lv">Vacation days awarded in exchange for waiving insurance — editable directly, or use + Gift button</span></li>
+      <li><span class="lk">Rolled Over</span><span class="lv">Unused vacation days carried over from the prior year — set by the year-end rollover process, not directly editable on this page</span></li>
+      <li><span class="lk">Net Available <span class="tag tag-green">green</span></span><span class="lv">The employee's real, usable vacation balance — computed live as Vac Total + Gifted + Waived Ins + Rolled Over, minus Vac Used</span></li>
       <li><span class="lk">Entitled</span><span class="lv">Calculated from hire date and employee type. If it doesn't match Vac Total, an <em>Apply</em> button appears to update the row.</span></li>
     </ul>
+    <div class="callout policy" style="margin-top:14px;">
+      <div class="callout-icon">&#9888;</div>
+      <div class="callout-body"><strong>Vac Total is not the employee's whole balance</strong> It's only the base entitlement for the year — it does not include Gifted days, Waived Insurance days, or Rolled Over days from last year. Those three live in their own columns and only get combined together in the <strong>Net Available</strong> column. If you're mentally doing "Vac Total minus Vac Used" to judge how many days someone has left, you're looking at an incomplete number — check Net Available instead. This is the same math used for the employee's own "Available" stat on My PTO and the "Days Left" column on the Team Requests roster, so all three should always agree.</div>
+    </div>
+    <div class="callout tip" style="margin-top:10px;">
+      <div class="callout-icon">&#10003;</div>
+      <div class="callout-body">The Employee column and the Save / + Gift actions column stay pinned in place while you scroll horizontally, so you can still see whose row you're editing even after scrolling right to reach Rolled Over or Net Available.</div>
+    </div>
   </div>
 
   <!-- EDIT -->
@@ -1050,7 +1060,7 @@ body {
         <div class="step-num adm">1</div>
         <div class="step-body">
           <strong>Click into any editable field on the row</strong>
-          <p>The Vac Total, Vac Used, Sick Total, Sick Used, Brvmt Total, and Brvmt Used fields are all directly editable inline. Gifted and Waived Ins are display-only here — use the <em>+ Gift</em> button instead.</p>
+          <p>Vac Total, Vac Used, Sick Total, Sick Used, Brvmt Total, Brvmt Used, Gifted, and Waived Ins are all directly editable inline. Rolled Over is the only balance field that stays read-only on this page — it's set by the year-end rollover process, not hand-edited here.</p>
         </div>
       </div>
       <div class="step">
@@ -1071,6 +1081,10 @@ body {
     <div class="callout warn" style="margin-top:14px;">
       <div class="callout-icon">&#9888;</div>
       <div class="callout-body">Direct edits to Used counts should match approved requests in the system. If they drift out of sync, use the <em>Sync All</em> function to recalculate.</div>
+    </div>
+    <div class="callout info" style="margin-top:10px;">
+      <div class="callout-icon">&#8505;</div>
+      <div class="callout-body">The <strong>Net Available</strong> column recalculates live as you type into Vac Total, Vac Used, Gifted, or Waived Ins — before you even click Save — so you can see the effect of a change immediately.</div>
     </div>
   </div>
 
@@ -1108,7 +1122,7 @@ body {
     </div>
     <div class="callout info" style="margin-top:14px;">
       <div class="callout-icon">&#8505;</div>
-      <div class="callout-body">Both Gifted and Waived Insurance days are included in the employee's <strong>Available</strong> total and in the rollover calculation at year end. They count exactly like regular vacation days from the employee's perspective.</div>
+      <div class="callout-body">Both Gifted and Waived Insurance days are folded into the <strong>Net Available</strong> column on Manage Balances, the employee's own <strong>Available</strong> stat on My PTO, and the rollover calculation at year end. They count exactly like regular vacation days from the employee's perspective — Gifting a day is not the same as raising Vac Total, but the employee can't tell the difference when using it.</div>
     </div>
   </div>
 
