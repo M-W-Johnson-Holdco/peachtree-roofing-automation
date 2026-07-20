@@ -1037,7 +1037,7 @@ body {
       <li><span class="lk">Brvmt Total / Used</span><span class="lv">Bereavement allocation and usage (editable)</span></li>
       <li><span class="lk">Gifted <span class="tag tag-green">green</span></span><span class="lv">Extra vacation days gifted by management — editable directly, or use the + Gift button</span></li>
       <li><span class="lk">Waived Ins <span class="tag tag-purple">purple</span></span><span class="lv">Vacation days awarded in exchange for waiving insurance — editable directly, or use + Gift button</span></li>
-      <li><span class="lk">Rolled Over</span><span class="lv">Unused vacation days carried over from the prior year — set by the year-end rollover process, not directly editable on this page</span></li>
+      <li><span class="lk">Rolled Over</span><span class="lv">Unused vacation days carried over from the prior year — editable directly, or normally set automatically by the year-end rollover process</span></li>
       <li><span class="lk">Net Available <span class="tag tag-green">green</span></span><span class="lv">The employee's real, usable vacation balance — computed live as Vac Total + Gifted + Waived Ins + Rolled Over, minus Vac Used</span></li>
       <li><span class="lk">Entitled</span><span class="lv">Calculated from hire date and employee type. If it doesn't match Vac Total, an <em>Apply</em> button appears to update the row.</span></li>
     </ul>
@@ -1060,7 +1060,7 @@ body {
         <div class="step-num adm">1</div>
         <div class="step-body">
           <strong>Click into any editable field on the row</strong>
-          <p>Vac Total, Vac Used, Sick Total, Sick Used, Brvmt Total, Brvmt Used, Gifted, and Waived Ins are all directly editable inline. Rolled Over is the only balance field that stays read-only on this page — it's set by the year-end rollover process, not hand-edited here.</p>
+          <p>Vac Total, Vac Used, Sick Total, Sick Used, Brvmt Total, Brvmt Used, Gifted, Waived Ins, and Rolled Over are all directly editable inline — every balance field on the row can be hand-edited here.</p>
         </div>
       </div>
       <div class="step">
@@ -1084,7 +1084,11 @@ body {
     </div>
     <div class="callout info" style="margin-top:10px;">
       <div class="callout-icon">&#8505;</div>
-      <div class="callout-body">The <strong>Net Available</strong> column recalculates live as you type into Vac Total, Vac Used, Gifted, or Waived Ins — before you even click Save — so you can see the effect of a change immediately.</div>
+      <div class="callout-body">The <strong>Net Available</strong> column recalculates live as you type into Vac Total, Vac Used, Gifted, Waived Ins, or Rolled Over — before you even click Save — so you can see the effect of a change immediately.</div>
+    </div>
+    <div class="callout tip" style="margin-top:10px;">
+      <div class="callout-icon">&#10003;</div>
+      <div class="callout-body"><strong>Backfilling a prior year's rollover manually</strong> If an employee's Rolled Over days from last year were never captured by the automated process (e.g., their balance predates it), type the correct number directly into their Rolled Over field and click Save. Once it's seeded this way, the year-end <em>Rollover</em> function (see below) takes over from there going forward — you shouldn't need to hand-edit it again after the first correction.</div>
     </div>
   </div>
 
@@ -1141,14 +1145,21 @@ body {
       <div class="step">
         <div class="step-num adm">2</div>
         <div class="step-body">
+          <strong>Designate W2 or 1099</strong>
+          <p>A second prompt asks you to type "W2" or "1099" for this employee. This is saved back into their UserPermissions row (not just used for this one balance), so future syncs, entitlement checks, and rollovers keep using the correct type going forward — you shouldn't need to re-enter it later.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num adm">3</div>
+        <div class="step-body">
           <strong>The system creates a balance row automatically</strong>
-          <p>Vacation entitlement is calculated from the employee's hire date and type (W2 or 1099) as recorded in UserPermissions. W2 employees also get 3 sick days and 3 bereavement days. Used counts start at 0.</p>
+          <p>Vacation entitlement is calculated from the employee's hire date (as recorded in UserPermissions) combined with the W2/1099 type you just set. W2 employees also get 3 sick days and 3 bereavement days; 1099 employees get neither. Used counts start at 0.</p>
         </div>
       </div>
     </div>
     <div class="callout warn" style="margin-top:14px;">
       <div class="callout-icon">&#9888;</div>
-      <div class="callout-body">The employee must already be set up in the system with PTO eligibility enabled before you add them here. If they are missing or marked ineligible, their balance will not be created correctly. Contact the portal administrator if needed.</div>
+      <div class="callout-body">The employee must already be set up in the system with PTO eligibility enabled before you add them here. If they are missing or marked ineligible, their balance will not be created correctly. Contact the portal administrator if needed. If their email isn't found in UserPermissions at all, you'll get a warning that the W2/1099 designation couldn't be saved there — the balance is still created using what you entered, but fix their UserPermissions row afterward so it stays correct long-term.</div>
     </div>
   </div>
 
