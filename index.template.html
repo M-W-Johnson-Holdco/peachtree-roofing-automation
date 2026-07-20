@@ -5087,7 +5087,7 @@ function buildMsg(id,row){
   var m=templateBodies[id]||DEFAULT_BODIES[id];
   m=m.replace(/{{First Name}}/g,row["Primary Contact: First Name"]||"");
   m=m.replace(/{{Last Name}}/g,row["Primary Contact: Last Name"]||"");
-  m=m.replace(/{{Address}}/g,row["Location Street 1"]||"");
+  m=m.replace(/{{Address}}/g,row["Job: Location Street 1"]||"");
   m=m.replace(/{{Primary Salesperson}}/g,row["Primary Salesperson"]||"");
   m=m.replace(/{{Salesperson Phone}}/g,spDisplay(row["Primary Salesperson"]));
   m=m.replace(/{{Insurance Company}}/g,row["Insurance Company"]||"");
@@ -5140,7 +5140,7 @@ function isModified(id){return templateBodies[id]!==DEFAULT_BODIES[id];}
 function renderTemplates(){
   var el=document.getElementById("templates-list");
   if(!el)return;
-  var sampleRow={"Primary Contact: First Name":"[First Name]","Location Street 1":"[Address]","Primary Salesperson":"[Salesperson]","Insurance Company":"[Insurance Co]","Job Number":"12345","Completed Date":"[Date]","Invoiced Date":"[Date]","WO Scheduled Date":"[Date]","Claim Number":"[Claim#]"};
+  var sampleRow={"Primary Contact: First Name":"[First Name]","Job: Location Street 1":"[Address]","Primary Salesperson":"[Salesperson]","Insurance Company":"[Insurance Co]","Job Number":"12345","Completed Date":"[Date]","Invoiced Date":"[Date]","WO Scheduled Date":"[Date]","Claim Number":"[Claim#]"};
   el.innerHTML=TEMPLATES.map(function(t){
     var mod=isModified(t.id);
     var prev=buildMsg(t.id,sampleRow);
