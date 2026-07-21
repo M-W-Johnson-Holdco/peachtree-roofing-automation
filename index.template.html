@@ -9317,6 +9317,8 @@ function woCheckDraftRestore(jobNum, savedData) {
   return false;
 }
 
+var woLoadedJobs = {};
+
 function woLoad() {
   var jobNum = (document.getElementById('wo-job-input').value || '').trim();
   if (!jobNum) { woStatus('Enter a job number first.', false); return; }
@@ -9328,10 +9330,12 @@ function woLoad() {
       if (local) {
         woSetAllFields(local);
         woMarkClean();
+        woLoadedJobs[jobNum.toLowerCase()] = true;
         if (!woCheckDraftRestore(jobNum, local)) {
           woStatus('✓ Loaded work order for job ' + jobNum + ' (local cache)', true);
         }
       } else {
+        woLoadedJobs[jobNum.toLowerCase()] = true;
         if (!woCheckDraftRestore(jobNum, null)) {
           woStatus('No work order found for job ' + jobNum + '. Fill in and save to create one.', false);
         }
@@ -9342,6 +9346,7 @@ function woLoad() {
     woSetAllFields(found.data);
     woSaveLocal(jobNum, found.data);
     woMarkClean();
+    woLoadedJobs[jobNum.toLowerCase()] = true;
     if (!woCheckDraftRestore(jobNum, found.data)) {
       woStatus('✓ Loaded work order for job ' + jobNum, true);
     }
@@ -9351,6 +9356,7 @@ function woLoad() {
     if (local) {
       woSetAllFields(local);
       woMarkClean();
+      woLoadedJobs[jobNum.toLowerCase()] = true;
       if (!woCheckDraftRestore(jobNum, local)) {
         woStatus('✓ Loaded work order for job ' + jobNum + ' (offline — local cache)', true);
       }
@@ -9746,6 +9752,13 @@ function woSave() {
   woSerializeTrades();
   var jobNum = (document.getElementById('wo-job-input').value || '').trim();
   if (!jobNum) { woStatus('Enter a job number before saving.', false); return; }
+  if (!woLoadedJobs[jobNum.toLowerCase()]) {
+    if (!confirm('You haven\'t loaded job ' + jobNum + ' yet this session. If it already has saved data, saving now will overwrite it with whatever is currently on screen.\n\nClick Cancel and hit 📂 Load first to check, or OK to save anyway.')) {
+      woStatus('Save cancelled — load the job first to avoid overwriting existing data.', false);
+      return;
+    }
+    woLoadedJobs[jobNum.toLowerCase()] = true;
+  }
   var data = woGetAllFields();
   data.__savedTs = Date.now();
   var json = JSON.stringify(data);
