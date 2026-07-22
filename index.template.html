@@ -1118,7 +1118,6 @@ const MATS=[
     existingOpts:[
       {val:'3tab',   label:'3Tab'},
       {val:'arch1',  label:'Arch - Standard'},
-      {val:'arch2',  label:'Arch - Midgrade'},
       {val:'archir1',label:'Impact Resistant - Class 4'},
       {val:'des1',   label:'Designer - Premium'},
       {val:'des2',   label:'Designer - Top Tier'},
@@ -1129,10 +1128,10 @@ const MATS=[
     //       4:Camelot II(4bd) 5:Slateline 6:CT XT25 AR 7:CT Landmark AR
     //       8:CT Landmark Pro AR
     //       9:Certainteed Belmont(4bd) 10:Certainteed Grand Manor(5bd) 11:Certainteed Carriage House(5bd)
+    // Natural Shadow (1) and HDZ & HDZ Bold (2) are the same tier - always priced identically
     upgDiff:{
       '3tab':   [0, 0,    0,     32.49, 122.50, 130.50, 0,    16.50, 21.00, 137.04, 194.00, 248.75],
-      'arch1':  [0, 0,    2.25,  19.74, 109.75, 117.75, 0,    0,     4.50,  120.54, 177.50, 232.25],
-      'arch2':  [0, 0,    0,     17.49, 107.50, 115.50, 0,    0,     4.40,  120.44, 177.40, 232.15],
+      'arch1':  [0, 2.25, 2.25,  19.74, 109.75, 117.75, 0,    0,     4.50,  120.54, 177.50, 232.25],
       'archir1':[0, 0,    0,     0,     90.01,  98.01,  0,    0,     0,     103.05, 160.01, 214.76],
       'des1':   [0, 0,    0,     0,     0,      8.00,   0,    0,     0,     13.04,  70.00,  124.75],
       'des2':   [0, 0,    0,     0,     0,      0,      0,    0,     0,     5.04,   62.00,  116.75],
@@ -2589,7 +2588,6 @@ function saveToPayrollSheet(){
         <option value="">Select...</option>
         <option>3Tab</option>
         <option>Arch - Standard</option>
-        <option>Arch - Midgrade</option>
         <option>Impact Resistant - Class 4</option>
         <option>Designer - Premium</option>
         <option>Designer - Top Tier</option>
