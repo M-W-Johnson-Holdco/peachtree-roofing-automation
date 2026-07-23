@@ -201,27 +201,27 @@ table.ref-table td strong { color: var(--txt); }
         <div class="step-num">2</div>
         <div class="step-body">
           <strong>Desired Existing</strong>
-          <p>Of that Existing count, how many the homeowner wants to <strong>keep / reinstall</strong> in the new roof. This can never be more than Existing — the calculator automatically caps it there.</p>
+          <p>Of that Existing count, how many will be at the <strong>same venting level as before</strong> in the new roof — already covered by the base roof price, no upgrade charge. This isn't about physically reusing the old part (ridge vent material gets torn off and replaced either way) — it's about whether that footage/count was already part of what the homeowner's base contract paid for. This can never be more than Existing — the calculator automatically caps it there.</p>
         </div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
         <div class="step-body">
           <strong>Desired New</strong>
-          <p>How many <strong>brand-new</strong> units of this vent type to <em>add</em>, on top of whatever's being kept. This is only new/additional units — not a repeat of what's being reused.</p>
+          <p>How many <strong>additional</strong> units/footage of this vent type to add, <em>beyond</em> what the base roof already accounted for. This is genuinely new scope the base contract never covered, so it's what actually gets charged here.</p>
         </div>
       </div>
     </div>
     <div class="callout tip">
       <div class="callout-icon">💡</div>
-      <div class="callout-body"><strong>Quick way to think about it</strong> Existing = what's there today. Desired Existing + Desired New = what will be there when the job's done. The calculator only charges for the <em>difference</em> between those two totals — that's the "credit" people ask about.</div>
+      <div class="callout-body"><strong>Quick way to think about it</strong> Existing = what's there today. Desired Existing + Desired New = what will be there when the job's done. The calculator only charges for the <em>difference</em> between those two totals — that's the "credit" people ask about, and it applies whether or not the old part can physically be reused.</div>
     </div>
     <div class="example">
       <div class="example-label">Plain-language example</div>
       <div class="example-inputs">
         <div>Roof currently has <strong>3 Box Vents</strong>.</div>
-        <div>Homeowner wants to keep <strong>2</strong> of them.</div>
-        <div>Homeowner wants <strong>1</strong> brand-new Box Vent added.</div>
+        <div>New roof will have venting at the same level for <strong>2</strong> of them (already in the base price).</div>
+        <div>Homeowner wants <strong>1</strong> brand-new Box Vent added beyond that.</div>
       </div>
       <div class="example-math">
         <div class="line"><span>Existing</span><span><strong>3</strong></span></div>
@@ -248,7 +248,7 @@ table.ref-table td strong { color: var(--txt); }
         <div class="step-num">B</div>
         <div class="step-body">
           <strong>Price the original Existing count</strong>
-          <p>Cost of the Existing units, at that same per-unit rate. This is the "credit" — the homeowner already effectively paid for those when the roof was originally built, so they shouldn't be billed again just for putting the same ones back.</p>
+          <p>Cost of the Existing units, at that same per-unit rate. This is the "credit" — that venting level was already part of the base roof scope the homeowner's contract already covers, so it shouldn't be billed again here even though the physical material is being replaced as part of the reroof anyway.</p>
         </div>
       </div>
       <div class="step">
@@ -267,12 +267,12 @@ table.ref-table td strong { color: var(--txt); }
         <div>Desired New: <strong>1</strong></div>
       </div>
       <div class="example-math">
-        <div class="line"><span>Final total (2 kept + 1 new) → 3 × $17.82</span><span>$53.46</span></div>
+        <div class="line"><span>Final total (2 at prior level + 1 new) → 3 × $17.82</span><span>$53.46</span></div>
         <div class="line"><span>Credit for original Existing → 2 × $17.82</span><span>−$35.64</span></div>
         <div class="line total"><span>Ventilation upgrade charge</span><span>$17.82</span></div>
       </div>
     </div>
-    <p style="color:var(--txt2);font-size:0.86rem;margin-top:12px;">Notice the charge ($17.82) is exactly the cost of <strong>one new unit</strong> — the 2 kept vents don't add any charge, because they were already credited out.</p>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-top:12px;">Notice the charge ($17.82) is exactly the cost of <strong>one new unit</strong> — the 2 units at the prior venting level don't add any charge, because that level was already covered by the base roof price.</p>
   </div>
 
   <!-- REMOVAL FEE -->
@@ -288,10 +288,10 @@ table.ref-table td strong { color: var(--txt); }
         <div>Desired New: <strong>0</strong></div>
       </div>
       <div class="example-math">
-        <div class="line"><span>Final total (1 kept) → 1 × $17.82</span><span>$17.82</span></div>
+        <div class="line"><span>Final total (1 at prior level) → 1 × $17.82</span><span>$17.82</span></div>
         <div class="line"><span>Credit for original Existing → 3 × $17.82</span><span>−$53.46</span></div>
         <div class="line neg"><span>Raw credit math (would look like a refund)</span><span>−$35.64</span></div>
-        <div class="line"><span>Net removed = 3 − 1 kept − 0 new = 2 units → 2 × $35 patch fee</span><span>+$70.00</span></div>
+        <div class="line"><span>Net removed = 3 − 1 kept-level − 0 new = 2 units → 2 × $35 patch fee</span><span>+$70.00</span></div>
         <div class="line total"><span>Ventilation upgrade charge</span><span>$34.36</span></div>
       </div>
     </div>
@@ -305,7 +305,7 @@ table.ref-table td strong { color: var(--txt); }
   <div class="guide-section" id="install-fee">
     <div class="section-eyebrow">Power &amp; Solar Power Vents only</div>
     <div class="section-title">New Power/Solar Vents Have an Extra $50 Install Fee</div>
-    <p style="color:var(--txt2);font-size:0.86rem;">Any time <strong>Desired New</strong> is greater than 0 for Power Vents or Solar Power Vents, a flat <strong>$50 install fee per new unit</strong> is added — this covers the extra electrical/mounting work those two vent types need that Box, Turbine, and Ridge don't. This fee only applies to brand-new units, never to kept/existing ones.</p>
+    <p style="color:var(--txt2);font-size:0.86rem;">Any time <strong>Desired New</strong> is greater than 0 for Power Vents or Solar Power Vents, a flat <strong>$50 install fee per new unit</strong> is added — this covers the extra electrical/mounting work those two vent types need that Box, Turbine, and Ridge don't. This fee only applies to brand-new units, never to units at the prior/existing venting level.</p>
     <div class="example">
       <div class="example-label">Worked example — 1 brand-new Solar Power Vent ($438.00/ea + 8% tax = $473.04)</div>
       <div class="example-inputs">
@@ -325,7 +325,8 @@ table.ref-table td strong { color: var(--txt); }
   <div class="guide-section" id="ridge">
     <div class="section-eyebrow">Ridge Vent only</div>
     <div class="section-title">Ridge Vent Is Entered in Linear Feet, Priced in 4-Foot Bundles</div>
-    <p style="color:var(--txt2);font-size:0.86rem;">Ridge Vent is the one exception to "counts" — Existing, Desired Existing, and Desired New are all entered as <strong>linear feet (LF)</strong>, not unit counts. Pricing then rounds <em>up</em> to the nearest 4 LF "stick" — so 21 LF is billed as 6 sticks (24 LF worth), not 5.25 sticks. This same rounding applies on the credit side too, so most of the time it works out cleanly, but a job with an odd LF count on the Existing side can round the credit up slightly as well — worth double-checking on unusual numbers.</p>
+    <p style="color:var(--txt2);font-size:0.86rem;">Ridge Vent is the clearest example of why "Desired Existing" isn't about physically reusing old material — the ridge vent strip gets torn off and replaced as part of any reroof, there's nothing to reinstall. Existing/Desired Existing/Desired New here just track how much ridge venting footage is already covered by the base roof price versus how much is new added scope.</p>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-top:10px;">It's also the one exception to "counts" — all three fields are entered as <strong>linear feet (LF)</strong>, not unit counts. Pricing then rounds <em>up</em> to the nearest 4 LF "stick" — so 21 LF is billed as 6 sticks (24 LF worth), not 5.25 sticks. This same rounding applies on the credit side too, so most of the time it works out cleanly, but a job with an odd LF count on the Existing side can round the credit up slightly as well — worth double-checking on unusual numbers.</p>
     <div class="example">
       <div class="example-label">Worked example — Ridge Vent ($10.25/LF + 8% tax, sold in 4 LF sticks)</div>
       <div class="example-inputs">
@@ -370,7 +371,7 @@ table.ref-table td strong { color: var(--txt); }
     </div>
     <div class="callout tip" style="margin-top:16px;">
       <div class="callout-icon">✅</div>
-      <div class="callout-body"><strong>Two rules to remember</strong> (1) You're only ever charged for the net <em>increase</em> in vent count — kept/reused vents are credited out. (2) Net removals without replacement still cost $35/unit (patch labor), and new Power/Solar installs add $50/unit (install labor) — neither of those is a mistake in the math.</div>
+      <div class="callout-body"><strong>Two rules to remember</strong> (1) You're only ever charged for the net <em>increase</em> beyond what the base roof price already covered — the physical material doesn't need to be reusable for this credit to apply. (2) Net removals without replacement still cost $35/unit (patch labor), and new Power/Solar installs add $50/unit (install labor) — neither of those is a mistake in the math.</div>
     </div>
   </div>
 
