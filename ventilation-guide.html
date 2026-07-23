@@ -300,6 +300,25 @@ table.ref-table td strong { color: var(--txt); }
       <div class="callout-icon">⚠️</div>
       <div class="callout-body"><strong>Why this isn't a mistake</strong> Removing 2 net vents with no replacement still shows a real, positive charge ($34.36) instead of a credit — that's the patch/deck-over labor, and it's expected.</div>
     </div>
+    <div class="example" style="margin-top:16px;">
+      <div class="example-label">Same scenario, but on an expensive vent type — Solar Power Vent, removing 2, replacing 0</div>
+      <div class="example-inputs">
+        <div>Existing: <strong>2</strong></div>
+        <div>Desired Existing: <strong>0</strong></div>
+        <div>Desired New: <strong>0</strong></div>
+      </div>
+      <div class="example-math">
+        <div class="line"><span>Final total (0 remaining) → 0 × $473.04</span><span>$0.00</span></div>
+        <div class="line"><span>Credit for original Existing → 2 × $473.04</span><span>−$946.08</span></div>
+        <div class="line"><span>Net removed = 2 − 0 kept-level − 0 new = 2 units → 2 × $35 patch fee</span><span>+$70.00</span></div>
+        <div class="line neg"><span>Raw total (credit outweighs the patch fee)</span><span>−$876.08</span></div>
+        <div class="line total"><span>Ventilation upgrade charge (floored at $0)</span><span>$0.00</span></div>
+      </div>
+    </div>
+    <div class="callout tip">
+      <div class="callout-icon">🛡️</div>
+      <div class="callout-body"><strong>Why this floors at $0 instead of going negative</strong> On a Solar Power Vent, the removed material is worth far more than the flat $35 patch fee, so the raw math would come out to a $876.08 <em>credit</em> — which would effectively refund the homeowner money for other charges on the job. Every vent type is floored at $0 to prevent that: a big credit can zero out this line's charge, but it can never spill over and pay for something else.</div>
+    </div>
   </div>
 
   <!-- INSTALL FEE -->
@@ -327,7 +346,7 @@ table.ref-table td strong { color: var(--txt); }
     <p style="color:var(--txt2);font-size:0.86rem;margin-top:12px;">Note there's no credit line at all here — unlike the Box Vent examples, the Existing count of 1 never gets subtracted. The $50 install fee (covering the extra electrical/mounting work these two vent types need) applies on top, any time Desired New is greater than 0.</p>
     <div class="callout tip" style="margin-top:14px;">
       <div class="callout-icon">🔁</div>
-      <div class="callout-body"><strong>But if Desired New is 0, Power/Solar go back to the normal credit rule</strong> If an existing Power/Solar vent is being removed and <em>nothing</em> new is going in its place (Desired New = 0), the credit formula applies just like Box/Turbine — the value of the removed unit offsets the $35/unit patch fee. For example, 2 existing Solar Power Vents removed with 0 replacing them: the removed value ($946.08 credit) far exceeds the $70 patch fee, so this comes out to <strong>$0.00</strong> — never a negative number/rebate, just no charge.</div>
+      <div class="callout-body"><strong>But if Desired New is 0, Power/Solar go back to the normal credit rule</strong> If an existing Power/Solar vent is being removed and <em>nothing</em> new is going in its place, the credit formula applies just like Box/Turbine instead — see the Solar Power Vent example in the <a href="#removal-fee" style="color:var(--blue);">Removal Fee section above</a>.</div>
     </div>
   </div>
 
