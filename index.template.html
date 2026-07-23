@@ -2070,11 +2070,12 @@ const _SHEET_ID='1QHp6Fz-5mDUAQSo6foyk-EcocdGTC5xANwjAuAGSxFo';
 const _SHEETS_KEY='AIzaSyB4MHXIECaHntKScXhU7p6FOCpIxrOAGGM';
 // Column indices (0-based) - PT Form Responses 1:
 // 0:Timestamp 1:Job# 2:RidgeVentFT 3:PowerVents 4:SolarPowerVents 5:Turbine
-// 6:DomeVents 7:BoxVents 8:Boots1.5in 9:Boots2in 10:Boots3in 11:Boots4in
-// 12:SatDishes 13-25:pitches(1/12-12+/12)
-// 26:TotalAreaSQ 27:MetalSQ 28:RidgesFT 29:HipsFT 30:ValleysFT
-// 31:RakesFT 32:EavesFT 33:FlashingFT 34:StepFlashingFT 35:HighRoofSQ
-// 36:Facets 37:TransitionsFT 38:Notes
+// 6:BoxVents 7:Boots1.5in 8:Boots2in 9:Boots3in 10:Boots4in
+// 11:SatDishes 12-24:pitches(1/12-12+/12)
+// 25:TotalAreaSQ 26:MetalSQ 27:RidgesFT 28:HipsFT 29:ValleysFT
+// 30:RakesFT 31:EavesFT 32:FlashingFT 33:StepFlashingFT 34:HighRoofSQ
+// 35:Facets 36:TransitionsFT 37:Notes
+// (DomeVents column removed from the sheet on 7/23/26 - indices below shifted accordingly)
 async function fetchJobData(){
   const jobNum=(document.getElementById('fc-wo').value||'').trim();
   const status=document.getElementById('fetch-status');
@@ -2092,23 +2093,23 @@ async function fetchJobData(){
     if(!match){status.style.color='var(--red)';status.textContent=`No record found for job &quot;${jobNum}&quot;.`;return;}
     const n=(i)=>parseFloat(match[i])||0;
     // Geometry
-    document.getElementById('g-sq').value=n(26)||'';
-    document.getElementById('g-rdg').value=n(28)||'';
-    document.getElementById('g-hip').value=n(29)||'';
-    document.getElementById('g-val').value=n(30)||'';
-    document.getElementById('g-rak').value=n(31)||'';
-    document.getElementById('g-eav').value=n(32)||'';
+    document.getElementById('g-sq').value=n(25)||'';
+    document.getElementById('g-rdg').value=n(27)||'';
+    document.getElementById('g-hip').value=n(28)||'';
+    document.getElementById('g-val').value=n(29)||'';
+    document.getElementById('g-rak').value=n(30)||'';
+    document.getElementById('g-eav').value=n(31)||'';
     // Ventilation existing counts from sheet
     ventCounts.ridge.exist=Math.max(0,parseFloat(match[2])||0);
     ventCounts.power.exist=Math.max(0,parseInt(match[3])||0);
     ventCounts.solar.exist=Math.max(0,parseInt(match[4])||0);
     ventCounts.turbine.exist=Math.max(0,parseInt(match[5])||0);
-    ventCounts.box.exist=Math.max(0,parseInt(match[7])||0);
+    ventCounts.box.exist=Math.max(0,parseInt(match[6])||0);
     // Pipe boots
-    bootCount=Math.max(0,(parseInt(match[8])||0)+(parseInt(match[9])||0)+(parseInt(match[10])||0)+(parseInt(match[11])||0));
-    satCount=Math.max(0,parseInt(match[12])||0);
+    bootCount=Math.max(0,(parseInt(match[7])||0)+(parseInt(match[8])||0)+(parseInt(match[9])||0)+(parseInt(match[10])||0));
+    satCount=Math.max(0,parseInt(match[11])||0);
     // Notes
-    const notes=(match[38]||'').trim();
+    const notes=(match[37]||'').trim();
     if(notes)document.getElementById('fc-notes').value=notes;
     // Rebuild and recalc
     buildMatUI();calc();saveState();
@@ -9278,10 +9279,11 @@ function woSyncVentFromCalc() {
     var match = rows.find(function(r){ return (r[1]||'').trim().toLowerCase() === jobNum.toLowerCase(); });
     if (!match) { woStatus('No form response found for job ' + jobNum + '.', false); return; }
     var n = function(i){ return parseFloat(match[i]) || 0; };
-    // Column mapping: 2=Ridge(FT) 3=Power 4=Solar 5=Turbine 7=Box 12=SatDishes
+    // Column mapping: 2=Ridge(FT) 3=Power 4=Solar 5=Turbine 6=Box 11=SatDishes
+    // (DomeVents column removed from the sheet on 7/23/26 - indices shifted accordingly)
     var ventMap = [
       ['wo-f16', n(2)],   // Ridge Vent (FT)
-      ['wo-f19', n(7)],   // Box Vents
+      ['wo-f19', n(6)],   // Box Vents
       ['wo-f23', n(3)],   // Power Vents
       ['wo-f25', n(4)],   // Solar Power Vents
       ['wo-f27', n(5)],   // Turbine
@@ -9292,7 +9294,7 @@ function woSyncVentFromCalc() {
       if (el && pair[1]) { el.value = pair[1]; synced++; }
     });
     // Satellite dishes
-    var sat = n(12);
+    var sat = n(11);
     var satEl = document.getElementById('wo-f42');
     if (satEl && sat) { satEl.value = sat; synced++; }
     if (synced > 0) woStatus('✓ Synced ' + synced + ' vent/satellite counts from form responses', true);
