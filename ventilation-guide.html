@@ -1,0 +1,377 @@
+<title>Ventilation Section Guide — Upgrades Commissions Calculator | Peachtree Roofing & Exteriors</title>
+<style>
+:root {
+  --blue: #4A90D9;
+  --blue-dim: #357abd;
+  --green: #8DC63F;
+  --purple: #a78bfa;
+  --amber: #f59e0b;
+  --red: #ef4444;
+
+  --bg: #f1f5f9;
+  --bg2: #e8eef6;
+  --surf: #ffffff;
+  --surf2: #f8fafc;
+  --bdr: #d1dae8;
+  --bdr2: #c3cfe2;
+
+  --txt: #1e293b;
+  --txt2: #475569;
+  --txt3: #64748b;
+  --txt4: #94a3b8;
+
+  --step-sz: 28px;
+  --radius: 10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.site-header {
+  background: var(--surf);
+  border-bottom: 3px solid var(--blue);
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.header-doc-title {
+  font-size: 0.78rem; font-weight: 600; color: var(--txt3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-left: 4px; padding-left: 16px; border-left: 1px solid var(--bdr);
+}
+.header-meta { margin-left: auto; font-size: 0.72rem; color: var(--txt4); text-align: right; }
+
+.page-wrap { max-width: 780px; margin: 0 auto; padding: 36px 24px 80px; }
+
+.part-heading {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 32px; padding-bottom: 18px; border-bottom: 1px solid var(--bdr);
+}
+.part-icon {
+  width: 46px; height: 46px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; flex-shrink: 0;
+  background: color-mix(in srgb, var(--blue) 15%, var(--surf));
+}
+.part-title { font-size: 1.5rem; font-weight: 800; color: var(--txt); letter-spacing: -0.02em; text-wrap: balance; line-height: 1.2; }
+.part-subtitle { font-size: 0.82rem; color: var(--txt3); margin-top: 4px; }
+
+.guide-section {
+  background: var(--surf); border: 1px solid var(--bdr); border-radius: var(--radius);
+  padding: 24px 26px; margin-bottom: 20px;
+}
+.section-eyebrow {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--txt4); margin-bottom: 8px;
+}
+.section-title { font-size: 1.05rem; font-weight: 700; color: var(--txt); margin-bottom: 14px; letter-spacing: -0.01em; }
+
+.steps { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.step { display: grid; grid-template-columns: var(--step-sz) 1fr; gap: 12px; align-items: start; }
+.step-num {
+  width: var(--step-sz); height: var(--step-sz); border-radius: 50%;
+  font-size: 0.72rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+  background: color-mix(in srgb, var(--blue) 18%, var(--surf)); color: var(--blue);
+}
+.step-body { padding-top: 4px; }
+.step-body strong { color: var(--txt); font-weight: 700; display: block; margin-bottom: 3px; font-size: 0.9rem; }
+.step-body p { color: var(--txt2); font-size: 0.86rem; line-height: 1.6; }
+.step-body p + p { margin-top: 8px; }
+
+.callout {
+  border-radius: 8px; padding: 13px 15px; font-size: 0.83rem; line-height: 1.55; margin-top: 14px;
+  display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start;
+}
+.callout-icon { font-size: 0.9rem; line-height: 1.4; }
+.callout-body { color: var(--txt2); }
+.callout-body strong { display: block; margin-bottom: 3px; color: var(--txt); }
+.callout.info { background: color-mix(in srgb, var(--blue) 10%, var(--surf)); border: 1px solid color-mix(in srgb, var(--blue) 25%, var(--surf)); }
+.callout.warn { background: color-mix(in srgb, var(--amber) 10%, var(--surf)); border: 1px solid color-mix(in srgb, var(--amber) 30%, var(--surf)); }
+.callout.tip { background: color-mix(in srgb, var(--green) 10%, var(--surf)); border: 1px solid color-mix(in srgb, var(--green) 25%, var(--surf)); }
+
+.toc { background: var(--surf); border: 1px solid var(--bdr); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px; }
+.toc-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--txt4); margin-bottom: 10px; }
+.toc-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.toc-list li a { font-size: 0.84rem; color: var(--txt2); text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 3px 0; transition: color 0.15s; }
+.toc-list li a:hover { color: var(--blue); }
+.toc-list li a .toc-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--bdr2); flex-shrink: 0; }
+
+.sub-divider { border: none; border-top: 1px dashed var(--bdr); margin: 22px 0; }
+
+.tag {
+  display: inline-block; padding: 1px 7px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;
+  vertical-align: middle; margin-left: 3px;
+}
+.tag-blue { background: color-mix(in srgb, var(--blue) 15%, var(--surf)); color: var(--blue); }
+.tag-green { background: color-mix(in srgb, var(--green) 15%, var(--surf)); color: #166534; }
+.tag-amber { background: color-mix(in srgb, var(--amber) 18%, var(--surf)); color: #92400e; }
+
+kbd, .btnlabel {
+  display: inline-block; font-family: inherit; font-size: 0.82rem; font-weight: 700;
+  background: var(--surf2); border: 1px solid var(--bdr2); border-radius: 6px; padding: 1px 8px; color: var(--txt);
+}
+
+/* Worked example blocks */
+.example {
+  background: var(--surf2); border: 1px solid var(--bdr); border-radius: 8px;
+  padding: 14px 16px; margin-top: 12px;
+}
+.example-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--txt4); margin-bottom: 8px; }
+.example-inputs { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 10px; }
+.example-inputs div { font-size: 0.82rem; color: var(--txt2); }
+.example-inputs strong { color: var(--txt); }
+.example-math { font-size: 0.82rem; color: var(--txt2); line-height: 1.8; }
+.example-math .line { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+.example-math .line.total { border-top: 1px solid var(--bdr); margin-top: 4px; padding-top: 7px; font-weight: 700; color: var(--txt); }
+.example-math .neg { color: var(--red); }
+
+table.ref-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 4px; }
+table.ref-table th, table.ref-table td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--bdr); vertical-align: top; }
+table.ref-table th { color: var(--txt4); font-weight: 700; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; }
+table.ref-table td { color: var(--txt2); }
+table.ref-table td strong { color: var(--txt); }
+.ref-table-wrap { overflow-x: auto; }
+
+:root[data-theme="light"] {
+  --bg: #f1f5f9; --bg2: #e8eef6; --surf: #ffffff; --surf2: #f8fafc;
+  --bdr: #d1dae8; --bdr2: #c3cfe2;
+  --txt: #1e293b; --txt2: #475569; --txt3: #64748b; --txt4: #94a3b8;
+}
+
+@media (max-width: 600px) {
+  .site-header { padding: 14px 16px; flex-wrap: wrap; gap: 8px; }
+  .page-wrap { padding: 24px 14px 60px; }
+  .example-inputs { gap: 10px; }
+}
+</style>
+
+<header class="site-header">
+  <div><img src="black new logo.png" alt="Peachtree Roofing & Exteriors" style="height:28px;display:block"></div>
+  <div class="header-doc-title">Ventilation Guide</div>
+  <div class="header-meta">Employee Portal<br>For internal use</div>
+</header>
+
+<div class="page-wrap">
+
+  <div class="part-heading">
+    <div class="part-icon">🌬️</div>
+    <div>
+      <div class="part-title">Ventilation Section — Upgrades Commissions Calculator</div>
+      <div class="part-subtitle">What Existing, Desired Existing, and Desired New actually mean, and how the credit/fee math behind the "Ventilation upgrade charge" works.</div>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">In this guide</div>
+    <ul class="toc-list">
+      <li><a href="#three-columns"><span class="toc-dot"></span>The three columns explained</a></li>
+      <li><a href="#credits"><span class="toc-dot"></span>How credits work — you're not charged twice</a></li>
+      <li><a href="#removal-fee"><span class="toc-dot"></span>Removing vents without replacing them</a></li>
+      <li><a href="#install-fee"><span class="toc-dot"></span>New Power/Solar install fee</a></li>
+      <li><a href="#ridge"><span class="toc-dot"></span>Ridge Vent's special LF/bundle rule</a></li>
+      <li><a href="#charge"><span class="toc-dot"></span>Where the homeowner charge comes from</a></li>
+      <li><a href="#reference"><span class="toc-dot"></span>Quick reference table</a></li>
+    </ul>
+  </div>
+
+  <!-- THREE COLUMNS -->
+  <div class="guide-section" id="three-columns">
+    <div class="section-eyebrow">Start here</div>
+    <div class="section-title">The Three Columns Explained</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:4px;">Each vent type (Ridge, Box, Power, Solar, Turbine) has the same three fields. They describe the roof's vents <strong>before</strong> and <strong>after</strong> the job — not three unrelated numbers.</p>
+    <div class="steps" style="margin-top:16px;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Existing</strong>
+          <p>How many of this vent type are on the roof <em>right now</em>, before any work starts. This should match what's actually up there today.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Desired Existing</strong>
+          <p>Of that Existing count, how many the homeowner wants to <strong>keep / reinstall</strong> in the new roof. This can never be more than Existing — the calculator automatically caps it there.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Desired New</strong>
+          <p>How many <strong>brand-new</strong> units of this vent type to <em>add</em>, on top of whatever's being kept. This is only new/additional units — not a repeat of what's being reused.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body"><strong>Quick way to think about it</strong> Existing = what's there today. Desired Existing + Desired New = what will be there when the job's done. The calculator only charges for the <em>difference</em> between those two totals — that's the "credit" people ask about.</div>
+    </div>
+    <div class="example">
+      <div class="example-label">Plain-language example</div>
+      <div class="example-inputs">
+        <div>Roof currently has <strong>3 Box Vents</strong>.</div>
+        <div>Homeowner wants to keep <strong>2</strong> of them.</div>
+        <div>Homeowner wants <strong>1</strong> brand-new Box Vent added.</div>
+      </div>
+      <div class="example-math">
+        <div class="line"><span>Existing</span><span><strong>3</strong></span></div>
+        <div class="line"><span>Desired Existing</span><span><strong>2</strong></span></div>
+        <div class="line"><span>Desired New</span><span><strong>1</strong></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREDITS -->
+  <div class="guide-section" id="credits">
+    <div class="section-eyebrow">The part people get confused on</div>
+    <div class="section-title">How Credits Work — You're Not Charged Twice</div>
+    <p style="color:var(--txt2);font-size:0.86rem;">Under the hood, the calculator does two price lookups per vent type, then subtracts them:</p>
+    <div class="steps" style="margin-top:14px;">
+      <div class="step">
+        <div class="step-num">A</div>
+        <div class="step-body">
+          <strong>Price the final total</strong>
+          <p>Cost of (Desired Existing + Desired New) units — i.e. everything that will be on the roof when the job's done.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">B</div>
+        <div class="step-body">
+          <strong>Price the original Existing count</strong>
+          <p>Cost of the Existing units, at that same per-unit rate. This is the "credit" — the homeowner already effectively paid for those when the roof was originally built, so they shouldn't be billed again just for putting the same ones back.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">=</div>
+        <div class="step-body">
+          <strong>Charge = A − B</strong>
+          <p>In plain terms: you only ever get charged for the <em>net increase</em> in vent count, not the full final total.</p>
+        </div>
+      </div>
+    </div>
+    <div class="example">
+      <div class="example-label">Worked example — Box Vents ($16.50/ea + 8% tax = $17.82/ea)</div>
+      <div class="example-inputs">
+        <div>Existing: <strong>2</strong></div>
+        <div>Desired Existing: <strong>2</strong></div>
+        <div>Desired New: <strong>1</strong></div>
+      </div>
+      <div class="example-math">
+        <div class="line"><span>Final total (2 kept + 1 new) → 3 × $17.82</span><span>$53.46</span></div>
+        <div class="line"><span>Credit for original Existing → 2 × $17.82</span><span>−$35.64</span></div>
+        <div class="line total"><span>Ventilation upgrade charge</span><span>$17.82</span></div>
+      </div>
+    </div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-top:12px;">Notice the charge ($17.82) is exactly the cost of <strong>one new unit</strong> — the 2 kept vents don't add any charge, because they were already credited out.</p>
+  </div>
+
+  <!-- REMOVAL FEE -->
+  <div class="guide-section" id="removal-fee">
+    <div class="section-eyebrow">Box, Power, Solar, Turbine only — not Ridge</div>
+    <div class="section-title">Removing Vents Without Replacing Them Still Costs Something</div>
+    <p style="color:var(--txt2);font-size:0.86rem;">If more vents come off than go back on (a <strong>net reduction</strong>), the credit math above can actually go negative — which would look like a refund. It isn't one: someone still has to physically deck over and patch each unused hole. So a flat <strong>$35 patch fee per net-removed unit</strong> gets added back on top for Box, Power, Solar, and Turbine (Ridge Vent doesn't get this fee).</p>
+    <div class="example">
+      <div class="example-label">Worked example — Box Vents: removing 2, replacing 0</div>
+      <div class="example-inputs">
+        <div>Existing: <strong>3</strong></div>
+        <div>Desired Existing: <strong>1</strong></div>
+        <div>Desired New: <strong>0</strong></div>
+      </div>
+      <div class="example-math">
+        <div class="line"><span>Final total (1 kept) → 1 × $17.82</span><span>$17.82</span></div>
+        <div class="line"><span>Credit for original Existing → 3 × $17.82</span><span>−$53.46</span></div>
+        <div class="line neg"><span>Raw credit math (would look like a refund)</span><span>−$35.64</span></div>
+        <div class="line"><span>Net removed = 3 − 1 kept − 0 new = 2 units → 2 × $35 patch fee</span><span>+$70.00</span></div>
+        <div class="line total"><span>Ventilation upgrade charge</span><span>$34.36</span></div>
+      </div>
+    </div>
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>Why this isn't a mistake</strong> Removing 2 net vents with no replacement still shows a real, positive charge ($34.36) instead of a credit — that's the patch/deck-over labor, and it's expected.</div>
+    </div>
+  </div>
+
+  <!-- INSTALL FEE -->
+  <div class="guide-section" id="install-fee">
+    <div class="section-eyebrow">Power &amp; Solar Power Vents only</div>
+    <div class="section-title">New Power/Solar Vents Have an Extra $50 Install Fee</div>
+    <p style="color:var(--txt2);font-size:0.86rem;">Any time <strong>Desired New</strong> is greater than 0 for Power Vents or Solar Power Vents, a flat <strong>$50 install fee per new unit</strong> is added — this covers the extra electrical/mounting work those two vent types need that Box, Turbine, and Ridge don't. This fee only applies to brand-new units, never to kept/existing ones.</p>
+    <div class="example">
+      <div class="example-label">Worked example — 1 brand-new Solar Power Vent ($438.00/ea + 8% tax = $473.04)</div>
+      <div class="example-inputs">
+        <div>Existing: <strong>0</strong></div>
+        <div>Desired Existing: <strong>0</strong></div>
+        <div>Desired New: <strong>1</strong></div>
+      </div>
+      <div class="example-math">
+        <div class="line"><span>1 new unit</span><span>$473.04</span></div>
+        <div class="line"><span>New-install fee (Power/Solar only)</span><span>+$50.00</span></div>
+        <div class="line total"><span>Ventilation upgrade charge</span><span>$523.04</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIDGE -->
+  <div class="guide-section" id="ridge">
+    <div class="section-eyebrow">Ridge Vent only</div>
+    <div class="section-title">Ridge Vent Is Entered in Linear Feet, Priced in 4-Foot Bundles</div>
+    <p style="color:var(--txt2);font-size:0.86rem;">Ridge Vent is the one exception to "counts" — Existing, Desired Existing, and Desired New are all entered as <strong>linear feet (LF)</strong>, not unit counts. Pricing then rounds <em>up</em> to the nearest 4 LF "stick" — so 21 LF is billed as 6 sticks (24 LF worth), not 5.25 sticks. This same rounding applies on the credit side too, so most of the time it works out cleanly, but a job with an odd LF count on the Existing side can round the credit up slightly as well — worth double-checking on unusual numbers.</p>
+    <div class="example">
+      <div class="example-label">Worked example — Ridge Vent ($10.25/LF + 8% tax, sold in 4 LF sticks)</div>
+      <div class="example-inputs">
+        <div>Existing: <strong>40 LF</strong></div>
+        <div>Desired Existing: <strong>40 LF</strong></div>
+        <div>Desired New: <strong>20 LF</strong></div>
+      </div>
+      <div class="example-math">
+        <div class="line"><span>Final total 60 LF → 15 sticks × $10.25 × 1.08</span><span>$166.05</span></div>
+        <div class="line"><span>Credit: original 40 LF → 10 sticks × $10.25 × 1.08</span><span>−$110.70</span></div>
+        <div class="line total"><span>Ventilation upgrade charge</span><span>$55.35</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARGE -->
+  <div class="guide-section" id="charge">
+    <div class="section-eyebrow">After the math</div>
+    <div class="section-title">Where the Homeowner Charge Actually Comes From</div>
+    <p style="color:var(--txt2);font-size:0.86rem;">Everything above produces the <strong>"Ventilation upgrade charge"</strong> line shown under the vent grid — that's the material/labor cost baseline after credits and fees, not what the homeowner necessarily pays.</p>
+    <div class="callout info">
+      <div class="callout-icon">🎛️</div>
+      <div class="callout-body"><strong>The slider/HO Charge box below it is a separate step</strong> Just like every other material in the calculator, you still set the actual amount charged to the homeowner using the markup slider or by typing a dollar amount directly. If the Ventilation upgrade charge comes out to $0.00 (for example, only removals with no net reduction), the box switches to letting you type any flat dollar amount you want to charge instead — same behavior as other $0-cost line items.</div>
+    </div>
+  </div>
+
+  <!-- REFERENCE -->
+  <div class="guide-section" id="reference">
+    <div class="section-eyebrow">Cheat sheet</div>
+    <div class="section-title">Quick Reference Table</div>
+    <div class="ref-table-wrap">
+      <table class="ref-table">
+        <thead><tr><th>Vent Type</th><th>Unit</th><th>Cost/Unit (+8% tax)</th><th>Net-Removal Patch Fee</th><th>New-Install Fee</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Ridge Vent</strong></td><td>Linear feet, sold in 4 LF sticks</td><td>$10.25/LF</td><td>—</td><td>—</td></tr>
+          <tr><td><strong>Box Vents</strong></td><td>Each</td><td>$16.50/ea</td><td>$35/unit</td><td>—</td></tr>
+          <tr><td><strong>Power Vents</strong></td><td>Each</td><td>$239.99/ea</td><td>$35/unit</td><td>$50/new unit</td></tr>
+          <tr><td><strong>Solar Power Vent</strong></td><td>Each</td><td>$438.00/ea</td><td>$35/unit</td><td>$50/new unit</td></tr>
+          <tr><td><strong>Turbine</strong></td><td>Each</td><td>$107.25/ea</td><td>$35/unit</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout tip" style="margin-top:16px;">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body"><strong>Two rules to remember</strong> (1) You're only ever charged for the net <em>increase</em> in vent count — kept/reused vents are credited out. (2) Net removals without replacement still cost $35/unit (patch labor), and new Power/Solar installs add $50/unit (install labor) — neither of those is a mistake in the math.</div>
+    </div>
+  </div>
+
+</div>
