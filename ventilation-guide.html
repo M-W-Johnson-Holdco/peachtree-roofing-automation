@@ -188,45 +188,46 @@ table.ref-table td strong { color: var(--txt); }
   <div class="guide-section" id="three-columns">
     <div class="section-eyebrow">Start here</div>
     <div class="section-title">The Three Columns Explained</div>
-    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:4px;">Each vent type (Ridge, Box, Power, Solar, Turbine) has the same three fields. They describe the roof's vents <strong>before</strong> and <strong>after</strong> the job — not three unrelated numbers.</p>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:4px;">Each vent type (Ridge, Box, Power, Solar, Turbine) has the same three fields. They exist because of how insurance actually pays for storm damage: <strong>insurance only covers replacing vents that are damaged</strong> — undamaged vents just get physically reinstalled onto the new roof at no material cost. Ridge Vent is the one exception, since the ridge vent strip is torn off and replaced brand-new on every reroof regardless of damage.</p>
     <div class="steps" style="margin-top:16px;">
       <div class="step">
         <div class="step-num">1</div>
         <div class="step-body">
           <strong>Existing</strong>
-          <p>How many of this vent type are on the roof <em>right now</em>, before any work starts. This should match what's actually up there today.</p>
+          <p>How many of this vent type are on the roof <em>right now</em>, before any work starts — matches the insurance adjuster's count of what's up there today.</p>
         </div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
         <div class="step-body">
           <strong>Desired Existing</strong>
-          <p>Of that Existing count, how many will be at the <strong>same venting level as before</strong> in the new roof — already covered by the base roof price, no upgrade charge. This isn't about physically reusing the old part (ridge vent material gets torn off and replaced either way) — it's about whether that footage/count was already part of what the homeowner's base contract paid for. This can never be more than Existing — the calculator automatically caps it there.</p>
+          <p><strong>Undamaged</strong> units that will be physically unscrewed and reinstalled as-is on the new roof — no new material, no charge. This can never be more than Existing — the calculator automatically caps it there.</p>
         </div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
         <div class="step-body">
           <strong>Desired New</strong>
-          <p>How many <strong>additional</strong> units/footage of this vent type to add, <em>beyond</em> what the base roof already accounted for. This is genuinely new scope the base contract never covered, so it's what actually gets charged here.</p>
+          <p><strong>Damaged</strong> units being replaced with a brand-new unit, <em>plus</em> any genuinely additional units beyond the original count if the homeowner wants more than they had. The math below is what decides which of those two situations you're actually in.</p>
         </div>
       </div>
     </div>
     <div class="callout tip">
       <div class="callout-icon">💡</div>
-      <div class="callout-body"><strong>Quick way to think about it</strong> Existing = what's there today. Desired Existing + Desired New = what will be there when the job's done. The calculator only charges for the <em>difference</em> between those two totals — that's the "credit" people ask about, and it applies whether or not the old part can physically be reused.</div>
+      <div class="callout-body"><strong>The rule that actually matters</strong> As long as Desired Existing + Desired New adds up to <em>no more than</em> the original Existing count, the charge is $0 — it doesn't matter how many of those are "reinstalled" vs. "brand new due to damage," because insurance already covers getting back to the original count either way. You only get charged once the final total goes <em>above</em> the original Existing count — that's the part insurance never covered.</div>
     </div>
     <div class="example">
-      <div class="example-label">Plain-language example</div>
+      <div class="example-label">Your example — 5 Box Vents, 2 damaged, 3 fine to reinstall</div>
       <div class="example-inputs">
-        <div>Roof currently has <strong>3 Box Vents</strong>.</div>
-        <div>New roof will have venting at the same level for <strong>2</strong> of them (already in the base price).</div>
-        <div>Homeowner wants <strong>1</strong> brand-new Box Vent added beyond that.</div>
+        <div>Roof currently has <strong>5 Box Vents</strong>.</div>
+        <div><strong>3</strong> are undamaged and get reinstalled as-is.</div>
+        <div><strong>2</strong> are damaged and get replaced brand-new (insurance-covered).</div>
       </div>
       <div class="example-math">
-        <div class="line"><span>Existing</span><span><strong>3</strong></span></div>
-        <div class="line"><span>Desired Existing</span><span><strong>2</strong></span></div>
-        <div class="line"><span>Desired New</span><span><strong>1</strong></span></div>
+        <div class="line"><span>Existing</span><span><strong>5</strong></span></div>
+        <div class="line"><span>Desired Existing (undamaged, reinstalled)</span><span><strong>3</strong></span></div>
+        <div class="line"><span>Desired New (damaged, replaced brand-new)</span><span><strong>2</strong></span></div>
+        <div class="line total"><span>Final total (3 + 2) — same as original 5, so no charge</span><span>$0.00</span></div>
       </div>
     </div>
   </div>
@@ -248,31 +249,31 @@ table.ref-table td strong { color: var(--txt); }
         <div class="step-num">B</div>
         <div class="step-body">
           <strong>Price the original Existing count</strong>
-          <p>Cost of the Existing units, at that same per-unit rate. This is the "credit" — that venting level was already part of the base roof scope the homeowner's contract already covers, so it shouldn't be billed again here even though the physical material is being replaced as part of the reroof anyway.</p>
+          <p>Cost of the Existing units, at that same per-unit rate. This is the "credit" — insurance already covers getting the roof back to its original vent count, whether that's achieved by reinstalling undamaged units or replacing damaged ones brand-new, so that count shouldn't be billed again here.</p>
         </div>
       </div>
       <div class="step">
         <div class="step-num">=</div>
         <div class="step-body">
           <strong>Charge = A − B</strong>
-          <p>In plain terms: you only ever get charged for the <em>net increase</em> in vent count, not the full final total.</p>
+          <p>In plain terms: you only get charged once the final total goes <em>above</em> the original Existing count — that's the portion insurance never accounted for.</p>
         </div>
       </div>
     </div>
     <div class="example">
-      <div class="example-label">Worked example — Box Vents ($16.50/ea + 8% tax = $17.82/ea)</div>
+      <div class="example-label">Worked example — adding beyond the original count (Box Vents, $16.50/ea + 8% tax = $17.82/ea)</div>
       <div class="example-inputs">
-        <div>Existing: <strong>2</strong></div>
-        <div>Desired Existing: <strong>2</strong></div>
-        <div>Desired New: <strong>1</strong></div>
+        <div>Existing: <strong>2</strong> (say, both undamaged)</div>
+        <div>Desired Existing: <strong>2</strong> (both reinstalled)</div>
+        <div>Desired New: <strong>1</strong> (homeowner wants 1 more, beyond original count)</div>
       </div>
       <div class="example-math">
-        <div class="line"><span>Final total (2 at prior level + 1 new) → 3 × $17.82</span><span>$53.46</span></div>
+        <div class="line"><span>Final total (2 reinstalled + 1 new) → 3 × $17.82</span><span>$53.46</span></div>
         <div class="line"><span>Credit for original Existing → 2 × $17.82</span><span>−$35.64</span></div>
         <div class="line total"><span>Ventilation upgrade charge</span><span>$17.82</span></div>
       </div>
     </div>
-    <p style="color:var(--txt2);font-size:0.86rem;margin-top:12px;">Notice the charge ($17.82) is exactly the cost of <strong>one new unit</strong> — the 2 units at the prior venting level don't add any charge, because that level was already covered by the base roof price.</p>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-top:12px;">Notice the charge ($17.82) is exactly the cost of <strong>one new unit</strong> — this time it's a real charge, because the final total (3) is genuinely more than the original Existing count (2). Compare this to the "5 Box Vents, 2 damaged" example above, where the final total matched the original count and the charge was $0 — the difference is entirely about whether the total goes past the original count, not about which units are labeled "new."</p>
   </div>
 
   <!-- REMOVAL FEE -->

@@ -1802,21 +1802,27 @@ function calc(){try{
     const desiredNew=ventCounts[k].desired||0;
     const removed=Math.max(0,existing-desiredExist);
     const netRemoved=Math.max(0,removed-desiredNew);
-    const totalAfter=desiredExist+desiredNew;
-    let totalCost,existingCost;
-    if(k==='ridge'){
-      totalCost=Math.ceil(totalAfter/4)*(opt.costEa||0)*1.08;
-      existingCost=Math.ceil(existing/4)*(opt.costEa||0)*1.08;
+    let cost;
+    if(k==='power'||k==='solar'){
+      // Power Vents & Solar Power Vents are a premium upgrade - a brand-new unit is
+      // always charged in full, never credited against the old one it's replacing.
+      cost=desiredNew*(opt.costEa||0)*1.08;
+      if(netRemoved>0) cost+=netRemoved*35;
+      if(desiredNew>0) cost+=desiredNew*50;
     } else {
-      totalCost=totalAfter*(opt.costEa||0)*1.08;
-      existingCost=existing*(opt.costEa||0)*1.08;
-    }
-    let cost=totalCost-existingCost;
-    if(netRemoved>0&&(k==='box'||k==='turbine'||k==='power'||k==='solar')){
-      cost+=netRemoved*35;
-    }
-    if(desiredNew>0&&(k==='power'||k==='solar')){
-      cost+=desiredNew*50;
+      const totalAfter=desiredExist+desiredNew;
+      let totalCost,existingCost;
+      if(k==='ridge'){
+        totalCost=Math.ceil(totalAfter/4)*(opt.costEa||0)*1.08;
+        existingCost=Math.ceil(existing/4)*(opt.costEa||0)*1.08;
+      } else {
+        totalCost=totalAfter*(opt.costEa||0)*1.08;
+        existingCost=existing*(opt.costEa||0)*1.08;
+      }
+      cost=totalCost-existingCost;
+      if(netRemoved>0&&(k==='box'||k==='turbine')){
+        cost+=netRemoved*35;
+      }
     }
     ventTypeCosts[k]=cost;
     ventUpgradeCost+=cost;
