@@ -305,11 +305,11 @@ table.ref-table td strong { color: var(--txt); }
   <!-- INSTALL FEE -->
   <div class="guide-section" id="install-fee">
     <div class="section-eyebrow">Power &amp; Solar Power Vents only</div>
-    <div class="section-title">Power &amp; Solar Vents Work Differently — No Credit, Ever</div>
-    <p style="color:var(--txt2);font-size:0.86rem;">Box, Turbine, and Ridge Vent follow the credit rule from the previous sections (charged only if the total goes above the original Existing count). <strong>Power Vents and Solar Power Vents don't follow that rule at all.</strong> They're treated as a premium, discretionary upgrade — so any brand-new unit is billed at full price, <em>with no credit against the old one it's replacing</em>, even if the final total doesn't exceed the original Existing count.</p>
+    <div class="section-title">Power &amp; Solar Vents Work Differently — No Credit Toward a New Unit</div>
+    <p style="color:var(--txt2);font-size:0.86rem;">Box, Turbine, and Ridge Vent always run the credit formula from the previous sections. <strong>Power Vents and Solar Power Vents only skip that formula when Desired New is greater than 0</strong> — i.e. only when a brand-new unit is actually going in. In that case, the new unit is billed at full price with <em>no credit toward it</em> from the old unit it's replacing, even if the final total doesn't exceed the original Existing count. That's because these are premium, discretionary upgrades — insurance covering a like-kind box vent replacement doesn't mean it's paying for a brand-new solar vent.</p>
     <div class="callout warn">
       <div class="callout-icon">⚡</div>
-      <div class="callout-body"><strong>This is the opposite of the Box Vent "5 existing, 2 damaged" example earlier</strong> For Box Vents, replacing 2 damaged units out of 5 existing came out to $0 because insurance already covers getting back to the original count. For Power/Solar, that same shape (existing unit swapped for a brand-new one) is <em>always</em> a full charge — Desired Existing is still a free reinstall if you're keeping the physical old unit, but Desired New is never discounted against Existing.</div>
+      <div class="callout-body"><strong>This is the opposite of the Box Vent "5 existing, 2 damaged" example earlier</strong> For Box Vents, replacing 2 damaged units out of 5 existing came out to $0 because insurance already covers getting back to the original count. For Power/Solar, that same shape (existing unit swapped for a brand-new one) is a full charge instead — Desired Existing is still a free reinstall if you're keeping the physical old unit, but a brand-new Power/Solar unit is never discounted against Existing.</div>
     </div>
     <div class="example">
       <div class="example-label">Worked example — existing Solar Power Vent swapped for a brand-new one</div>
@@ -325,6 +325,10 @@ table.ref-table td strong { color: var(--txt); }
       </div>
     </div>
     <p style="color:var(--txt2);font-size:0.86rem;margin-top:12px;">Note there's no credit line at all here — unlike the Box Vent examples, the Existing count of 1 never gets subtracted. The $50 install fee (covering the extra electrical/mounting work these two vent types need) applies on top, any time Desired New is greater than 0.</p>
+    <div class="callout tip" style="margin-top:14px;">
+      <div class="callout-icon">🔁</div>
+      <div class="callout-body"><strong>But if Desired New is 0, Power/Solar go back to the normal credit rule</strong> If an existing Power/Solar vent is being removed and <em>nothing</em> new is going in its place (Desired New = 0), the credit formula applies just like Box/Turbine — the value of the removed unit offsets the $35/unit patch fee. For example, 2 existing Solar Power Vents removed with 0 replacing them: the removed value ($946.08 credit) far exceeds the $70 patch fee, so this comes out to <strong>$0.00</strong> — never a negative number/rebate, just no charge.</div>
+    </div>
   </div>
 
   <!-- RIDGE -->
@@ -377,7 +381,7 @@ table.ref-table td strong { color: var(--txt); }
     </div>
     <div class="callout tip" style="margin-top:16px;">
       <div class="callout-icon">✅</div>
-      <div class="callout-body"><strong>Three rules to remember</strong> (1) For Ridge, Box, and Turbine, you're only charged for the net <em>increase</em> beyond the original Existing count — insurance already covers getting back to that count, however the units are split between reinstalled and damage-replaced. (2) Power and Solar Power Vents don't get that credit at all — any brand-new unit is billed in full, always. (3) Net removals without replacement still cost $35/unit (patch labor) on Box/Power/Solar/Turbine, and new Power/Solar installs add $50/unit (install labor) on top — neither of those is a mistake in the math.</div>
+      <div class="callout-body"><strong>Three rules to remember</strong> (1) For Ridge, Box, and Turbine, you're only charged for the net <em>increase</em> beyond the original Existing count — insurance already covers getting back to that count, however the units are split between reinstalled and damage-replaced. (2) Power and Solar Power Vents skip that credit <em>only when a brand-new unit is going in</em> (Desired New &gt; 0) — that new unit is billed in full, always. If Desired New is 0 (existing units just removed, nothing new), Power/Solar go back to the normal credit rule. (3) No vent type's credit can ever exceed its cost and become a rebate — it's floored at $0. Net removals without replacement still cost $35/unit (patch labor) on Box/Power/Solar/Turbine, and new Power/Solar installs add $50/unit (install labor) on top — neither of those is a mistake in the math.</div>
     </div>
   </div>
 
