@@ -83,11 +83,10 @@ jobs:
           cp pto-guide.html deploy/pto-guide.html
           cp wo-offline-guide.html deploy/wo-offline-guide.html
           cp texting-automation-guide.html deploy/texting-automation-guide.html
-          cp ventilation-guide.html deploy/ventilation-guide.html
           cd deploy
           git init
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html "black new logo.png" login-bg.jpg favicon.png pto-guide.html wo-offline-guide.html texting-automation-guide.html ventilation-guide.html
+          git add index.html "black new logo.png" login-bg.jpg favicon.png pto-guide.html wo-offline-guide.html texting-automation-guide.html
           git commit -m "Deploy [skip ci]"
           git push --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:gh-pages
