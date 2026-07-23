@@ -216,20 +216,6 @@ table.ref-table td strong { color: var(--txt); }
       <div class="callout-icon">💡</div>
       <div class="callout-body"><strong>The rule that actually matters (for Ridge, Box, and Turbine)</strong> As long as Desired Existing + Desired New adds up to <em>no more than</em> the original Existing count, the charge is $0. You only get charged once the final total goes <em>above</em> the original Existing count.</div>
     </div>
-    <div class="example">
-      <div class="example-label">Example — 5 Box Vents, staying at the same count</div>
-      <div class="example-inputs">
-        <div>Roof currently has <strong>5 Box Vents</strong>.</div>
-        <div><strong>3</strong> will be at the same count as before.</div>
-        <div><strong>2</strong> will be new.</div>
-      </div>
-      <div class="example-math">
-        <div class="line"><span>Existing</span><span><strong>5</strong></span></div>
-        <div class="line"><span>Desired Existing</span><span><strong>3</strong></span></div>
-        <div class="line"><span>Desired New</span><span><strong>2</strong></span></div>
-        <div class="line total"><span>Final total (3 + 2) — same as original 5, so no charge</span><span>$0.00</span></div>
-      </div>
-    </div>
   </div>
 
   <!-- CREDITS -->
@@ -273,7 +259,7 @@ table.ref-table td strong { color: var(--txt); }
         <div class="line total"><span>Ventilation upgrade charge</span><span>$17.82</span></div>
       </div>
     </div>
-    <p style="color:var(--txt2);font-size:0.86rem;margin-top:12px;">Notice the charge ($17.82) is exactly the cost of <strong>one new unit</strong> — this time it's a real charge, because the final total (3) is genuinely more than the original Existing count (2). Compare this to the "5 Box Vents" example above, where the final total matched the original count and the charge was $0 — the difference is entirely about whether the total goes past the original count.</p>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-top:12px;">Notice the charge ($17.82) is exactly the cost of <strong>one new unit</strong> — because the final total (3) is genuinely more than the original Existing count (2). If Desired New had been 0 instead (final total staying at 2), the charge would be $0 — it's entirely about whether the total goes past the original Existing count.</p>
   </div>
 
   <!-- REMOVAL FEE -->
@@ -328,7 +314,7 @@ table.ref-table td strong { color: var(--txt); }
     <p style="color:var(--txt2);font-size:0.86rem;">Box, Turbine, and Ridge Vent always run the credit formula from the previous sections. <strong>Power Vents and Solar Power Vents only skip that formula when Desired New is greater than 0</strong> — i.e. only when a new unit is actually going in. In that case, the new unit is billed at full price with <em>no credit toward it</em> from the Existing count, even if the final total doesn't exceed it. These are treated as premium upgrades, so a new Power or Solar Vent is never discounted against an existing unit.</p>
     <div class="callout warn">
       <div class="callout-icon">⚡</div>
-      <div class="callout-body"><strong>This is the opposite of the Box Vent example earlier</strong> For Box Vents, swapping 2 units out of 5 existing for new ones still came out to $0 because the final total matched the original count. For Power/Solar, that same shape (existing unit swapped for a new one) is a full charge instead — Desired Existing is still free if a unit is staying at the same count, but a new Power/Solar unit is never discounted against Existing.</div>
+      <div class="callout-body"><strong>This is different from Box/Turbine/Ridge</strong> For those types, if the final total stays at or below the original Existing count, the charge is $0 no matter how that count is split between Desired Existing and Desired New. For Power/Solar, that same shape (an existing unit swapped for a new one, total unchanged) is a full charge instead — Desired Existing is still free if a unit is staying at the same count, but a new Power/Solar unit is never discounted against Existing.</div>
     </div>
     <div class="example">
       <div class="example-label">Worked example — existing Solar Power Vent swapped for a new one</div>
