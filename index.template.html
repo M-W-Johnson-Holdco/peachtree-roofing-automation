@@ -1803,13 +1803,16 @@ function calc(){try{
     const removed=Math.max(0,existing-desiredExist);
     const netRemoved=Math.max(0,removed-desiredNew);
     let cost;
-    if(k==='power'||k==='solar'){
-      // Power Vents & Solar Power Vents are a premium upgrade - a brand-new unit is
-      // always charged in full, never credited against the old one it's replacing.
+    if((k==='power'||k==='solar')&&desiredNew>0){
+      // Power Vents & Solar Power Vents: installing a brand-new unit is always
+      // charged in full, never credited against the old one it's replacing.
       cost=desiredNew*(opt.costEa||0)*1.08;
       if(netRemoved>0) cost+=netRemoved*35;
-      if(desiredNew>0) cost+=desiredNew*50;
+      cost+=desiredNew*50;
     } else {
+      // No new unit going in (or Ridge/Box/Turbine): credit for the reduced
+      // count, offset by the patch fee for any net removal. Floored below so
+      // the credit can never exceed the cost and become a rebate to the HO.
       const totalAfter=desiredExist+desiredNew;
       let totalCost,existingCost;
       if(k==='ridge'){
@@ -1820,9 +1823,10 @@ function calc(){try{
         existingCost=existing*(opt.costEa||0)*1.08;
       }
       cost=totalCost-existingCost;
-      if(netRemoved>0&&(k==='box'||k==='turbine')){
+      if(netRemoved>0&&k!=='ridge'){
         cost+=netRemoved*35;
       }
+      cost=Math.max(0,cost);
     }
     ventTypeCosts[k]=cost;
     ventUpgradeCost+=cost;
