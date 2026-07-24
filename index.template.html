@@ -10024,10 +10024,11 @@ function ptoGetGmailToken() {
 // -- Send email via Gmail API --
 function ptoSendEmail(to, subject, bodyHtml) {
   return ptoGetGmailToken().then(function(t) {
+    var encodedSubject = '=?UTF-8?B?' + btoa(unescape(encodeURIComponent(subject))) + '?=';
     var raw = [
       'From: "Peachtree PTO" <' + GMAIL_FROM + '>',
       'To: ' + to,
-      'Subject: ' + subject,
+      'Subject: ' + encodedSubject,
       'MIME-Version: 1.0',
       'Content-Type: text/html; charset=utf-8',
       '',
