@@ -8893,6 +8893,10 @@ function woStatus(msg, ok) {
 }
 
 function woGetAllFields() {
+  // Keep the hidden wo-trades-data field in sync with the visible "Other Trades Approved"
+  // table before reading anything — it's otherwise only refreshed by woSave(), so any other
+  // reader (draft autosave, etc.) would see stale trades data instead of what's on screen.
+  if (typeof woSerializeTrades === 'function') woSerializeTrades();
   var data = {};
   WO_FIELD_IDS.forEach(function(id) {
     var el = document.getElementById(id);
@@ -9535,7 +9539,9 @@ window.receiveCalcData = function(d) {
     woFetchAllRows().then(function(rows) {
       var found = rows.find(function(r){ return r.jobNum.toLowerCase() === jobNum.toLowerCase(); });
       if (found) {
+        // Merge: only fill fields that are currently blank to avoid overwriting in-browser work
         WO_FIELD_IDS.forEach(function(id) {
+          if (id === 'wo-trades-data') return; // handled separately below — see note
           var el = document.getElementById(id);
           if (!el || found.data[id] === undefined) return;
           var cur = el.type === 'checkbox' ? null : (el.tagName === 'SELECT' ? el.value : el.value);
@@ -9547,6 +9553,14 @@ window.receiveCalcData = function(d) {
             if (!cur && found.data[id]) { el.value = found.data[id]; el.dispatchEvent(new Event('input', {bubbles:true})); }
           }
         });
+        // "Other Trades Approved" (page 3) table: the hidden wo-trades-data field is only ever
+        // refreshed from the visible #wo-trades-tbody rows by Save, so its blankness is not a
+        // reliable signal here — check the actual visible rows instead, so applying an upgrade
+        // option can never clobber trades the user already typed in but hasn't saved yet.
+        var tbodyHasRows = document.querySelectorAll('#wo-trades-tbody tr').length > 0;
+        if (!tbodyHasRows && found.data['wo-trades-data']) {
+          woDeserializeTrades(found.data['wo-trades-data']);
+        }
         woStatus('✓ Loaded WO for job ' + jobNum + ' — upgrades applied', true);
       } else {
         woStatus('Job ' + jobNum + ' not found in WO — upgrade fields pre-filled', false);
