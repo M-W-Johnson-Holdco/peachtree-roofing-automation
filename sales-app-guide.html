@@ -155,6 +155,8 @@ kbd, .btnlabel {
 .checklist { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
 .checklist li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.86rem; color: var(--txt2); }
 .checklist li::before { content: "☐"; color: var(--blue); font-size: 1rem; line-height: 1.3; flex-shrink: 0; }
+.checklist.required li::before { content: "✓"; color: var(--green); font-weight: 800; }
+.checklist.optional li::before { content: "○"; color: var(--txt4); }
 
 .def-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.83rem; }
 .def-table th { text-align: left; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--txt4); padding: 6px 10px; border-bottom: 1px solid var(--bdr2); }
@@ -205,6 +207,7 @@ kbd, .btnlabel {
     <div class="toc-title">In this guide</div>
     <ul class="toc-list">
       <li><a href="#why"><span class="toc-dot"></span>Why This Is Worth Learning</a></li>
+      <li><a href="#responsibilities"><span class="toc-dot"></span>My Sales Responsibilities</a></li>
       <li><a href="#homescreen"><span class="toc-dot"></span>1. Get the App on Your iPhone/iPad Home Screen</a></li>
       <li><a href="#commissions"><span class="toc-dot"></span>2. Upgrades Commissions Tab</a></li>
       <li class="toc-indent"><a href="#comm-claim"><span class="toc-dot"></span>Claim Type &amp; Job Info</a></li>
@@ -276,6 +279,41 @@ kbd, .btnlabel {
           <p>Submitting to the Payroll Sheet from the Commissions tab is what feeds the Company Metrics dashboards — so your commissions show up in real time, and you can see exactly where you stand against your sales peers. See what's possible income-wise and get inspired!</p>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ RESPONSIBILITIES ══════════════ -->
+  <div class="guide-section" id="responsibilities">
+    <div class="section-eyebrow">Read this before anything else</div>
+    <div class="section-title">My Sales Responsibilities</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:14px;">The app has a lot of tools in it, and not everything is mandatory. Here's a clear line between what you're required to do on every job, and what's there to help you but is your call.</p>
+
+    <div class="section-title" style="font-size:0.95rem;">✓ Required — Every Job</div>
+    <ul class="checklist required">
+      <li>Set Claim Type (Full Deductible or DAP Only) correctly before building any pricing</li>
+      <li>Enter the real existing material for every category, even the ones you can't see — don't guess or default without checking; ask production ahead of time if you're unsure</li>
+      <li>Load a job before you Save it, every time — don't skip past that confirmation warning</li>
+      <li>Collect the homeowner's signatures on every required page (How to Prepare confirmation, and Payment Plan Authorization if they're on a payment plan)</li>
+      <li>Export as Flattened PDF and upload it to AccuLynx before you consider a job's paperwork done</li>
+      <li>Submit your final upgrade decision to the Payroll Sheet — this is what actually gets your commission recorded and paid</li>
+      <li>On Insurance PT jobs, reply to the customer inside the group text thread — never in a separate one-off text</li>
+    </ul>
+
+    <div class="sub-divider"></div>
+
+    <div class="section-title" style="font-size:0.95rem;">○ Optional / Recommended — Up to You</div>
+    <ul class="checklist optional">
+      <li>Building all three upgrade options (Option 1/2/3) — great for presenting good/better/best, but not mandatory if the job only needs one</li>
+      <li>Exporting the PDF Cheat Sheet to hand the homeowner something to look at</li>
+      <li>Adding Notes (color selections, special instructions, satellite measurements)</li>
+      <li>Prepping and using offline mode — only matters if you already know an appointment will have no signal</li>
+      <li>Checking the Company Metrics dashboards to track your commission and see how you stack up against your peers</li>
+      <li>Adding the app to your Home Screen — strongly recommended for speed and offline reliability, but the website works either way</li>
+    </ul>
+
+    <div class="callout policy">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body"><strong>When in doubt, it's required</strong> If something affects the homeowner's signed paperwork, your commission, or what production/billing/estimating can see on a job, treat it as required. Everything else in this list is there to make your job easier, not to add extra work.</div>
     </div>
   </div>
 
