@@ -4403,7 +4403,7 @@ function printDoc() {
   win.document.write('@page{size:8.5in 11in;margin:0;}');
   win.document.write('html,body{margin:0!important;padding:0!important;background:#fff!important;}');
   win.document.write('.wo-frame-wrap{background:#fff!important;padding:0!important;margin:0!important;}');
-  win.document.write('.page{margin:0!important;padding:0.25in 0.5625in 0.2in!important;width:8.5in!important;min-height:11in!important;break-after:page;page-break-after:always;box-shadow:none!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;position:relative!important;}');
+  win.document.write('.page{margin:0!important;padding:0.25in 0.5625in 0.2in!important;width:8.5in!important;min-height:11in!important;break-after:page;page-break-after:always;break-inside:auto!important;page-break-inside:auto!important;box-shadow:none!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;position:relative!important;}');
   win.document.write('.page:last-child{break-after:avoid!important;page-break-after:avoid!important;}');
   win.document.write('.page-footer{padding-top:6px!important;margin-top:6px!important;font-size:9px!important;}');
   win.document.write('button,.no-print{display:none!important;}');
