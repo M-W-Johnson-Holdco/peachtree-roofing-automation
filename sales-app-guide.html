@@ -209,6 +209,7 @@ kbd, .btnlabel {
       <li class="toc-indent"><a href="#wo-flow"><span class="toc-dot"></span>Filling Out the Form With the Homeowner</a></li>
       <li><a href="#offline"><span class="toc-dot"></span>4. Using Work Order &amp; Upgrades Offline</a></li>
       <li><a href="#texting"><span class="toc-dot"></span>5. Group Texting Automation (T1–T8) — What You Need to Know</a></li>
+      <li><a href="#trouble"><span class="toc-dot"></span>Troubleshooting</a></li>
       <li><a href="#cheatsheet"><span class="toc-dot"></span>Quick Reference Cheat Sheet</a></li>
     </ul>
   </div>
@@ -566,6 +567,63 @@ kbd, .btnlabel {
     <div class="callout info">
       <div class="callout-icon">📄</div>
       <div class="callout-body"><strong>Full T1–T8 breakdown</strong> Ask for the dedicated <em>Customer Text Automation (T1–T8)</em> guide for what each of the eight messages says and exactly what triggers it.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ TROUBLESHOOTING ══════════════ -->
+  <div class="guide-section" id="trouble">
+    <div class="section-eyebrow">If something doesn't go as expected</div>
+    <div class="section-title">Troubleshooting</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">●</div>
+        <div class="step-body">
+          <strong>Home Screen icon opens a blank page or the old login screen</strong>
+          <p>Delete the icon and add it again from Section 1 — this usually means it was added before you were actually signed in, or from an old bookmark/link instead of the live address.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">●</div>
+        <div class="step-body">
+          <strong>Option 1/2/3 button is greyed out on the Work Order tab</strong>
+          <p>That option was never saved with <span class="btnlabel">📋 Save to Work Order</span> on the Commissions tab for that job number — go back and save it, or apply whichever option did save and fill in the rest by hand.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">●</div>
+        <div class="step-body">
+          <strong>Fetch on the Commissions tab doesn't pull in roof measurements</strong>
+          <p>Double-check the job number matches exactly what's on the measurement form — Fetch matches by job number, so a typo or a job that hasn't had its measurement form submitted yet will come back empty. You can still enter the Roof Geometries fields by hand.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">●</div>
+        <div class="step-body">
+          <strong>Total Commission looks wrong</strong>
+          <p>Check Claim Type first — Full Deductible and DAP Only pay very different rates (100% vs. 33% of margin), and it's easy to leave it on whatever it defaulted to. Also check whether an Upgrades Discount is set; it reduces your commission, not the company's cost.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">●</div>
+        <div class="step-body">
+          <strong>"Unsaved changes" won't go away after tapping Save</strong>
+          <p>Make sure the job number in the field matches a job you've already Loaded this session — Save on a job you haven't loaded yet will prompt you to confirm before it writes anything, to avoid overwriting existing data.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">●</div>
+        <div class="step-body">
+          <strong>Work Order or Upgrades won't load with no signal</strong>
+          <p>That job wasn't Loaded-and-Saved on this exact device while you still had signal (see Section 4) — there's nothing local to fall back to. Keep a paper or photo backup of key job details as a last resort.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">●</div>
+        <div class="step-body">
+          <strong>A customer says they never got a T1–T8 text</strong>
+          <p>Confirm the job's Work Type is Insurance PT and that it reached Contract/Estimate Signed on or after 7/29/2026 — anything outside that is out of scope by design, not a bug. If it should qualify and didn't fire, flag it rather than texting the customer manually, so the root cause gets fixed.</p>
+        </div>
+      </div>
     </div>
   </div>
 
