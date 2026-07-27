@@ -1,0 +1,586 @@
+<title>Sales Team App Guide — Employee Portal | Peachtree Roofing &amp; Exteriors</title>
+<style>
+:root {
+  --blue: #4A90D9;
+  --blue-dim: #357abd;
+  --green: #8DC63F;
+  --purple: #a78bfa;
+  --amber: #f59e0b;
+  --red: #ef4444;
+
+  --bg: #f1f5f9;
+  --bg2: #e8eef6;
+  --surf: #ffffff;
+  --surf2: #f8fafc;
+  --bdr: #d1dae8;
+  --bdr2: #c3cfe2;
+
+  --txt: #1e293b;
+  --txt2: #475569;
+  --txt3: #64748b;
+  --txt4: #94a3b8;
+
+  --step-sz: 28px;
+  --radius: 10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.site-header {
+  background: var(--surf);
+  border-bottom: 3px solid var(--blue);
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.header-brand { font-size: 1rem; font-weight: 800; color: var(--blue); letter-spacing: -0.01em; }
+.header-brand span { color: var(--green); }
+.header-doc-title {
+  font-size: 0.78rem; font-weight: 600; color: var(--txt3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-left: 4px; padding-left: 16px; border-left: 1px solid var(--bdr);
+}
+.header-meta { margin-left: auto; font-size: 0.72rem; color: var(--txt4); text-align: right; }
+
+.page-wrap { max-width: 780px; margin: 0 auto; padding: 36px 24px 80px; }
+
+.part-heading {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 32px; padding-bottom: 18px; border-bottom: 1px solid var(--bdr);
+}
+.part-icon {
+  width: 46px; height: 46px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; flex-shrink: 0;
+  background: color-mix(in srgb, var(--blue) 15%, var(--surf));
+}
+[data-theme="dark"] .part-icon { background: #1e3a5f; }
+@media (prefers-color-scheme: dark) { .part-icon { background: #1e3a5f; } }
+.part-title { font-size: 1.5rem; font-weight: 800; color: var(--txt); letter-spacing: -0.02em; text-wrap: balance; line-height: 1.2; }
+.part-subtitle { font-size: 0.82rem; color: var(--txt3); margin-top: 4px; }
+
+.section-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 40px 0 20px;
+}
+.section-divider .div-num {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  background: color-mix(in srgb, var(--green) 18%, var(--surf));
+  color: #166534; font-weight: 800; font-size: 0.95rem;
+  display: flex; align-items: center; justify-content: center;
+}
+[data-theme="dark"] .section-divider .div-num { color: var(--green); }
+@media (prefers-color-scheme: dark) { .section-divider .div-num { color: var(--green); } }
+.section-divider .div-title { font-size: 1.15rem; font-weight: 800; color: var(--txt); letter-spacing: -0.01em; }
+.section-divider .div-sub { font-size: 0.8rem; color: var(--txt3); margin-top: 1px; }
+
+.guide-section {
+  background: var(--surf); border: 1px solid var(--bdr); border-radius: var(--radius);
+  padding: 24px 26px; margin-bottom: 20px;
+}
+.section-eyebrow {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--txt4); margin-bottom: 8px;
+}
+.section-title { font-size: 1.05rem; font-weight: 700; color: var(--txt); margin-bottom: 14px; letter-spacing: -0.01em; }
+
+.steps { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.step { display: grid; grid-template-columns: var(--step-sz) 1fr; gap: 12px; align-items: start; }
+.step-num {
+  width: var(--step-sz); height: var(--step-sz); border-radius: 50%;
+  font-size: 0.72rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+  background: color-mix(in srgb, var(--blue) 18%, var(--surf)); color: var(--blue);
+}
+.step-body { padding-top: 4px; }
+.step-body strong { color: var(--txt); font-weight: 700; display: block; margin-bottom: 3px; font-size: 0.9rem; }
+.step-body p { color: var(--txt2); font-size: 0.86rem; line-height: 1.6; }
+.step-body p + p { margin-top: 8px; }
+
+.callout {
+  border-radius: 8px; padding: 13px 15px; font-size: 0.83rem; line-height: 1.55; margin-top: 14px;
+  display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start;
+}
+.callout-icon { font-size: 0.9rem; line-height: 1.4; }
+.callout-body { color: var(--txt2); }
+.callout-body strong { display: block; margin-bottom: 3px; }
+.callout.info { background: color-mix(in srgb, var(--blue) 10%, var(--surf)); border: 1px solid color-mix(in srgb, var(--blue) 25%, var(--surf)); }
+.callout.warn { background: color-mix(in srgb, var(--amber) 10%, var(--surf)); border: 1px solid color-mix(in srgb, var(--amber) 30%, var(--surf)); }
+.callout.policy { background: color-mix(in srgb, var(--red) 8%, var(--surf)); border: 1px solid color-mix(in srgb, var(--red) 22%, var(--surf)); }
+.callout.tip { background: color-mix(in srgb, var(--green) 10%, var(--surf)); border: 1px solid color-mix(in srgb, var(--green) 25%, var(--surf)); }
+
+.toc { background: var(--surf); border: 1px solid var(--bdr); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px; }
+.toc-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--txt4); margin-bottom: 10px; }
+.toc-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.toc-list li a { font-size: 0.84rem; color: var(--txt2); text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 3px 0; transition: color 0.15s; }
+.toc-list li a:hover { color: var(--blue); }
+.toc-list li a .toc-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--bdr2); flex-shrink: 0; }
+.toc-list li.toc-indent { padding-left: 18px; }
+
+.sub-divider { border: none; border-top: 1px dashed var(--bdr); margin: 22px 0; }
+
+.tag {
+  display: inline-block; padding: 1px 7px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;
+  vertical-align: middle; margin-left: 3px;
+}
+.tag-blue { background: color-mix(in srgb, var(--blue) 15%, var(--surf)); color: var(--blue); }
+.tag-green { background: color-mix(in srgb, var(--green) 15%, var(--surf)); color: #166534; }
+[data-theme="dark"] .tag-green { color: var(--green); }
+@media (prefers-color-scheme: dark) { .tag-green { color: var(--green); } }
+.tag-amber { background: color-mix(in srgb, var(--amber) 18%, var(--surf)); color: #92400e; }
+[data-theme="dark"] .tag-amber { color: #fcd34d; }
+@media (prefers-color-scheme: dark) { .tag-amber { color: #fcd34d; } }
+
+kbd, .btnlabel {
+  display: inline-block; font-family: inherit; font-size: 0.82rem; font-weight: 700;
+  background: var(--surf2); border: 1px solid var(--bdr2); border-radius: 6px; padding: 1px 8px; color: var(--txt);
+}
+
+.checklist { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.checklist li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.86rem; color: var(--txt2); }
+.checklist li::before { content: "☐"; color: var(--blue); font-size: 1rem; line-height: 1.3; flex-shrink: 0; }
+
+.def-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.83rem; }
+.def-table th { text-align: left; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--txt4); padding: 6px 10px; border-bottom: 1px solid var(--bdr2); }
+.def-table td { padding: 8px 10px; border-bottom: 1px solid var(--bdr); color: var(--txt2); vertical-align: top; }
+.def-table td:first-child { color: var(--txt); font-weight: 700; white-space: nowrap; }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1720; --bg2: #131c27; --surf: #182430; --surf2: #1e2b38;
+    --bdr: #2c3b4a; --bdr2: #364a5c;
+    --txt: #e2e8f0; --txt2: #b8c4d0; --txt3: #8fa0b3; --txt4: #64748b;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1720; --bg2: #131c27; --surf: #182430; --surf2: #1e2b38;
+  --bdr: #2c3b4a; --bdr2: #364a5c;
+  --txt: #e2e8f0; --txt2: #b8c4d0; --txt3: #8fa0b3; --txt4: #64748b;
+}
+:root[data-theme="light"] {
+  --bg: #f1f5f9; --bg2: #e8eef6; --surf: #ffffff; --surf2: #f8fafc;
+  --bdr: #d1dae8; --bdr2: #c3cfe2;
+  --txt: #1e293b; --txt2: #475569; --txt3: #64748b; --txt4: #94a3b8;
+}
+
+@media (max-width: 600px) {
+  .site-header { padding: 14px 16px; flex-wrap: wrap; gap: 8px; }
+  .page-wrap { padding: 24px 14px 60px; }
+}
+</style>
+
+<header class="site-header">
+  <div><div class="header-brand">Peachtree <span>Roofing &amp; Exteriors</span></div></div>
+  <div class="header-doc-title">Sales Team App Guide</div>
+  <div class="header-meta">Employee Portal<br>Reference material after training</div>
+</header>
+
+<div class="page-wrap">
+
+  <div class="part-heading">
+    <div class="part-icon">📱</div>
+    <div>
+      <div class="part-title">Employee Portal — Sales Team Guide</div>
+      <div class="part-subtitle">Everything covered in your training, written down so you can walk through it again on your own</div>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">In this guide</div>
+    <ul class="toc-list">
+      <li><a href="#homescreen"><span class="toc-dot"></span>1. Get the App on Your iPhone/iPad Home Screen</a></li>
+      <li><a href="#commissions"><span class="toc-dot"></span>2. Upgrades Commissions Tab</a></li>
+      <li class="toc-indent"><a href="#comm-claim"><span class="toc-dot"></span>Claim Type &amp; Job Info</a></li>
+      <li class="toc-indent"><a href="#comm-materials"><span class="toc-dot"></span>Building Material Upgrades</a></li>
+      <li class="toc-indent"><a href="#comm-totals"><span class="toc-dot"></span>Totals, Discounts &amp; Your Commission</a></li>
+      <li class="toc-indent"><a href="#comm-save"><span class="toc-dot"></span>Saving, Options &amp; Exporting</a></li>
+      <li><a href="#workorder"><span class="toc-dot"></span>3. Work Order Tab</a></li>
+      <li class="toc-indent"><a href="#wo-basics"><span class="toc-dot"></span>Load, Save &amp; Applying an Upgrade Option</a></li>
+      <li class="toc-indent"><a href="#wo-flow"><span class="toc-dot"></span>Filling Out the Form With the Homeowner</a></li>
+      <li><a href="#offline"><span class="toc-dot"></span>4. Using Work Order &amp; Upgrades Offline</a></li>
+      <li><a href="#texting"><span class="toc-dot"></span>5. Group Texting Automation (T1–T8) — What You Need to Know</a></li>
+      <li><a href="#cheatsheet"><span class="toc-dot"></span>Quick Reference Cheat Sheet</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════════════ 1. HOME SCREEN ══════════════ -->
+  <div class="guide-section" id="homescreen">
+    <div class="section-eyebrow">Do this once, on every phone/iPad you'll use for work</div>
+    <div class="section-title">1. Get the App on Your iPhone/iPad Home Screen</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:14px;">The Employee Portal is a website, not an App Store app — but once you add it to your Home Screen, it opens full-screen and behaves just like any other app icon. The address is <strong>www.peachtreerestorations.com/employeeportal</strong></p>
+
+    <div class="sub-divider"></div>
+
+    <div class="section-title" style="font-size:0.95rem;">Using Safari (iPhone or iPad)</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Open Safari and go to www.peachtreerestorations.com/employeeportal</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Tap the Share icon</strong><p>The square with an arrow pointing up — on iPhone it's at the bottom of the screen, on iPad it's at the top next to the address bar.</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Scroll down the share sheet and tap "Add to Home Screen"</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>Confirm the name (or edit it) and tap "Add" in the top right</strong><p>An icon now appears on your Home Screen. Tap it any time to open the app full-screen — no browser address bar, no tabs.</p></div>
+      </div>
+    </div>
+
+    <div class="sub-divider"></div>
+
+    <div class="section-title" style="font-size:0.95rem;">Using Chrome (iPhone or iPad)</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Open Chrome and go to www.peachtreerestorations.com/employeeportal</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Tap the Share icon</strong><p>Same square-with-an-arrow icon, in Chrome's toolbar. On iOS, Chrome hands off to the same system share sheet Safari uses.</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Scroll down and tap "Add to Home Screen"</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>Confirm the name and tap "Add"</strong></div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body"><strong>Do this before you need it in the field</strong> A Home Screen icon opens faster, avoids typing the address wrong, and is what makes the offline behavior in Section 4 reliable — it's tied to the specific browser you used to add it (Safari's icon uses Safari's saved data, Chrome's uses Chrome's).</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 2. UPGRADES COMMISSIONS ══════════════ -->
+  <div class="section-divider" id="commissions">
+    <div class="div-num">2</div>
+    <div>
+      <div class="div-title">Upgrades Commissions Tab</div>
+      <div class="div-sub">Build the homeowner's upgrade pricing and see your commission update live</div>
+    </div>
+  </div>
+
+  <div class="guide-section" id="comm-claim">
+    <div class="section-eyebrow">Set this up first for every job</div>
+    <div class="section-title">Claim Type &amp; Job Info</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Choose Full Deductible or DAP Only at the top</strong>
+          <p>This one toggle controls your commission rate for the whole job — get it right before you build anything else.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Set Date Signed</strong>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Enter the Job Number and tap Fetch</strong>
+          <p>This pulls the roof measurements (SQ, ridges, hips, valleys, rakes, eaves) straight from that job's measurement form, so you're not retyping numbers you already collected. You can still edit any of them by hand afterward if something needs adjusting.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout policy">
+      <div class="callout-icon">💲</div>
+      <div class="callout-body"><strong>Full Deductible vs. DAP Only changes your commission rate</strong> Full Deductible pays you <strong>100% of the margin</strong> on every upgrade (Price Charged minus Our Cost). DAP Only pays <strong>33% of the margin</strong>. This is why Claim Type is the very first thing you set — everything below is calculated off of it.</div>
+    </div>
+  </div>
+
+  <div class="guide-section" id="comm-materials">
+    <div class="section-eyebrow">One card per material category</div>
+    <div class="section-title">Building Material Upgrades</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:10px;">Shingles, Ridge Cap, Starter Strip, Underlayment, Valley/Ice &amp; Water, Pipe Boots, Warranty, and Ventilation each get their own card. The steps are the same for each one:</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Set "Existing" to what's already on the house</strong>
+          <p>This is the baseline the homeowner already has — it's what the upgrade is being priced against.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Tap the new material you're upgrading them to</strong>
+          <p>The row shows <span class="btnlabel">Upgrade cost (min charge to HO)</span> the moment you pick one — that's the absolute floor; charging exactly that amount earns you $0 commission on this item.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Set the price using the Margin on Upgrade slider — or just type the dollar amount</strong>
+          <p>Drag the slider to set how much over cost you're charging (0% = at cost, no commission; higher = more commission), or type directly into the <span class="btnlabel">HO Charge</span> box if you already know the number you and the homeowner agreed on. Both are linked — moving one updates the other.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>Watch Min HO Charge and Your Commission update live</strong>
+          <p>These sit side-by-side under the slider so you can see exactly what you're earning on that item before you lock in the price with the homeowner.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout info">
+      <div class="callout-icon">💨</div>
+      <div class="callout-body"><strong>Ventilation is entered a little differently</strong> Ridge Vent is entered in linear feet (the app converts to sticks needed automatically); Box Vents, Power Vents, Solar Power Vent, and Turbine are entered as a count. Existing vs. upgrade works the same way as the other categories otherwise.</div>
+    </div>
+  </div>
+
+  <div class="guide-section" id="comm-totals">
+    <div class="section-eyebrow">Everything rolls up automatically</div>
+    <div class="section-title">Totals, Discounts &amp; Your Commission</div>
+    <table class="def-table">
+      <thead><tr><th>Line</th><th>What it means</th></tr></thead>
+      <tbody>
+        <tr><td>Total Upgrade Cost</td><td>Our cost + tax across every upgrade you've selected</td></tr>
+        <tr><td>Total Price Charged</td><td>What you've set the homeowner to pay across all upgrades</td></tr>
+        <tr><td>Charged Minus Cost</td><td>Gross margin — this is what your commission is calculated from</td></tr>
+        <tr><td>TOTAL COMMISSION</td><td>Gross margin × your commission rate (100% Full Deductible / 33% DAP Only)</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>Upgrades Discount comes straight out of your commission</strong> If a manager approves a discount for the homeowner, entering it under Upgrades Discount reduces the Price Charged (and shows as Credited Cost/Credited Price Charged) — the company still pays full cost on the upgrade, so that discount is absorbed by your commission, not the company's margin. Only enter a discount your manager has actually approved.</div>
+    </div>
+  </div>
+
+  <div class="guide-section" id="comm-save">
+    <div class="section-eyebrow">When you're done building the options</div>
+    <div class="section-title">Saving, Options &amp; Exporting</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Build up to three separate pricing scenarios for the same job</strong>
+          <p>Adjust the sliders/materials for a different combination, then click <span class="btnlabel">💾 Save Option 1</span>, then repeat and save as <span class="btnlabel">Option 2</span> / <span class="btnlabel">Option 3</span>. This is how you walk a homeowner through good/better/best without redoing the math three times on paper.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Use ⬇ Export PDF Cheat Sheet to hand the homeowner something to look at</strong>
+          <p>Add notes (color selections, special instructions, satellite measurements) first — they print on the cheat sheet.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Once the homeowner decides, click 📋 Save to Work Order</strong>
+          <p>This is what makes that option available to apply on the Work Order tab (Option 1/2/3 buttons — see Section 3).</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>Click 💾 Save to Payroll Sheet once the final decision is locked in</strong>
+          <p>This is how your commission actually gets recorded for payroll — don't skip this step even if you've already saved options and exported the cheat sheet.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout info">
+      <div class="callout-icon">↺</div>
+      <div class="callout-body"><strong>Starting a new job?</strong> Click <span class="btnlabel">↺ Reset</span> first to clear out the previous job's numbers before you start entering a new one.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 3. WORK ORDER ══════════════ -->
+  <div class="section-divider" id="workorder">
+    <div class="div-num">3</div>
+    <div>
+      <div class="div-title">Work Order Tab</div>
+      <div class="div-sub">The actual paperwork the homeowner signs, filled out on-site</div>
+    </div>
+  </div>
+
+  <div class="guide-section" id="wo-basics">
+    <div class="section-eyebrow">Start every Work Order the same way</div>
+    <div class="section-title">Load, Save &amp; Applying an Upgrade Option</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Type the Job Number, then click 📂 Load</strong>
+          <p>Pulls in whatever's already on file for that job.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>If you built pricing on the Upgrades Commissions tab, apply it here</strong>
+          <p>Click whichever <span class="btnlabel">Option 1</span> / <span class="btnlabel">Option 2</span> / <span class="btnlabel">Option 3</span> button matches what the homeowner picked (only lights up once that option's been saved to Work Order from Section 2). This fills in the materials, upgrade costs, vent counts, and pricing for you — it layers on top of the Work Order, it doesn't erase anything else you've already filled in.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Click 💾 Save often as you fill out the form</strong>
+          <p>Don't wait until the very end — save every few sections so you never lose progress.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body"><strong>Always Load before you Save</strong> Saving a job number you haven't loaded yet this session will prompt you to confirm — that warning exists to stop you from accidentally overwriting a job's existing data with a blank form.</div>
+    </div>
+  </div>
+
+  <div class="guide-section" id="wo-flow">
+    <div class="section-eyebrow">Walking the homeowner through it</div>
+    <div class="section-title">Filling Out the Form With the Homeowner</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:10px;">The Work Order is a multi-page document, in this order:</p>
+    <table class="def-table">
+      <thead><tr><th>Pages</th><th>What's on them</th></tr></thead>
+      <tbody>
+        <tr><td>1–5</td><td>Roof Materials Order — homeowner info, existing roof details, material selections, payment breakdown</td></tr>
+        <tr><td>6–8</td><td>How to Prepare and What to Expect, plus the homeowner's signature confirming they've read it</td></tr>
+        <tr><td>9</td><td>Payment Plan Authorization Form (ACH/card info + signature) — only fill this out if the homeowner is using a payment plan</td></tr>
+      </tbody>
+    </table>
+    <div class="steps" style="margin-top:16px;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Watch for the "Unsaved changes" warning as you go</strong>
+          <p>It's your reminder to tap <span class="btnlabel">💾 Save</span> — get in the habit of saving every few fields rather than waiting until signatures are collected.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Collect signatures, then Save immediately after</strong>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Click "Export as Flattened PDF" once everything is signed</strong>
+          <p>This is the file you upload to AccuLynx — it locks in the form exactly as the homeowner saw and signed it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 4. OFFLINE ══════════════ -->
+  <div class="guide-section" id="offline">
+    <div class="section-eyebrow">Read this before an appointment you know will have no signal</div>
+    <div class="section-title">4. Using Work Order &amp; Upgrades Offline</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:14px;">The app saves to your device first, then tries to sync online — so it can keep working with no signal, but only for jobs you've prepped ahead of time on that exact device.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>While you still have signal: Load the Work Order and Save it</strong>
+          <p>Do this for every job on your route — it's saved per job number, per device.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Build and Save your upgrade options on the Commissions tab too</strong>
+          <p>Same idea — <span class="btnlabel">Save Option 1/2/3</span> while you have signal, so the Option buttons on the Work Order tab aren't greyed out later.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>At the appointment: Load and apply Options exactly the same way</strong>
+          <p>If there's no signal, Load quietly falls back to what you saved on the device in Step 1 — you won't see a difference in how you use it.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>Don't worry about error messages while offline</strong>
+          <p>Save always writes to your device first — an error just means the online sync step failed, not that your work was lost. Save again once you're back in signal so it syncs up.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout warn">
+      <div class="callout-icon">🔋</div>
+      <div class="callout-body"><strong>Don't clear browsing data on your device</strong>, and make sure you're actually signed in (with your name/role visible) at least once before you lose signal — there's no way to sign in for the first time with no internet.</div>
+    </div>
+    <div class="callout info">
+      <div class="callout-icon">📄</div>
+      <div class="callout-body"><strong>Full step-by-step version</strong> This is the short version — ask for the dedicated <em>Offline Work Order Prep</em> guide if you want the complete walkthrough with troubleshooting and a pre-flight checklist.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 5. TEXTING ══════════════ -->
+  <div class="guide-section" id="texting">
+    <div class="section-eyebrow">Automatic — you don't have to do anything to trigger it</div>
+    <div class="section-title">5. Group Texting Automation (T1–T8) — What You Need to Know</div>
+    <p style="color:var(--txt2);font-size:0.86rem;margin-bottom:10px;">Every job with a Work Type of <strong>Insurance PT</strong> automatically gets a running group text conversation with the customer, starting the day the job hits <strong>Contract/Estimate Signed</strong>. You, production, billing, and estimating are all in that same thread — as the job moves through the next milestones (LGIB, roof completed, invoiced, etc.), the next message gets added automatically, so the customer never gets more than one running conversation.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">●</div>
+        <div class="step-body">
+          <strong>You don't send these — the system does, based on AccuLynx status changes</strong>
+          <p>There's nothing to click. As long as the job's status and dates are accurate in AccuLynx, the right message goes out at the right time.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">●</div>
+        <div class="step-body">
+          <strong>Reply in the group thread, not to the customer separately</strong>
+          <p>The whole point is that everyone — you included — can see what the customer has already been told, and the customer can reach the right department without having to know who to ask.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">●</div>
+        <div class="step-body">
+          <strong>Every message also posts to that job's AccuLynx file automatically</strong>
+          <p>Tagged <span class="btnlabel">[Auto-Text Sent]</span>, all in one running thread — so you can see the full customer text history on the job file even without opening the texting dashboard.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">●</div>
+        <div class="step-body">
+          <strong>Only Insurance PT jobs, and only from 7/29/2026 forward</strong>
+          <p>Any other Work Type is out of scope. Jobs that already passed Contract/Estimate Signed before that date aren't retroactively enrolled.</p>
+        </div>
+      </div>
+    </div>
+    <div class="callout info">
+      <div class="callout-icon">📄</div>
+      <div class="callout-body"><strong>Full T1–T8 breakdown</strong> Ask for the dedicated <em>Customer Text Automation (T1–T8)</em> guide for what each of the eight messages says and exactly what triggers it.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ CHEAT SHEET ══════════════ -->
+  <div class="guide-section" id="cheatsheet">
+    <div class="section-eyebrow">The short version</div>
+    <div class="section-title">Quick Reference Cheat Sheet</div>
+    <ul class="checklist">
+      <li>App icon added to your Home Screen (Safari or Chrome), so you're not typing the address every time</li>
+      <li>On Upgrades Commissions: set Claim Type first (Full Deductible = 100% of margin, DAP Only = 33%), then build materials, then Save to Work Order and Save to Payroll Sheet</li>
+      <li>On Work Order: Load before you Save, apply the matching Option button, save often, export as Flattened PDF only after signatures</li>
+      <li>Payment Plan Authorization page is only needed if the homeowner is on a payment plan</li>
+      <li>Offline appointments: Load and Save every job's Work Order and Upgrade Options while you still have signal — nothing changes about how you use it once you're out there</li>
+      <li>T1–T8 texts are fully automatic on Insurance PT jobs — just reply inside the group thread, never separately</li>
+    </ul>
+  </div>
+
+</div>
