@@ -43,8 +43,8 @@ body {
   align-items: center;
   gap: 16px;
 }
-.header-brand { font-size: 1rem; font-weight: 800; color: var(--blue); letter-spacing: -0.01em; }
-.header-brand span { color: var(--green); }
+.header-brand { display: flex; align-items: center; }
+.header-logo { height: 34px; width: auto; display: block; background: #fff; border-radius: 6px; padding: 3px 8px; }
 .header-doc-title {
   font-size: 0.78rem; font-weight: 600; color: var(--txt3);
   letter-spacing: 0.06em; text-transform: uppercase;
@@ -186,7 +186,7 @@ kbd, .btnlabel {
 </style>
 
 <header class="site-header">
-  <div><div class="header-brand">Peachtree <span>Roofing &amp; Exteriors</span></div></div>
+  <div><div class="header-brand"><img class="header-logo" src="black new logo.png" alt="Peachtree Roofing &amp; Exteriors"></div></div>
   <div class="header-doc-title">Sales Team App Guide</div>
   <div class="header-meta">Employee Portal<br>Reference material after training</div>
 </header>
