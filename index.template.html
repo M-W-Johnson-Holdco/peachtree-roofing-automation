@@ -1109,6 +1109,20 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   try{ setPage('pg-calc'); } catch(e){}
 });
+window.addEventListener('message', function(ev){
+  if(!ev.data || ev.data.type !== 'syncRole') return;
+  var newRole = (ev.data.role === 'admin') ? 'admin' : 'sales';
+  if(newRole === myRole) return;
+  myRole = newRole;
+  var chip = document.getElementById('role-chip');
+  if(chip){ chip.textContent=myRole==='admin'?'Admin':'Sales Rep'; chip.className='chip '+(myRole==='admin'?'chip-green':'chip-gold'); }
+  try{ buildNav(); } catch(e){}
+  if(myRole==='admin'){
+    try{ buildAdminFields(); } catch(e){}
+    try{ renderAdminVers(); }  catch(e){}
+    try{ renderReps(); }       catch(e){}
+  }
+});
 
 
 const MATS=[
@@ -5537,6 +5551,10 @@ document.addEventListener("click",function(e){
       var sec=document.getElementById("tab-"+t.dataset.tab);if(sec)sec.classList.add("active");
       t.classList.add("active");
       if(t.dataset.tab==="pto")ptoLoad();
+      if(t.dataset.tab==="commissions"){
+        var ci=document.getElementById("comm-iframe");
+        if(ci&&ci.contentWindow)ci.contentWindow.postMessage({type:"syncRole",role:currentUserRole},"*");
+      }
     }
     return;
   }
