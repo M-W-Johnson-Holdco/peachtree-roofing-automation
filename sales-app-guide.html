@@ -185,6 +185,15 @@ kbd, .btnlabel {
   .site-header { padding: 14px 16px; flex-wrap: wrap; gap: 8px; }
   .page-wrap { padding: 24px 14px 60px; }
 }
+@media print {
+  .guide-section, .section-divider { break-before: page; page-break-before: always; }
+  .section-divider + .guide-section { break-before: avoid; page-break-before: avoid; }
+  .guide-section { padding: 16px 20px; margin-bottom: 12px; }
+  .steps { gap: 10px; margin-top: 2px; }
+  .step-body p { line-height: 1.4; }
+  .step-body p + p { margin-top: 5px; }
+  .callout { padding: 9px 12px; margin-top: 9px; line-height: 1.4; }
+}
 </style>
 
 <header class="site-header">
@@ -732,11 +741,6 @@ kbd, .btnlabel {
       <li>Checking the Company Metrics dashboards to track your Upgrades commissions and see how you stack up against your peers</li>
       <li>Adding the app to your Home Screen — strongly recommended for speed and offline reliability, but the website works either way</li>
     </ul>
-
-    <div class="callout policy">
-      <div class="callout-icon">📌</div>
-      <div class="callout-body"><strong>When in doubt, it's required</strong> If something affects the homeowner's signed paperwork, your commission, or what production/billing/estimating can see on a job, treat it as required. Everything else in this list is there to make your job easier, not to add extra work.</div>
-    </div>
   </div>
 
   <!-- ══════════════ TROUBLESHOOTING ══════════════ -->
