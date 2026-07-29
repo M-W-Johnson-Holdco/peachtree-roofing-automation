@@ -658,8 +658,10 @@
       <div class="btn-row">
         <button class="btn btn-primary btn-sm" id="register-webhook-btn">Register Webhook</button>
         <button class="btn btn-secondary btn-sm" id="check-webhook-btn">Check Status</button>
+        <button class="btn btn-secondary btn-sm" id="list-webhooks-btn">List All</button>
         <button class="btn btn-danger btn-sm" id="delete-webhook-btn">Delete</button>
       </div>
+      <div id="webhook-list" class="small" style="margin-top:12px;"></div>
     </div>
     <div class="card">
       <h2>Reminder Template Sync</h2>
@@ -5469,12 +5471,62 @@ function logToAccuLynx(jobKey,msg,jobNumUrl,jobNameUrl,existingLog){
   });
 }
 
-function getExistingWebhook(){
+function getAllWebhooks(){
   return fetch("https://platform.ringcentral.com/restapi/v1.0/subscription",{headers:{Authorization:"Bearer "+rcToken}})
-  .then(function(r){return r.json();}).then(function(d){
-    var recs=d.records||[];
-    for(var i=0;i<recs.length;i++){if(recs[i].deliveryMode&&recs[i].deliveryMode.address===WEBHOOK_URL)return recs[i];}
-    return null;
+  .then(function(r){return r.json();}).then(function(d){return d.records||[];});
+}
+
+// Matches on origin rather than the exact address string. An exact-match check
+// cannot see a subscription registered with a slightly different address (a
+// missing trailing slash, or an extra path) even though the Worker answers on
+// any path — so Check and Delete would both miss it while it kept delivering,
+// and Register would happily add another. That is how duplicate deliveries, and
+// therefore duplicate AccuLynx notes, accumulate invisibly.
+function subTargetsThisWorker(rec){
+  var addr=(rec&&rec.deliveryMode&&rec.deliveryMode.address)||"";
+  if(!addr)return false;
+  try{ return addr.indexOf(new URL(WEBHOOK_URL).origin)===0; }
+  catch(e){ return addr===WEBHOOK_URL; }
+}
+
+function getExistingWebhooks(){
+  return getAllWebhooks().then(function(recs){return recs.filter(subTargetsThisWorker);});
+}
+
+function getExistingWebhook(){
+  return getExistingWebhooks().then(function(m){return m.length?m[0]:null;});
+}
+
+function renderWebhookList(recs){
+  var el=document.getElementById("webhook-list");
+  if(!el)return;
+  if(!recs.length){el.innerHTML='<div style="color:#fcd34d;">No subscriptions on this RingCentral account.</div>';return;}
+  var mine=recs.filter(subTargetsThisWorker);
+  var html="";
+  if(mine.length>1){
+    html+='<div style="color:#fca5a5;font-weight:700;margin-bottom:8px;">⚠ '+mine.length+
+          ' subscriptions point at this app\'s worker — every inbound is delivered '+mine.length+
+          ' times, so each reply is posted to AccuLynx '+mine.length+' times. Delete all but one.</div>';
+  }
+  html+=recs.map(function(r){
+    var addr=(r.deliveryMode&&r.deliveryMode.address)||"(no address)";
+    var isMine=subTargetsThisWorker(r);
+    var exp=r.expirationTime?new Date(r.expirationTime).toLocaleString():"—";
+    return '<div style="border:1px solid '+(isMine?"#8DC63F":"#cbd5e1")+';border-radius:6px;padding:8px 10px;margin-bottom:6px;">'+
+      '<div style="font-family:monospace;word-break:break-all;">'+addr+(isMine?' <strong style="color:#8DC63F;">(this app)</strong>':'')+'</div>'+
+      '<div style="color:#64748b;margin-top:3px;">id '+r.id+' &nbsp;·&nbsp; status '+(r.status||"?")+' &nbsp;·&nbsp; expires '+exp+'</div>'+
+      '<button class="btn btn-danger btn-sm" style="margin-top:6px;" data-del-sub="'+r.id+'">Delete this one</button>'+
+      '</div>';
+  }).join("");
+  el.innerHTML=html;
+}
+
+function deleteSubscriptionById(id){
+  return getRCToken().then(function(){
+    return fetch("https://platform.ringcentral.com/restapi/v1.0/subscription/"+id,
+      {method:"DELETE",headers:{Authorization:"Bearer "+rcToken}});
+  }).then(function(r){
+    if(!r.ok&&r.status!==204)return r.text().then(function(t){throw new Error(r.status+" "+t);});
   });
 }
 function setWebhookStatus(msg,color){var el=document.getElementById("webhook-status");if(el){el.textContent="Status: "+msg;el.style.color=color||"#94a3b8";}}
@@ -5745,8 +5797,58 @@ document.addEventListener("click",function(e){
       .then(function(r){return r.json();}).then(function(d){if(d.errorCode)throw new Error(JSON.stringify(d));setWebhookStatus("Registered! Expires "+new Date(d.expirationTime).toLocaleDateString(),"#8DC63F");});
     }).catch(function(e){setWebhookStatus("Failed: "+e.message,"#fca5a5");});return;
   }
-  if(t.id==="check-webhook-btn"){setWebhookStatus("Checking...","#4A90D9");getRCToken().then(function(){return getExistingWebhook();}).then(function(ex){if(ex){var exp=new Date(ex.expirationTime);setWebhookStatus("Active — expires in "+Math.floor((exp-new Date())/86400000)+" days","#8DC63F");}else{setWebhookStatus("Not registered","#fcd34d");}}).catch(function(e){setWebhookStatus("Error: "+e.message,"#fca5a5");});return;}
-  if(t.id==="delete-webhook-btn"){if(!confirm("Delete webhook?"))return;getRCToken().then(function(){return getExistingWebhook();}).then(function(ex){if(!ex){setWebhookStatus("None found","#fcd34d");return;}return fetch("https://platform.ringcentral.com/restapi/v1.0/subscription/"+ex.id,{method:"DELETE",headers:{Authorization:"Bearer "+rcToken}}).then(function(){setWebhookStatus("Deleted","#94a3b8");});}).catch(function(e){setWebhookStatus("Error: "+e.message,"#fca5a5");});return;}
+  if(t.id==="check-webhook-btn"){
+    setWebhookStatus("Checking...","#4A90D9");
+    getRCToken().then(function(){return getExistingWebhooks();}).then(function(mine){
+      if(!mine.length){setWebhookStatus("Not registered","#fcd34d");return;}
+      var exp=new Date(mine[0].expirationTime);
+      var days=Math.floor((exp-new Date())/86400000);
+      if(mine.length>1){
+        // Duplicates are the cause of duplicate AccuLynx notes, so say so loudly
+        // rather than reporting the first match and looking healthy.
+        setWebhookStatus(mine.length+" subscriptions point here — each reply posts "+mine.length+
+                         "x to AccuLynx. Click List All and delete the extras.","#fca5a5");
+      } else {
+        setWebhookStatus("Active — expires in "+days+" days","#8DC63F");
+      }
+    }).catch(function(e){setWebhookStatus("Error: "+e.message,"#fca5a5");});
+    return;
+  }
+  if(t.id==="list-webhooks-btn"){
+    setWebhookStatus("Loading subscriptions...","#4A90D9");
+    getRCToken().then(function(){return getAllWebhooks();}).then(function(recs){
+      renderWebhookList(recs);
+      setWebhookStatus(recs.length+" subscription(s) on this account","#94a3b8");
+    }).catch(function(e){setWebhookStatus("Error: "+e.message,"#fca5a5");});
+    return;
+  }
+  if(t.getAttribute&&t.getAttribute("data-del-sub")){
+    var subId=t.getAttribute("data-del-sub");
+    if(!confirm("Delete subscription "+subId+"?"))return;
+    t.disabled=true;
+    deleteSubscriptionById(subId).then(function(){
+      return getRCToken().then(function(){return getAllWebhooks();});
+    }).then(function(recs){
+      renderWebhookList(recs);
+      setWebhookStatus("Deleted "+subId+" — "+recs.length+" remaining","#94a3b8");
+    }).catch(function(e){t.disabled=false;setWebhookStatus("Delete failed: "+e.message,"#fca5a5");});
+    return;
+  }
+  if(t.id==="delete-webhook-btn"){
+    getRCToken().then(function(){return getExistingWebhooks();}).then(function(mine){
+      if(!mine.length){setWebhookStatus("None found","#fcd34d");return;}
+      if(!confirm("Delete "+mine.length+" subscription(s) pointing at this app's worker?"))return;
+      // Delete every match, not just the first — leaving one behind is exactly
+      // what made the duplicate impossible to clear from this panel.
+      return mine.reduce(function(p,r){
+        return p.then(function(){return deleteSubscriptionById(r.id);});
+      },Promise.resolve()).then(function(){
+        setWebhookStatus("Deleted "+mine.length+" subscription(s)","#94a3b8");
+        var el=document.getElementById("webhook-list");if(el)el.innerHTML="";
+      });
+    }).catch(function(e){setWebhookStatus("Error: "+e.message,"#fca5a5");});
+    return;
+  }
   if(t.dataset.edit){var id=t.dataset.edit;var area=document.getElementById("edit-area-"+id);var ta=document.getElementById("edit-ta-"+id);if(area&&ta){ta.value=templateBodies[id];area.classList.add("open");}return;}
   if(t.dataset.save){var sid=t.dataset.save;var sta=document.getElementById("edit-ta-"+sid);if(sta){saveTemplateBody(sid,sta.value);document.getElementById("edit-area-"+sid).classList.remove("open");renderTemplates();}return;}
   if(t.dataset.cancel){var ca=document.getElementById("edit-area-"+t.dataset.cancel);if(ca)ca.classList.remove("open");return;}
