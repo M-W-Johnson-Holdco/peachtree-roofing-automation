@@ -661,6 +661,11 @@
         <button class="btn btn-secondary btn-sm" id="list-webhooks-btn">List All</button>
         <button class="btn btn-danger btn-sm" id="delete-webhook-btn">Delete</button>
       </div>
+      <div style="margin-top:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="del-sub-id" placeholder="Paste a subscription ID to delete" style="flex:1;min-width:250px;padding:7px 9px;border:1px solid #cbd5e1;border-radius:6px;font-family:monospace;font-size:0.8rem;">
+        <button class="btn btn-danger btn-sm" id="del-sub-id-btn">Delete by ID</button>
+      </div>
+      <div class="small" style="color:#64748b;margin-top:4px;">Use this for a subscription that does not appear in List All — RingCentral only shows subscriptions created with this app's own credentials, so a duplicate registered elsewhere is invisible here but still delivers.</div>
       <div id="webhook-list" class="small" style="margin-top:12px;"></div>
     </div>
     <div class="card">
@@ -5812,6 +5817,23 @@ document.addEventListener("click",function(e){
         setWebhookStatus("Active — expires in "+days+" days","#8DC63F");
       }
     }).catch(function(e){setWebhookStatus("Error: "+e.message,"#fca5a5");});
+    return;
+  }
+  if(t.id==="del-sub-id-btn"){
+    var idEl=document.getElementById("del-sub-id");
+    var subIdManual=((idEl&&idEl.value)||"").trim();
+    if(!subIdManual){setWebhookStatus("Paste a subscription ID first","#fcd34d");return;}
+    if(!confirm("Delete subscription "+subIdManual+"?"))return;
+    setWebhookStatus("Deleting "+subIdManual+"...","#4A90D9");
+    deleteSubscriptionById(subIdManual).then(function(){
+      if(idEl)idEl.value="";
+      setWebhookStatus("Deleted "+subIdManual,"#8DC63F");
+      return getRCToken().then(function(){return getAllWebhooks();}).then(renderWebhookList);
+    }).catch(function(e){
+      // 403/404 means these credentials do not own it — RingCentral scopes a
+      // subscription to the user and app that created it.
+      setWebhookStatus("Could not delete: "+e.message+" (a 403 or 404 means it was created with different credentials)","#fca5a5");
+    });
     return;
   }
   if(t.id==="list-webhooks-btn"){
