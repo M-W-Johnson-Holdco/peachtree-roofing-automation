@@ -5036,6 +5036,11 @@ var SALESPERSON_MAP = {
   "Cameron Black":"+17703171457","Rafael Berrios":"+14703302110"
 };
 var FIXED_NUMBERS = ["+17704586405","+16782938467","+17702265514"];
+// T4–T8 are day-of triggers. Because this runs as a manual batch (and refuses to
+// send outside 8am–8pm ET), a missed day-of would otherwise never go out — so a
+// send is still allowed on the next run within this many days, and any late send
+// is called out in the log.
+var CATCHUP_DAYS = 3;
 var PRODUCTION_PHONE = "(770) 226-5514";
 var ESTIMATING_EMAIL = "estimating@peachtreeroof.com";
 var ACCULYNX_PROXY = "https://peachtree-acculynx-proxy.k-liss.workers.dev";
@@ -5067,29 +5072,83 @@ var TEMPLATES = [
    check:function(row,today){if((row["Current Status"]||"").toLowerCase()!=="contract/estimate signed")return false;var d=pd(row["Current Status Date"]);return d&&sd(d,today);}},
   {id:"T2",name:"LGIB Insurance Update",trigger:"Current Status = lgib — day of",
    check:function(row,today){if((row["Current Status"]||"").toLowerCase()!=="lgib")return false;var d=pd(row["Current Status Date"]);return d&&sd(d,today);}},
-  {id:"T3",name:"LGIB Materials",trigger:"Current Status = lgib — 2 days after LGIB status date (skips if T8 ready)",
+  {id:"T3",name:"LGIB Materials",trigger:"Current Status = lgib — 2 days after LGIB status date (never sends once WO is scheduled, or if T8 is due)",
    check:function(row,today){
      if((row["Current Status"]||"").toLowerCase()!=="lgib")return false;
      var d=pd(row["Current Status Date"]);if(!d)return false;
      var dayAfter=new Date(d);dayAfter.setDate(dayAfter.getDate()+2);
      if(!wc(dayAfter,today,1))return false;
-     var t8d=pd(row["Submitted for Approval Date"]);if(t8d&&wc(t8d,today,2))return false;
+     // T3 must NEVER send once a WO Scheduled Date exists. T3 is only a nudge to
+     // get the customer to call in and pick materials — if the WO is already on
+     // the schedule that has happened, so the nudge is obsolete. Any non-empty
+     // value blocks it; blocking is the safe direction, so no date parsing here.
+     if(String(hget(row,["WO Scheduled Date"])||"").trim()){
+       addLog("skip","T3 suppressed for Job "+(row["Job Number"]||"?")+" — WO Scheduled Date is set; T3 will not be sent");
+       return false;
+     }
+     // Skip when T8 is also due on this run — the customer gets the better news instead.
+     var t8d=pd(row["Submitted for Approval Date"]);if(t8d&&wc(t8d,today,CATCHUP_DAYS))return false;
      return true;
    }},
-  {id:"T4",name:"Roof Completed",trigger:"Completed Date — within 4 days",
-   check:function(row,today){var d=pd(row["Completed Date"]);return d&&wc(d,today,4);}},
-  {id:"T5",name:"Other Trades Completed",trigger:"Current Status = Other Trade(s) Completed — within 4 days",
-   check:function(row,today){if((row["Current Status"]||"").toLowerCase()!=="other trade(s) completed")return false;var d=pd(row["Current Status Date"]);return d&&wc(d,today,4);}},
-  {id:"T6",name:"Settlement Reached",trigger:"Invoiced Date — within 2 days",
-   check:function(row,today){var d=pd(row["Invoiced Date"]);return d&&wc(d,today,2);}},
-  {id:"T7",name:"Post-Adjuster",trigger:"Met With Adjuster Date — day after, within 3 days (skips if T2 ready)",
-   check:function(row,today){var d=pd(row["Met With Adjuster Date"]);if(!d)return false;var da=new Date(d);da.setDate(da.getDate()+1);if(!wc(da,today,3))return false;var t2d=pd(row["Current Status Date"]);if(t2d&&(row["Current Status"]||"").toLowerCase()==="lgib"&&wc(t2d,today,5))return false;return true;}},
-  {id:"T8",name:"Work Order Approved",trigger:"Submitted for Approval Date — within 2 days",
-   check:function(row,today){var d=pd(row["Submitted for Approval Date"]);return d&&wc(d,today,2);}}
+  {id:"T4",name:"Roof Completed",trigger:"Completed Date — day of (up to 3 days late)",
+   due:function(row){return pd(row["Completed Date"]);},
+   check:function(row,today){var d=pd(row["Completed Date"]);return d&&wc(d,today,CATCHUP_DAYS);}},
+  {id:"T5",name:"Other Trades Completed",trigger:"Current Status = Other Trade(s) Completed — day of (up to 3 days late)",
+   due:function(row){if((row["Current Status"]||"").toLowerCase()!=="other trade(s) completed")return null;return pd(row["Current Status Date"]);},
+   check:function(row,today){if((row["Current Status"]||"").toLowerCase()!=="other trade(s) completed")return false;var d=pd(row["Current Status Date"]);return d&&wc(d,today,CATCHUP_DAYS);}},
+  {id:"T6",name:"Settlement Reached",trigger:"Invoiced Date — day of (up to 3 days late)",
+   due:function(row){return pd(row["Invoiced Date"]);},
+   check:function(row,today){var d=pd(row["Invoiced Date"]);return d&&wc(d,today,CATCHUP_DAYS);}},
+  {id:"T7",name:"Post-Adjuster",trigger:"Met With Adjuster Date — day after (up to 3 days late; never sends if T2 is in play)",
+   due:function(row){var d=pd(row["Met With Adjuster Date"]);if(!d)return null;var da=new Date(d);da.setDate(da.getDate()+1);return da;},
+   check:function(row,today,log){
+     var d=pd(row["Met With Adjuster Date"]);if(!d)return false;
+     var da=new Date(d);da.setDate(da.getDate()+1);
+     if(!wc(da,today,CATCHUP_DAYS))return false;
+     // T7 must NEVER send once T2 is in play. T2 tells the customer their claim
+     // has an update; T7's "waiting on the first estimate" nudge would contradict
+     // it. Blocked permanently, not deferred — checked three ways so there is no
+     // gap: status is LGIB now, T2 already went out (prior run OR earlier in this
+     // same run, since T2 is processed before T7), or T2 is due on this run.
+     if(t2InPlay(row,today,log)){
+       addLog("skip","T7 suppressed for Job "+(row["Job Number"]||"?")+" — T2 is in play (LGIB); T7 will not be sent");
+       return false;
+     }
+     return true;
+   }},
+  {id:"T8",name:"Work Order Approved",trigger:"Submitted for Approval Date — day of (up to 3 days late)",
+   due:function(row){return pd(row["Submitted for Approval Date"]);},
+   check:function(row,today){var d=pd(row["Submitted for Approval Date"]);return d&&wc(d,today,CATCHUP_DAYS);}}
 ];
 
 function pd(v){if(!v||!v.trim())return null;var d=new Date(v);return isNaN(d.getTime())?null:d;}
 function sd(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+// True when T2 is "in play" for this job, meaning T7 must never send. Any one of:
+//   1. Current Status is LGIB right now (T2's own precondition), whatever the date
+//   2. A T2 entry already exists in the log — a prior run, or earlier in THIS run
+//      (T2 sits before T7 in TEMPLATES and pushes to the in-memory log on send),
+//      which also covers a job that has since moved past LGIB
+//   3. T2's trigger passes on this run (status LGIB, dated today)
+function t2InPlay(row,today,log){
+  if((row["Current Status"]||"").toLowerCase()==="lgib")return true;
+  var jobNum=row["Job Number"]||"";
+  var guid=extractGuid(jobNumUrl(row))||extractGuid(jobNameUrl(row))||"";
+  for(var i=0;i<(log||[]).length;i++){
+    if(log[i].template!=="T2")continue;
+    if(jobNum&&log[i].jobNum===jobNum)return true;
+    if(guid&&(log[i].jobNum===guid||log[i].jobGuid===guid))return true;
+  }
+  return false;
+}
+
+// True when an ISO log timestamp falls on the same Eastern-time calendar day as
+// `today` (which getTodayCST() already returns as ET wall-clock).
+function sameETDay(iso,today){
+  if(!iso)return false;
+  var d=new Date(iso);
+  if(isNaN(d.getTime()))return false;
+  return sd(new Date(d.toLocaleString("en-US",{timeZone:"America/New_York"})),today);
+}
 function wc(t,today,days){var a=new Date(t);a.setHours(0,0,0,0);var b=new Date(today);b.setHours(0,0,0,0);var diff=Math.floor((b-a)/86400000);return diff>=0&&diff<=days;}
 function getCSTHour(){var c=new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"}));return c.getHours()+c.getMinutes()/60;}
 function isWithinTextingHours(){var h=getCSTHour();return h>=8&&h<20;}
@@ -5131,16 +5190,68 @@ function buildMsg(id,row){
   return m;
 }
 
-function parseCSV(text){
-  var lines=text.trim().split(/\r?\n/);
-  if(lines.length<2)return[];
-  var delim=lines[0].indexOf("\t")>-1?"\t":",";
-  var headers=lines[0].split(delim).map(function(h){return h.trim().replace(/^"|"$/g,"");});
-  return lines.slice(1).map(function(line){
-    var vals=line.split(delim).map(function(v){return v.trim().replace(/^"|"$/g,"");});
-    var row={};headers.forEach(function(h,i){row[h]=vals[i]||"";});return row;
-  }).filter(function(r){return Object.values(r).some(function(v){return v;});});
+// Quote-aware CSV/TSV scanner. Handles delimiters and newlines inside quoted
+// fields, plus escaped "" quotes. A naive line.split(delim) shifts every column
+// after a quoted comma (e.g. "123 Main St, Apt 4"), which silently corrupts the
+// phone number and can text the wrong person.
+function splitCSVRows(text,delim){
+  var rows=[],row=[],cur="",inQ=false;
+  for(var i=0;i<text.length;i++){
+    var c=text.charAt(i);
+    if(inQ){
+      if(c==='"'){
+        if(text.charAt(i+1)==='"'){cur+='"';i++;}
+        else inQ=false;
+      } else cur+=c;
+    } else {
+      if(c==='"')inQ=true;
+      else if(c===delim){row.push(cur);cur="";}
+      else if(c==='\r'){/* ignore — handled by \n */}
+      else if(c==='\n'){row.push(cur);rows.push(row);row=[];cur="";}
+      else cur+=c;
+    }
+  }
+  if(cur!==""||row.length){row.push(cur);rows.push(row);}
+  return rows;
 }
+
+function parseCSV(text){
+  // Strip UTF-8 BOM — otherwise the first header keeps a leading BOM char and
+  // every row["Job Number"] lookup silently returns "".
+  var t=String(text||"").replace(/^﻿/,"").trim();
+  if(!t)return[];
+  var firstLine=t.split(/\r?\n/)[0];
+  var delim=firstLine.indexOf("\t")>-1?"\t":",";
+  var rows=splitCSVRows(t,delim);
+  if(rows.length<2)return[];
+  var headers=rows[0].map(function(h){return String(h).trim();});
+  return rows.slice(1).map(function(vals){
+    var row={};
+    headers.forEach(function(h,i){row[h]=String(vals[i]===undefined?"":vals[i]).trim();});
+    return row;
+  }).filter(function(r){return Object.keys(r).some(function(k){return r[k];});});
+}
+
+// Case/punctuation-tolerant header lookup. Returns the first non-empty match.
+// Guards against a hand-added column being titled slightly differently in the
+// export than in this code, which would otherwise fail silently.
+function hget(row,names){
+  var i,k;
+  for(i=0;i<names.length;i++){if(row[names[i]])return row[names[i]];}
+  var norm=function(s){return String(s).toLowerCase().replace(/[^a-z0-9]/g,"");};
+  var keys=Object.keys(row);
+  for(i=0;i<names.length;i++){
+    var want=norm(names[i]);
+    for(k=0;k<keys.length;k++){if(norm(keys[k])===want&&row[keys[k]])return row[keys[k]];}
+  }
+  return "";
+}
+
+// Homeowner's additional texting number (CSV column AD). Included as a full
+// participant in the group thread for every template, T1 through T8.
+var SECONDARY_TEXT_KEYS=["Secondary Texting Number","Secondary Text Number","Secondary Texting #"];
+function jobNumUrl(row){return hget(row,["Job Number Url","Job Number URL"]);}
+function jobNameUrl(row){return hget(row,["Job Name Url","Job Name URL"]);}
 
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
 
@@ -5378,7 +5489,7 @@ function processRows(rows,log,today){
   rows.forEach(function(r){
     var p=toE164(r["Phone Number"]||"");
     if(!p)return;
-    var jn=r["Job Number"]||extractGuid(r["Job Number Url"]||"")||"?";
+    var jn=r["Job Number"]||extractGuid(jobNumUrl(r))||"?";
     if(!phoneCount[p])phoneCount[p]=[];
     if(phoneCount[p].indexOf(jn)!==-1)return;
     phoneCount[p].push(jn);
@@ -5398,7 +5509,7 @@ function processRows(rows,log,today){
     if(i>=rows.length)return Promise.resolve();
     var row=rows[i++];stats.jobs++;
     var jobNum=row["Job Number"]||"";
-    var jobGuidFromUrl=extractGuid(row["Job Number Url"]||"")||extractGuid(row["Job Name Url"]||"");
+    var jobGuidFromUrl=extractGuid(jobNumUrl(row))||extractGuid(jobNameUrl(row));
     var jobKey=jobNum||jobGuidFromUrl||"";
     if(!jobKey){addLog("warn","Row has no Job Number or URL, skipping");stats.errors++;return next();}
     if(row["_skipDupePhone"]){stats.skipped++;return next();}
@@ -5406,7 +5517,10 @@ function processRows(rows,log,today){
     var custPhone=toE164(row["Phone Number"]||"");
     if(!custPhone){addLog("warn","Job "+jobKey+" ("+fullName+") invalid phone, skipping");stats.errors++;return next();}
     var custPhone2=toE164(row["Secondary Phone"]||"");
-    var goLiveCutoff=new Date("2026-07-29");goLiveCutoff.setHours(0,0,0,0);
+    // Build in LOCAL time. new Date("2026-07-29") parses as UTC midnight, which
+    // is 7/28 8:00pm Eastern; the following setHours(0,0,0,0) then snapped it
+    // back to 7/28 local — pulling in jobs signed a day before go-live.
+    var goLiveCutoff=new Date(2026,6,29,0,0,0,0); // month is 0-based: 6 = July
     var currentStatus=(row["Current Status"]||"").toLowerCase();
     var statusDate=pd(row["Current Status Date"]);
     var alreadyEligible=log.some(function(entry){return (jobKey&&entry.jobNum===jobKey)||(jobGuidFromUrl&&(entry.jobNum===jobGuidFromUrl||entry.jobGuid===jobGuidFromUrl));});
@@ -5422,20 +5536,40 @@ function processTemplates(row,log,today,jobKey,fullName,custPhone,custPhone2,ti)
   var tmpl=TEMPLATES[ti];
   // Check duplicates against both job number AND guid in case job got a number after T1 was sent
   var jobNum=row["Job Number"]||"";
-  var jobGuidFromUrl=extractGuid(row["Job Number Url"]||"")||extractGuid(row["Job Name Url"]||"");
-  var alreadySent=false;
+  var jobGuidFromUrl=extractGuid(jobNumUrl(row))||extractGuid(jobNameUrl(row));
+  var alreadySent=false,sentToday=false;
   for(var i=0;i<log.length;i++){
     if(log[i].template===tmpl.id){
       if((jobKey&&log[i].jobNum===jobKey)||(jobNum&&log[i].jobNum===jobNum)||(jobGuidFromUrl&&log[i].jobNum===jobGuidFromUrl)||(jobGuidFromUrl&&log[i].jobGuid===jobGuidFromUrl)){
-        alreadySent=true;break;
+        alreadySent=true;
+        if(sameETDay(log[i].timestamp,today)){sentToday=true;break;}
       }
     }
   }
-  if(alreadySent&&tmpl.id!=="T3"){stats.skipped++;return processTemplates(row,log,today,jobKey,fullName,custPhone,custPhone2,ti+1);}
+  // T3 is intentionally allowed to re-fire across days (its window spans two),
+  // but never twice in the same day — otherwise a second Run Now click
+  // double-texts the customer.
+  if(alreadySent&&(tmpl.id!=="T3"||sentToday)){
+    if(tmpl.id==="T3"&&sentToday)addLog("skip","T3 already sent today for Job "+jobKey+" — not re-sending");
+    stats.skipped++;return processTemplates(row,log,today,jobKey,fullName,custPhone,custPhone2,ti+1);
+  }
   if(!tmpl.check(row,today,log))return processTemplates(row,log,today,jobKey,fullName,custPhone,custPhone2,ti+1);
+  // Surface catch-up sends so a late text is never silently mistaken for a day-of one
+  if(tmpl.due){
+    var dd=tmpl.due(row);
+    if(dd){
+      var da0=new Date(dd);da0.setHours(0,0,0,0);
+      var tb0=new Date(today);tb0.setHours(0,0,0,0);
+      var lateDays=Math.round((tb0-da0)/86400000);
+      if(lateDays>0)addLog("warn",tmpl.id+" Job "+jobKey+" — "+lateDays+" day(s) past due (due "+(da0.getMonth()+1)+"/"+da0.getDate()+"), sending on this run");
+    }
+  }
   var msg=buildMsg(tmpl.id,row);
   var recips=[custPhone];
   if(custPhone2&&recips.indexOf(custPhone2)===-1)recips.push(custPhone2);
+  // Additional homeowner number from CSV column AD — on the thread for all T1–T8
+  var custPhone3=toE164(hget(row,SECONDARY_TEXT_KEYS));
+  if(custPhone3&&recips.indexOf(custPhone3)===-1)recips.push(custPhone3);
   recips=recips.concat(FIXED_NUMBERS);
   var sp=spE164(row["Primary Salesperson"]);
   if(sp&&recips.indexOf(sp)===-1)recips.push(sp);
@@ -5456,7 +5590,7 @@ function processTemplates(row,log,today,jobKey,fullName,custPhone,custPhone2,ti)
     });
   }
   return sendPromise.then(function(){
-    return logToAccuLynx(jobKey,msg,row["Job Number Url"]||"",row["Job Name Url"]||"",log).then(function(result){
+    return logToAccuLynx(jobKey,msg,jobNumUrl(row),jobNameUrl(row),log).then(function(result){
       addLog("success","AccuLynx updated — Job "+jobKey);
       return{status:"logged",guid:result&&result.guid||"",messageId:result&&result.messageId||""};
     }).catch(function(e){
@@ -7631,7 +7765,7 @@ function bulkResolveJobs() {
         var csvRows = parseCSV(document.getElementById("bulk-csv-input").value || "");
         csvRows.forEach(function(row){
           var jn = (row["Job Number"]||"").trim();
-          var guid = extractGuid(row["Job Number Url"]||"")||extractGuid(row["Job Name Url"]||"");
+          var guid = extractGuid(jobNumUrl(row))||extractGuid(jobNameUrl(row));
           var key = jn||guid;
           if (key && queries.indexOf(key)===-1) queries.push(key);
         });

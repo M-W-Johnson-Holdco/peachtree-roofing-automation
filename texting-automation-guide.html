@@ -219,6 +219,10 @@ table.ref-table td strong { color: var(--txt); }
       <div class="callout-icon">⏰</div>
       <div class="callout-body"><strong>Texts only send 8:00 AM–8:00 PM Eastern</strong> The automation is currently batch-run (someone pastes the AccuLynx CSV export and clicks Run Now) rather than instant/live, and it will not send outside that window. Once this has run for two weeks with no issues, it will be switched over to fully automated — same as TC's setup.</div>
     </div>
+    <div class="callout info">
+      <div class="callout-icon">📅</div>
+      <div class="callout-body"><strong>If a run gets missed, T3–T8 still catch up for 3 days</strong> Because this is batch-run, a milestone that lands on a day nobody clicks Run Now (or after 8:00 PM) would otherwise never send at all. So T3–T8 will still go out on the next run within 3 days of their due date, and the log flags it — e.g. <span class="btnlabel">T4 Job 12345 — 2 day(s) past due</span>. After 3 days they stop. <strong>T1 and T2 are day-of only</strong> and do not catch up, so a job needs a run on the day it moves to Contract/Estimate Signed to get its Welcome text and start the thread.</div>
+    </div>
   </div>
 
   <!-- GO LIVE -->
@@ -237,7 +241,7 @@ table.ref-table td strong { color: var(--txt); }
         <div class="step-num">●</div>
         <div class="step-body">
           <strong>Once a job clears that gate, it stays in for the rest of its lifecycle</strong>
-          <p>T2 through T8 keep firing for that job as its status moves forward (LGIB, completed, invoiced, etc.) — the 7/22 rule only controls whether the job gets pulled into the automation in the first place, not each individual template after that.</p>
+          <p>T2 through T8 keep firing for that job as its status moves forward (LGIB, completed, invoiced, etc.) — the 7/29 rule only controls whether the job gets pulled into the automation in the first place, not each individual template after that.</p>
         </div>
       </div>
     </div>
@@ -279,6 +283,10 @@ table.ref-table td strong { color: var(--txt); }
     </div>
     <div class="section-eyebrow" style="margin-top:10px;">Trigger</div>
     <p style="color:var(--txt2);font-size:0.86rem;">Fires 2 days after the LGIB status date, prompting the customer to reach out if had difficulties reaching them by getting their attention saying roof has already been schedule — but is skipped if T8's own condition (Work Order already submitted for approval) is also true, so a job doesn't get both templates at once.</p>
+    <div class="callout policy">
+      <div class="callout-icon">🚫</div>
+      <div class="callout-body"><strong>Never sends once WO Scheduled Date has a value</strong> T3 exists only to nudge a customer into calling in to pick materials. If the Work Order is already on the schedule, that has clearly happened, so T3 is permanently suppressed for that job — any value in that field blocks it, even a past date. The log will show <span class="btnlabel">T3 suppressed — WO Scheduled Date is set</span>.</div>
+    </div>
     <div class="msg-label">Message</div>
     <div class="msg-thread"><div class="msg-bubble">This is an important message from Peachtree Roofing &amp; Exteriors. Your roof replacement has been scheduled. Please reach out to <span class="mv">{{Primary Salesperson}}</span> ASAP at <span class="mv">{{Salesperson Phone}}</span> to choose roof materials if haven't scheduled appointment already.</div></div>
   </div>
@@ -332,7 +340,11 @@ Next steps: If you haven't had your final walk-through and attic inspection plea
       <div class="tmpl-badges"><span class="tag tag-green">Posts to AccuLynx</span></div>
     </div>
     <div class="section-eyebrow" style="margin-top:10px;">Trigger</div>
-    <p style="color:var(--txt2);font-size:0.86rem;">Fires the day after the job's <strong>Met With Adjuster Date</strong> — but is skipped if T2's condition (Current Status = LGIB) is also true, so a job doesn't get both at once. This is to ensure customer remembers their role in communicating any insurance updates to the estimating department.</p>
+    <p style="color:var(--txt2);font-size:0.86rem;">Fires the day after the job's <strong>Met With Adjuster Date</strong>. This is to ensure customer remembers their role in communicating any insurance updates to the estimating department.</p>
+    <div class="callout policy">
+      <div class="callout-icon">🚫</div>
+      <div class="callout-body"><strong>Never sends if T2 is in play</strong> T7 tells the customer to watch for their first insurance estimate. If the claim has already reached LGIB, T2 has told them there's an update and T7 would contradict it — so T7 is permanently suppressed, not just delayed. This applies if the job is in LGIB now, if T2 already went out, or if T2 is sending on this same run. In practice: <strong>any job that reaches LGIB will never receive T7.</strong> The log will show <span class="btnlabel">T7 suppressed — T2 is in play (LGIB)</span>.</div>
+    </div>
     <div class="msg-label">Message</div>
     <div class="msg-thread"><div class="msg-bubble">Your adjustment appointment with <span class="mv">{{Insurance Company}}</span> has completed. It typically takes about 3-5 days for the first insurance estimate to be released post-adjustment. Please make sure to forward any email communication to our estimating department at estimating@peachtreeroof.com, so we can review and assist ASAP to keep your project moving. Feel free to respond to this text at any time with any questions. Thank you for choosing Peachtree Roofing &amp; Exteriors!</div></div>
   </div>
@@ -359,16 +371,16 @@ Next steps: If you haven't had your final walk-through and attic inspection plea
     <div class="section-title">Quick Reference</div>
     <div class="ref-table-wrap">
       <table class="ref-table">
-        <thead><tr><th>#</th><th>Name</th><th>Sends when…</th><th>Image</th></tr></thead>
+        <thead><tr><th>#</th><th>Name</th><th>Sends when…</th><th>Never sends if…</th><th>Image</th></tr></thead>
         <tbody>
-          <tr><td><strong>T1</strong></td><td>Welcome</td><td>Status → Contract/Estimate Signed, day of</td><td>support-team.png</td></tr>
-          <tr><td><strong>T2</strong></td><td>LGIB Insurance Update</td><td>Status → LGIB, day of</td><td>—</td></tr>
-          <tr><td><strong>T3</strong></td><td>LGIB Materials</td><td>~2 days after LGIB status date</td><td>—</td></tr>
-          <tr><td><strong>T4</strong></td><td>Roof Completed</td><td>Day of Completed Date</td><td>—</td></tr>
-          <tr><td><strong>T5</strong></td><td>Other Trades Completed</td><td>Day of status → Other Trade(s) Completed</td><td>—</td></tr>
-          <tr><td><strong>T6</strong></td><td>Settlement Reached</td><td>Day of Invoiced Date</td><td>PT Invoice Final Steps Text.png</td></tr>
-          <tr><td><strong>T7</strong></td><td>Post-Adjuster</td><td>Day after Met With Adjuster Date</td><td>—</td></tr>
-          <tr><td><strong>T8</strong></td><td>Work Order Approved</td><td>Day of Submitted for Approval Date</td><td>PT WO Text.png</td></tr>
+          <tr><td><strong>T1</strong></td><td>Welcome</td><td>Status → Contract/Estimate Signed, day of <em>(no catch-up)</em></td><td>Signed before 7/29/2026</td><td>support-team.png</td></tr>
+          <tr><td><strong>T2</strong></td><td>LGIB Insurance Update</td><td>Status → LGIB, day of <em>(no catch-up)</em></td><td>—</td><td>—</td></tr>
+          <tr><td><strong>T3</strong></td><td>LGIB Materials</td><td>~2 days after LGIB status date</td><td><strong>WO Scheduled Date has any value;</strong> or T8 is due</td><td>—</td></tr>
+          <tr><td><strong>T4</strong></td><td>Roof Completed</td><td>Day of Completed Date <em>(+3-day catch-up)</em></td><td>—</td><td>—</td></tr>
+          <tr><td><strong>T5</strong></td><td>Other Trades Completed</td><td>Day of status → Other Trade(s) Completed <em>(+3-day catch-up)</em></td><td>—</td><td>—</td></tr>
+          <tr><td><strong>T6</strong></td><td>Settlement Reached</td><td>Day of Invoiced Date <em>(+3-day catch-up)</em></td><td>—</td><td>PT Invoice Final Steps Text.png</td></tr>
+          <tr><td><strong>T7</strong></td><td>Post-Adjuster</td><td>Day after Met With Adjuster Date <em>(+3-day catch-up)</em></td><td><strong>Job has reached LGIB</strong> (now, earlier, or same run)</td><td>—</td></tr>
+          <tr><td><strong>T8</strong></td><td>Work Order Approved</td><td>Day of Submitted for Approval Date <em>(+3-day catch-up)</em></td><td>—</td><td>PT WO Text.png</td></tr>
         </tbody>
       </table>
     </div>
