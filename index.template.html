@@ -5153,6 +5153,40 @@ function wc(t,today,days){var a=new Date(t);a.setHours(0,0,0,0);var b=new Date(t
 function getCSTHour(){var c=new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"}));return c.getHours()+c.getMinutes()/60;}
 function isWithinTextingHours(){var h=getCSTHour();return h>=8&&h<20;}
 function getTodayCST(){return new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"}));}
+
+// ── EASTERN BOUNDARIES FOR CALENDAR QUERIES ─────────────────────────────────
+// Google Calendar wants an RFC3339 instant. Hardcoding "-05:00" pins a query to
+// EST year-round, so from March to November every window sat an hour off and
+// day-boundary queries leaked an adjacent day's events. Parsing "YYYY-MM-DD"
+// with no offset is no better: date-only strings parse as UTC midnight, while
+// "YYYY-MM-DDTHH:MM:SS" parses as the *browser's* local zone — so the same
+// function could behave differently for a user outside Eastern.
+// These resolve the real America/New_York offset for the date in question.
+
+// UTC offset of America/New_York at a given instant, in minutes
+// (-240 during EDT, -300 during EST).
+function etOffsetMinutes(instant){
+  var f=new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",hour12:false,
+    year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  var p={};
+  f.formatToParts(instant).forEach(function(x){if(x.type!=="literal")p[x.type]=x.value;});
+  var asUTC=Date.UTC(+p.year,+p.month-1,+p.day,(+p.hour)%24,+p.minute,+p.second);
+  return Math.round((asUTC-instant.getTime())/60000);
+}
+
+// "YYYY-MM-DD" plus "HH:MM:SS" read as Eastern wall-clock -> exact UTC ISO instant.
+function etToUTCISO(dateStr,timeStr){
+  var d=String(dateStr).slice(0,10).split("-");
+  var t=String(timeStr||"00:00:00").split(":");
+  var wall=Date.UTC(+d[0],+d[1]-1,+d[2],+t[0]||0,+t[1]||0,+t[2]||0);
+  // Shift the wall-clock reading by that date's offset, then re-check in case
+  // the first guess landed on the far side of a DST transition.
+  var off=etOffsetMinutes(new Date(wall));
+  var utc=wall-off*60000;
+  var off2=etOffsetMinutes(new Date(utc));
+  if(off2!==off)utc=wall-off2*60000;
+  return new Date(utc).toISOString();
+}
 function toE164(p){if(!p)return null;var d=p.replace(/\D/g,"");if(d.length===10)return"+1"+d;if(d.length===11&&d[0]==="1")return"+"+d;return null;}
 function extractGuid(url){if(!url)return null;var m=url.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);return m?m[0]:null;}
 
@@ -6838,8 +6872,8 @@ function isInTheField(summary) {
     if (statusEl) statusEl.textContent = 'Loading…';
     if (gridEl)   gridEl.innerHTML = '';
 
-    var timeMin = cachedMonday.toISOString().slice(0,10) + 'T00:00:00-05:00';
-    var timeMax = saturday.toISOString().slice(0,10) + 'T23:59:59-05:00';
+    var timeMin = etToUTCISO(cachedMonday.toISOString().slice(0,10), '00:00:00');
+    var timeMax = etToUTCISO(saturday.toISOString().slice(0,10),     '23:59:59');
 
     getGCalToken().then(function(tok) {
       var calIds = typeof getAllCalendarIds === 'function' ? getAllCalendarIds() : [];
@@ -8149,8 +8183,11 @@ function loadAllEvents() {
   var fromVal  = (document.getElementById("all-events-from")||{}).value || "";
   var toVal    = (document.getElementById("all-events-to")||{}).value || "";
 
-  var timeMin = fromVal ? new Date(fromVal).toISOString() : new Date().toISOString();
-  var timeMax = toVal   ? new Date(toVal + "T23:59:59").toISOString()
+  // Both bounds are Eastern day boundaries. Previously fromVal parsed as UTC
+  // midnight (8pm ET the night before) while toVal parsed as browser-local —
+  // two different zones on the same query.
+  var timeMin = fromVal ? etToUTCISO(fromVal, "00:00:00") : new Date().toISOString();
+  var timeMax = toVal   ? etToUTCISO(toVal,   "23:59:59")
                         : new Date(Date.now() + 90 * 86400000).toISOString();
 
   if (statusEl) statusEl.textContent = "Loading…";
@@ -8869,8 +8906,8 @@ function runReminderCheck(previewOnly) {
   if (barText) barText.textContent = previewOnly ? "Loading preview…" : "Sending reminders…";
 
   // Fetch all events on the target date across all calendars
-  var dayStart = new Date(dateVal + "T00:00:00-05:00").toISOString();
-  var dayEnd   = new Date(dateVal + "T23:59:59-05:00").toISOString();
+  var dayStart = etToUTCISO(dateVal, "00:00:00");
+  var dayEnd   = etToUTCISO(dateVal, "23:59:59");
 
   getGCalToken().then(function(tok){
     var calIds = getAllCalendarIds();
