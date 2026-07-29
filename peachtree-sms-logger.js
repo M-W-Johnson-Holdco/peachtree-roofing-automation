@@ -37,9 +37,18 @@ const GS_REFRESH_TOKEN = "YOUR_GS_REFRESH_TOKEN";
 // Eastern, with daylight saving handled automatically by the IANA zone.
 const LOG_TIMEZONE = 'America/New_York';
 
+// The app injects this number into a job's Secondary Phone when two jobs share
+// a primary phone, purely to force RingCentral into separate group threads. It
+// is never a real participant, so it must not resolve to a job on lookup.
+const DEDUP_PHONE_LAST10 = '4045768975';
+
 function etTimestamp(creationTime) {
   return new Date(creationTime || Date.now())
     .toLocaleString('en-US', { timeZone: LOG_TIMEZONE }) + ' ET';
+}
+
+function last10(v) {
+  return String(v || '').replace(/\D/g, '').slice(-10);
 }
 
 addEventListener('fetch', event => {
@@ -155,28 +164,40 @@ async function getGSToken() {
   return data.access_token;
 }
 
-// NOTE: matches only the primary phone in column D. Replies from a customer's
-// secondary number will not be found — see the Secondary Texting Number gap
-// noted in the repo discussion.
+// Matches an inbound number against every homeowner number we put on the group
+// thread, not just the primary:
+//   column D (3)  — primary Phone Number
+//   column M (12) — Secondary Phone
+//   column O (14) — Secondary Texting Number (CSV column AD)
+// Range must stay wide enough to include column O, or secondary-number replies
+// silently never reach the AccuLynx file.
 async function findJobByPhoneInSheets(phone) {
-  const clean = phone.replace(/\D/g, '').slice(-10);
+  const clean = last10(phone);
+  if (!clean) return null;
   try {
     const token = await getGSToken();
     const sheetName = encodeURIComponent(GS_SHEET_NAME);
-    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${GS_SHEET_ID}/values/${sheetName}!A:K`, {
+    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${GS_SHEET_ID}/values/${sheetName}!A:O`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     const data = await res.json();
     if (!data.values) return null;
     const rows = data.values.slice(1);
+    // Newest first, so a number appearing on more than one job resolves to the
+    // most recent one.
     for (let i = rows.length - 1; i >= 0; i--) {
       const row = rows[i];
-      const rowPhone = (row[3] || '').replace(/\D/g, '').slice(-10);
-      if (rowPhone === clean) {
+      const candidates = [last10(row[3]), last10(row[12]), last10(row[14])]
+        .filter(Boolean)
+        .filter(p => p !== DEDUP_PHONE_LAST10);
+      if (candidates.includes(clean)) {
         const jobNum = row[1] || '';
         const jobGuid = row[9] || '';
         const messageId = row[10] || '';
-        console.log('Found phone in Sheets — Job#:', jobNum, 'GUID:', jobGuid, 'MessageID:', messageId);
+        const matchedCol = clean === last10(row[3]) ? 'primary'
+                         : clean === last10(row[12]) ? 'secondary phone'
+                         : 'secondary texting number';
+        console.log('Found phone in Sheets via', matchedCol, '— Job#:', jobNum, 'GUID:', jobGuid, 'MessageID:', messageId);
         return { jobNum, jobGuid, messageId };
       }
     }

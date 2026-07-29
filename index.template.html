@@ -5318,11 +5318,11 @@ function getSheetLog(){
   return getGSToken().then(function(t){
     var sid=CRED_GS_SHEET_ID;
     var sn=encodeURIComponent(CRED_GS_SHEET_NAME);
-    return fetch("https://sheets.googleapis.com/v4/spreadsheets/"+sid+"/values/"+sn+"!A:N",{headers:{Authorization:"Bearer "+t}});
+    return fetch("https://sheets.googleapis.com/v4/spreadsheets/"+sid+"/values/"+sn+"!A:O",{headers:{Authorization:"Bearer "+t}});
   }).then(function(r){return r.json();}).then(function(d){
     if(!d.values)return[];
     var rows=d.values.slice(1);
-    return rows.map(function(r){return{timestamp:r[0]||"",jobNum:r[1]||"",name:r[2]||"",phone:r[3]||"",trigger:r[4]||"",template:r[5]||"",message:r[6]||"",acculynxLogged:r[7]||"",status:r[8]||"",jobGuid:r[9]||"",messageId:r[10]||"",runBy:r[11]||"",secondaryPhone:r[12]||"",conversationId:r[13]||""};});
+    return rows.map(function(r){return{timestamp:r[0]||"",jobNum:r[1]||"",name:r[2]||"",phone:r[3]||"",trigger:r[4]||"",template:r[5]||"",message:r[6]||"",acculynxLogged:r[7]||"",status:r[8]||"",jobGuid:r[9]||"",messageId:r[10]||"",runBy:r[11]||"",secondaryPhone:r[12]||"",conversationId:r[13]||"",secondaryTextNumber:r[14]||""};});
   });
 }
 function appendSheetLog(e){
@@ -5330,7 +5330,7 @@ function appendSheetLog(e){
     var sid=CRED_GS_SHEET_ID;
     var sn=encodeURIComponent(CRED_GS_SHEET_NAME);
     var url="https://sheets.googleapis.com/v4/spreadsheets/"+sid+"/values/"+sn+"!A1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS";
-    return fetch(url,{method:"POST",headers:{Authorization:"Bearer "+t,"Content-Type":"application/json"},body:JSON.stringify({values:[[e.timestamp,e.jobNum,e.name,e.phone,e.trigger,e.template,e.message,e.acculynxLogged,e.status,e.jobGuid||"",e.messageId||"",e.runBy||"",e.secondaryPhone||"",e.conversationId||""]]})});
+    return fetch(url,{method:"POST",headers:{Authorization:"Bearer "+t,"Content-Type":"application/json"},body:JSON.stringify({values:[[e.timestamp,e.jobNum,e.name,e.phone,e.trigger,e.template,e.message,e.acculynxLogged,e.status,e.jobGuid||"",e.messageId||"",e.runBy||"",e.secondaryPhone||"",e.conversationId||"",e.secondaryTextNumber||""]]})});
   }).then(function(r){
     if(!r.ok)return r.text().then(function(t){throw new Error("Sheets append failed: "+t);});
     return r.json();
@@ -5600,7 +5600,10 @@ function processTemplates(row,log,today,jobKey,fullName,custPhone,custPhone2,ti)
   }).then(function(alResult){
     var threadId=alResult.messageId||"";
     for(var li=0;li<log.length;li++){if(log[li].jobNum===jobKey&&log[li].messageId){threadId=log[li].messageId;break;}}
-    var entry={timestamp:new Date().toISOString(),jobNum:jobKey,name:fullName,phone:row["Phone Number"]||"",trigger:tmpl.trigger,template:tmpl.id,message:msg,acculynxLogged:alResult.status,status:"sent",jobGuid:alResult.guid||"",messageId:threadId,runBy:currentUser||"Unknown",secondaryPhone:custPhone2||"",conversationId:conversationId||""};
+    // secondaryTextNumber (column O) is what lets peachtree-sms-logger match an
+    // inbound reply that comes from the homeowner's additional number rather
+    // than the primary. Without it those replies never reach the AccuLynx file.
+    var entry={timestamp:new Date().toISOString(),jobNum:jobKey,name:fullName,phone:row["Phone Number"]||"",trigger:tmpl.trigger,template:tmpl.id,message:msg,acculynxLogged:alResult.status,status:"sent",jobGuid:alResult.guid||"",messageId:threadId,runBy:currentUser||"Unknown",secondaryPhone:custPhone2||"",conversationId:conversationId||"",secondaryTextNumber:custPhone3||""};
     log.push(entry);stats.sent++;
     addLog("success",tmpl.id+" sent — "+fullName+" | Job "+jobKey);
     return appendSheetLog(entry);
