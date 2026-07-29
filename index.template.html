@@ -5500,7 +5500,7 @@ function getExistingWebhook(){
 function renderWebhookList(recs){
   var el=document.getElementById("webhook-list");
   if(!el)return;
-  if(!recs.length){el.innerHTML='<div style="color:#fcd34d;">No subscriptions on this RingCentral account.</div>';return;}
+  if(!recs.length){el.innerHTML='<div style="color:#fcd34d;">No subscriptions visible to this app\'s credentials.</div>';return;}
   var mine=recs.filter(subTargetsThisWorker);
   var html="";
   if(mine.length>1){
@@ -5818,7 +5818,7 @@ document.addEventListener("click",function(e){
     setWebhookStatus("Loading subscriptions...","#4A90D9");
     getRCToken().then(function(){return getAllWebhooks();}).then(function(recs){
       renderWebhookList(recs);
-      setWebhookStatus(recs.length+" subscription(s) on this account","#94a3b8");
+      setWebhookStatus(recs.length+" subscription(s) visible to this app's credentials — others may exist","#94a3b8");
     }).catch(function(e){setWebhookStatus("Error: "+e.message,"#fca5a5");});
     return;
   }
