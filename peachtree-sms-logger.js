@@ -45,6 +45,22 @@ const DEDUP_PHONE_LAST10 = "4045768975";
 
 function last10(v) { return String(v || "").replace(/\D/g, "").slice(-10); }
 
+// ---- DENIED SUBSCRIPTIONS ----
+// Notifications from these subscription IDs are dropped outright. This exists
+// because a duplicate subscription on the "Automated Texting" extension cannot be
+// removed: RingCentral scopes both GET and DELETE /subscription to the user AND
+// app that created it, so from this app it is invisible to List All and DELETE
+// returns 404 CMN-102. Deleting the owning app did not stop it delivering either.
+//
+// Deliberately a denylist rather than an allowlist. Re-registering the webhook
+// mints a new subscription ID, and an allowlist would silently stop all inbound
+// logging until someone remembered to update this constant — the same class of
+// silent failure this whole file is littered with warnings about. Every payload's
+// subscriptionId is logged, so a new offender is easy to identify and add here.
+const IGNORED_SUBSCRIPTION_IDS = [
+  "7ec7b954-bf4b-4f53-8e56-ee32f3e3c13b" // hidden duplicate, double-posted every reply
+];
+
 // ---- DUPLICATE DELIVERY GUARD ----
 // A second subscription on this extension delivers every message a second time
 // about 1ms later. It was created with different RingCentral credentials, so this
@@ -110,6 +126,17 @@ async function handleRequest(request) {
       const bodyText = await request.text();
       console.log("Received body:", bodyText);
       const body = JSON.parse(bodyText);
+
+      // Drop denied subscriptions before doing any work. subscriptionId lives on
+      // the envelope, so this is one check per notification, not per message.
+      if (body && IGNORED_SUBSCRIPTION_IDS.indexOf(body.subscriptionId) !== -1) {
+        console.log("Ignoring notification from denied subscription", body.subscriptionId,
+                    "— known duplicate delivery, see IGNORED_SUBSCRIPTION_IDS");
+        const h = { "Content-Type": "application/json" };
+        if (validationToken) h["Validation-Token"] = validationToken;
+        return new Response(JSON.stringify({ status: "ignored" }), { status: 200, headers: h });
+      }
+
       const msgBody = body?.body;
       const msgs = msgBody?.messages || (msgBody?.direction ? [msgBody] : []);
       console.log("Messages found:", msgs.length);
