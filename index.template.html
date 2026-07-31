@@ -3079,7 +3079,7 @@ function saveToPayrollSheet(){
     NO VERBAL AGREEMENT RECOGNIZED BEYOND THIS CONTRACT
   </div>
 
-  <div style="text-align:center; color:red; font-weight:700; font-size:13px; text-decoration:underline; margin-bottom:10px;">
+  <div style="text-align:center; color:red; font-weight:900; font-size:13px; text-decoration:underline; margin-bottom:10px;">
     HOMEOWNER OUT OF POCKET PAYMENT PORTION
   </div>
 
@@ -3192,13 +3192,13 @@ function saveToPayrollSheet(){
   </table>
 
   <div style="display:flex; align-items:center; margin:8px 0 12px;">
-    <div style="flex:0 0 72%; text-align:right; font-weight:700; font-size:11px; color:red; text-decoration:underline; padding-right:8px; display:flex; align-items:center; justify-content:flex-end;">TOTAL REMAINING BALANCE:</div>
+    <div style="flex:0 0 72%; text-align:right; font-weight:700; font-size:11px; color:red; text-decoration:underline; padding-right:8px; display:flex; align-items:center; justify-content:flex-end;">TOTAL REMAINING OOP BALANCE:</div>
     <div style="flex:0 0 28%; padding-left:4px; padding-right:4px;">
       <textarea id="total-remaining" class="fi md" rows="1" readonly style="background:#B5D342;border-bottom:1px solid #B5D342;font-weight:700;width:100%;text-align:right;"></textarea>
     </div>
   </div>
 
-  <div style="text-align:center; color:red; font-weight:700; font-size:13px; text-decoration:underline; margin-bottom:10px;">
+  <div style="text-align:center; color:red; font-weight:900; font-size:13px; text-decoration:underline; margin-bottom:10px;">
     HOMEOWNER INSURANCE PAYMENT PORTION
   </div>
 
@@ -3216,15 +3216,7 @@ function saveToPayrollSheet(){
         <td>
           <select id="ipd1" style="min-width:130px;font-size:11px;border:1px solid #000;height:17px;">
             <option value="">Select...</option>
-            <option>Deductible</option>
-            <option>Upgrades</option>
-            <option>Non-Recoverable Depreciation</option>
-            <option>Retail</option>
             <option>Insurance Claim Check</option>
-            <option>Military Discount</option>
-            <option>Upgrades Discount</option>
-            <option>Work Not Done Funds</option>
-            <option>DAP</option>
           </select>
         </td>
         <td><textarea class="fi md" rows="1" id="ipa1" oninput="calcRowIns(1)"></textarea></td>
@@ -3235,15 +3227,7 @@ function saveToPayrollSheet(){
         <td>
           <select id="ipd2" style="min-width:130px;font-size:11px;border:1px solid #000;height:17px;">
             <option value="">Select...</option>
-            <option>Deductible</option>
-            <option>Upgrades</option>
-            <option>Non-Recoverable Depreciation</option>
-            <option>Retail</option>
             <option>Insurance Claim Check</option>
-            <option>Military Discount</option>
-            <option>Upgrades Discount</option>
-            <option>Work Not Done Funds</option>
-            <option>DAP</option>
           </select>
         </td>
         <td><textarea class="fi md" rows="1" id="ipa2" oninput="calcRowIns(2)"></textarea></td>
@@ -3254,15 +3238,7 @@ function saveToPayrollSheet(){
         <td>
           <select id="ipd3" style="min-width:130px;font-size:11px;border:1px solid #000;height:17px;">
             <option value="">Select...</option>
-            <option>Deductible</option>
-            <option>Upgrades</option>
-            <option>Non-Recoverable Depreciation</option>
-            <option>Retail</option>
             <option>Insurance Claim Check</option>
-            <option>Military Discount</option>
-            <option>Upgrades Discount</option>
-            <option>Work Not Done Funds</option>
-            <option>DAP</option>
           </select>
         </td>
         <td><textarea class="fi md" rows="1" id="ipa3" oninput="calcRowIns(3)"></textarea></td>
@@ -3273,15 +3249,7 @@ function saveToPayrollSheet(){
         <td>
           <select id="ipd4" style="min-width:130px;font-size:11px;border:1px solid #000;height:17px;">
             <option value="">Select...</option>
-            <option>Deductible</option>
-            <option>Upgrades</option>
-            <option>Non-Recoverable Depreciation</option>
-            <option>Retail</option>
             <option>Insurance Claim Check</option>
-            <option>Military Discount</option>
-            <option>Upgrades Discount</option>
-            <option>Work Not Done Funds</option>
-            <option>DAP</option>
           </select>
         </td>
         <td><textarea class="fi md" rows="1" id="ipa4" oninput="calcRowIns(4)"></textarea></td>
@@ -3292,15 +3260,7 @@ function saveToPayrollSheet(){
         <td>
           <select id="ipd5" style="min-width:130px;font-size:11px;border:1px solid #000;height:17px;">
             <option value="">Select...</option>
-            <option>Deductible</option>
-            <option>Upgrades</option>
-            <option>Non-Recoverable Depreciation</option>
-            <option>Retail</option>
             <option>Insurance Claim Check</option>
-            <option>Military Discount</option>
-            <option>Upgrades Discount</option>
-            <option>Work Not Done Funds</option>
-            <option>DAP</option>
           </select>
         </td>
         <td><textarea class="fi md" rows="1" id="ipa5" oninput="calcRowIns(5)"></textarea></td>
@@ -3311,7 +3271,7 @@ function saveToPayrollSheet(){
   </table>
 
   <div style="display:flex; align-items:center; margin:8px 0 12px;">
-    <div style="flex:0 0 72%; text-align:right; font-weight:700; font-size:11px; color:red; text-decoration:underline; padding-right:8px; display:flex; align-items:center; justify-content:flex-end;">TOTAL REMAINING BALANCE:</div>
+    <div style="flex:0 0 72%; text-align:right; font-weight:700; font-size:11px; color:red; text-decoration:underline; padding-right:8px; display:flex; align-items:center; justify-content:flex-end;">TOTAL REMAINING INSURANCE BALANCE:</div>
     <div style="flex:0 0 28%; padding-left:4px; padding-right:4px;">
       <textarea id="total-remaining-ins" class="fi md" rows="1" readonly style="background:#B5D342;border-bottom:1px solid #B5D342;font-weight:700;width:100%;text-align:right;"></textarea>
     </div>
