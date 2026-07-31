@@ -248,6 +248,7 @@
   .pto-approval-info{flex:1;min-width:0;}
   .pto-approval-name{font-size:0.88rem;font-weight:700;color:#1e293b;margin-bottom:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .pto-approval-meta{font-size:0.75rem;color:#64748b;}
+  .pto-approval-age{font-size:0.72rem;color:#94a3b8;margin-top:3px;}
   .pto-approval-note{font-size:0.74rem;color:#94a3b8;font-style:italic;margin-top:3px;}
   .pto-approval-btns{display:flex;gap:6px;flex-shrink:0;padding-top:2px;}
   .pto-team-table{width:100%;border-collapse:collapse;font-size:0.8rem;}
@@ -10377,6 +10378,40 @@ function ptoDateShort(dateStr) {
   return months[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10);
 }
 
+// A pending request's submitted timestamp (col L, full ISO) is what tells a
+// manager how long it's been sitting — turn it into a display date plus a
+// whole-day age. Returns null if the request predates the timestamp column.
+function ptoSubmittedAge(submitted) {
+  var day = String(submitted || '').slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return null;
+  var p     = day.split('-');
+  var then  = new Date(+p[0], +p[1] - 1, +p[2]);
+  var now   = new Date();
+  var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  var days  = Math.round((today - then) / 86400000);
+  return {
+    days:  days < 0 ? 0 : days,
+    label: ptoDateShort(day) + (p[0] !== String(now.getFullYear()) ? ', ' + p[0] : '')
+  };
+}
+
+// "Submitted Jul 24 · waiting 6 days", amber past 3 days and red past 7.
+function ptoSubmittedAgeHtml(submitted) {
+  var age = ptoSubmittedAge(submitted);
+  if (!age) return '';
+  var text = 'Submitted ' + age.label;
+  if (age.days === 0) {
+    text = 'Submitted today';
+  } else if (age.days >= 3) {
+    var color = age.days >= 7 ? '#b91c1c' : '#b45309';
+    text += ' &middot; <span style="color:' + color + ';font-weight:700;">waiting ' +
+            age.days + ' days</span>';
+  } else {
+    text += ' &middot; waiting ' + age.days + ' day' + (age.days !== 1 ? 's' : '');
+  }
+  return '<div class="pto-approval-age">' + text + '</div>';
+}
+
 // The exact half-day window(s) chosen at submission (e.g. "1pm-5pm") only
 // ever gets saved as a suffix on the request's Notes field — pull it back
 // out so the calendar event description can show which half was taken.
@@ -11027,6 +11062,7 @@ function ptoRenderTeamRequests() {
               ' <span class="pill pill-yellow" style="font-size:0.67rem;padding:2px 8px;">' + r.days + ' day' + (r.days !== 1 ? 's' : '') + '</span>' +
             '</div>' +
             '<div class="pto-approval-meta">' + ptoEsc(metaStr) + '</div>' +
+            ptoSubmittedAgeHtml(r.submitted) +
             (r.notes ? '<div class="pto-approval-note">&ldquo;' + ptoEsc(r.notes) + '&rdquo;</div>' : '') +
           '</div>' +
           '<div class="pto-approval-btns">' +
