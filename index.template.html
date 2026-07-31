@@ -3202,7 +3202,8 @@ function saveToPayrollSheet(){
     HOMEOWNER <span style="font-weight:900;">INSURANCE</span> PAYMENT PORTION
   </div>
 
-  <table class="pay-table">
+  <input type="hidden" id="wo-ins-pay-data">
+  <table class="pay-table" id="wo-ins-pay-table">
     <thead>
       <tr>
         <th style="width:30%; text-align:left;">DESCRIPTION</th>
@@ -3211,64 +3212,9 @@ function saveToPayrollSheet(){
         <th style="width:28%; text-align:left;">OPEN BALANCE</th>
       </tr>
     </thead>
-    <tbody>
-      <tr>
-        <td>
-          <select id="ipd1" style="min-width:130px;font-size:11px;border:1px solid #000;height:17px;">
-            <option value="">Select...</option>
-            <option>Insurance Claim Check</option>
-          </select>
-        </td>
-        <td><textarea class="fi md" rows="1" id="ipa1" oninput="calcRowIns(1)"></textarea></td>
-        <td><textarea class="fi md" rows="1" id="ipp1" oninput="calcRowIns(1)"></textarea></td>
-        <td><textarea class="fi md" rows="1" id="ipb1" readonly style="background:#f0f0f0;"></textarea></td>
-      </tr>
-      <tr>
-        <td>
-          <select id="ipd2" style="min-width:130px;font-size:11px;border:1px solid #000;height:17px;">
-            <option value="">Select...</option>
-            <option>Insurance Claim Check</option>
-          </select>
-        </td>
-        <td><textarea class="fi md" rows="1" id="ipa2" oninput="calcRowIns(2)"></textarea></td>
-        <td><textarea class="fi md" rows="1" id="ipp2" oninput="calcRowIns(2)"></textarea></td>
-        <td><textarea class="fi md" rows="1" id="ipb2" readonly style="background:#f0f0f0;"></textarea></td>
-      </tr>
-      <tr>
-        <td>
-          <select id="ipd3" style="min-width:130px;font-size:11px;border:1px solid #000;height:17px;">
-            <option value="">Select...</option>
-            <option>Insurance Claim Check</option>
-          </select>
-        </td>
-        <td><textarea class="fi md" rows="1" id="ipa3" oninput="calcRowIns(3)"></textarea></td>
-        <td><textarea class="fi md" rows="1" id="ipp3" oninput="calcRowIns(3)"></textarea></td>
-        <td><textarea class="fi md" rows="1" id="ipb3" readonly style="background:#f0f0f0;"></textarea></td>
-      </tr>
-      <tr>
-        <td>
-          <select id="ipd4" style="min-width:130px;font-size:11px;border:1px solid #000;height:17px;">
-            <option value="">Select...</option>
-            <option>Insurance Claim Check</option>
-          </select>
-        </td>
-        <td><textarea class="fi md" rows="1" id="ipa4" oninput="calcRowIns(4)"></textarea></td>
-        <td><textarea class="fi md" rows="1" id="ipp4" oninput="calcRowIns(4)"></textarea></td>
-        <td><textarea class="fi md" rows="1" id="ipb4" readonly style="background:#f0f0f0;"></textarea></td>
-      </tr>
-      <tr>
-        <td>
-          <select id="ipd5" style="min-width:130px;font-size:11px;border:1px solid #000;height:17px;">
-            <option value="">Select...</option>
-            <option>Insurance Claim Check</option>
-          </select>
-        </td>
-        <td><textarea class="fi md" rows="1" id="ipa5" oninput="calcRowIns(5)"></textarea></td>
-        <td><textarea class="fi md" rows="1" id="ipp5" oninput="calcRowIns(5)"></textarea></td>
-        <td><textarea class="fi md" rows="1" id="ipb5" readonly style="background:#f0f0f0;"></textarea></td>
-      </tr>
-    </tbody>
+    <tbody id="wo-ins-pay-tbody"></tbody>
   </table>
+  <button type="button" class="no-print" onclick="woInsPayAddRow()" style="margin-top:2px;font-size:10px;padding:2px 8px;background:#e8e8e8;border:1px solid #aaa;border-radius:3px;cursor:pointer;">+ Add Row</button>
 
   <div style="display:flex; align-items:center; margin:8px 0 12px;">
     <div style="flex:0 0 72%; text-align:right; font-weight:700; font-size:11px; color:red; text-decoration:underline; padding-right:8px; display:flex; align-items:center; justify-content:flex-end;">TOTAL REMAINING INSURANCE BALANCE:</div>
@@ -3803,26 +3749,127 @@ function calcTotalBalance() {
   var trEl = document.getElementById('total-remaining');
   if (trEl) trEl.value = total ? total.toFixed(2) : '';
 }
-// Insurance payment portion — same maths as the out-of-pocket table above,
-// against its own `i`-prefixed row ids and its own total.
-function calcRowIns(n) {
-  var amtEl = document.getElementById('ipa' + n);
-  var pdEl  = document.getElementById('ipp' + n);
-  if (!amtEl || !pdEl) return;
-  var amount = parseFloat(amtEl.value.replace(/[^0-9.-]/g, '')) || 0;
-  var paid   = parseFloat(pdEl.value.replace(/[^0-9.-]/g, '')) || 0;
-  var pbEl   = document.getElementById('ipb' + n);
-  if (pbEl) pbEl.value = (amount || paid) ? (amount - paid).toFixed(2) : '';
-  calcTotalBalanceIns();
+// Insurance payment portion — same maths as the out-of-pocket table above, but
+// the rows are added and removed on demand, so they live in a serialized hidden
+// field (wo-ins-pay-data) rather than fixed per-row ids. Open balance and the
+// section total are derived, never stored per row.
+var WO_INS_PAY_MIN_ROWS = 2;
+var woInsPayLoading = false;
+
+function woInsPayAddRow(desc, amount, paid) {
+  var tbody = document.getElementById('wo-ins-pay-tbody');
+  if (!tbody) return;
+  var tr = document.createElement('tr');
+  tr.innerHTML =
+    '<td>' +
+      '<select class="wo-ip-desc" style="min-width:130px;font-size:11px;border:1px solid #000;height:17px;">' +
+        '<option value="">Select...</option>' +
+        '<option>Insurance Claim Check</option>' +
+      '</select>' +
+    '</td>' +
+    '<td><textarea class="fi md wo-ip-amt" rows="1"></textarea></td>' +
+    '<td><textarea class="fi md wo-ip-paid" rows="1"></textarea></td>' +
+    '<td>' +
+      '<div style="display:flex;align-items:center;gap:4px;">' +
+        '<textarea class="fi md wo-ip-bal" rows="1" readonly style="background:#f0f0f0;flex:1 1 auto;"></textarea>' +
+        '<button type="button" class="wo-ip-del no-print" onclick="woInsPayDeleteRow(this)" title="Remove this row" style="font-size:10px;background:none;border:none;cursor:pointer;color:#a00;padding:0 2px;">&#x2715;</button>' +
+      '</div>' +
+    '</td>';
+  var sel = tr.querySelector('.wo-ip-desc');
+  if (desc) sel.value = desc;
+  tr.querySelector('.wo-ip-amt').value  = amount || '';
+  tr.querySelector('.wo-ip-paid').value = paid   || '';
+  tr.querySelectorAll('select, textarea').forEach(function(el) {
+    if (el.readOnly) return;
+    var h = function() { woInsPayRecalc(); woInsPaySerialize(); };
+    el.addEventListener('input', h);
+    el.addEventListener('change', h);
+  });
+  tbody.appendChild(tr);
+  woInsPayRecalc();
+  woInsPaySerialize();
 }
-function calcTotalBalanceIns() {
-  var total = 0;
-  for (var i = 1; i <= 5; i++) {
-    var el = document.getElementById('ipb' + i);
-    if (el) total += parseFloat(el.value.replace(/[^0-9.-]/g, '')) || 0;
+
+// Keep at least the two rows the form ships with.
+function woInsPayDeleteRow(btn) {
+  var tbody = document.getElementById('wo-ins-pay-tbody');
+  var tr = btn.closest('tr');
+  if (!tbody || !tr) return;
+  if (tbody.querySelectorAll('tr').length <= WO_INS_PAY_MIN_ROWS) {
+    tr.querySelector('.wo-ip-desc').value = '';
+    tr.querySelector('.wo-ip-amt').value  = '';
+    tr.querySelector('.wo-ip-paid').value = '';
+  } else {
+    tr.remove();
   }
+  woInsPayRecalc();
+  woInsPaySerialize();
+}
+
+function woInsPayRecalc() {
+  var tbody = document.getElementById('wo-ins-pay-tbody');
+  if (!tbody) return;
+  var total = 0;
+  tbody.querySelectorAll('tr').forEach(function(tr) {
+    var amount = parseFloat((tr.querySelector('.wo-ip-amt')  || {value:''}).value.replace(/[^0-9.-]/g, '')) || 0;
+    var paid   = parseFloat((tr.querySelector('.wo-ip-paid') || {value:''}).value.replace(/[^0-9.-]/g, '')) || 0;
+    var balEl  = tr.querySelector('.wo-ip-bal');
+    if (balEl) balEl.value = (amount || paid) ? (amount - paid).toFixed(2) : '';
+    total += amount - paid;
+  });
   var trEl = document.getElementById('total-remaining-ins');
   if (trEl) trEl.value = total ? total.toFixed(2) : '';
+  // Hide the delete control while the table is at its minimum size.
+  var atMin = tbody.querySelectorAll('tr').length <= WO_INS_PAY_MIN_ROWS;
+  tbody.querySelectorAll('.wo-ip-del').forEach(function(b) { b.style.visibility = atMin ? 'hidden' : ''; });
+}
+
+function woInsPaySerialize() {
+  var tbody  = document.getElementById('wo-ins-pay-tbody');
+  var hidden = document.getElementById('wo-ins-pay-data');
+  if (!tbody || !hidden) return;
+  var rows = [];
+  tbody.querySelectorAll('tr').forEach(function(tr) {
+    rows.push({
+      desc:   (tr.querySelector('.wo-ip-desc') || {value:''}).value,
+      amount: (tr.querySelector('.wo-ip-amt')  || {value:''}).value,
+      paid:   (tr.querySelector('.wo-ip-paid') || {value:''}).value
+    });
+  });
+  var next = JSON.stringify(rows);
+  if (next === hidden.value) return;
+  hidden.value = next;
+  // Add Row and the row delete are clicks, which the delegated dirty tracking
+  // does not see.
+  if (!woInsPayLoading && typeof woMarkDirty === 'function') woMarkDirty();
+}
+
+function woInsPayDeserialize(val) {
+  var tbody = document.getElementById('wo-ins-pay-tbody');
+  if (!tbody) return;
+  woInsPayLoading = true;
+  try {
+    tbody.innerHTML = '';
+    var rows = null;
+    if (val) { try { rows = JSON.parse(val); } catch(e) { rows = null; } }
+    if (!Array.isArray(rows)) rows = [];
+    rows.forEach(function(r) { woInsPayAddRow(r.desc || '', r.amount || '', r.paid || ''); });
+    while (tbody.querySelectorAll('tr').length < WO_INS_PAY_MIN_ROWS) woInsPayAddRow();
+  } finally {
+    woInsPayLoading = false;
+  }
+  woInsPayRecalc();
+}
+
+// Work orders saved while this table still had five fixed rows carry ipd/ipa/ipp
+// keys instead of wo-ins-pay-data — fold those into the new shape on load.
+function woInsPayFromLegacy(data) {
+  var rows = [];
+  for (var i = 1; i <= 5; i++) {
+    var d = data['ipd' + i] || '', a = data['ipa' + i] || '', p = data['ipp' + i] || '';
+    if (d || a || p) rows.push({ desc: d, amount: a, paid: p });
+  }
+  return rows.length ? JSON.stringify(rows) : '';
 }
 </script>
 <script>
@@ -3911,6 +3958,7 @@ function checkRidgeCapOnColorChange() {
   document.addEventListener('DOMContentLoaded', function() {
     woInitTradesTable();
     woBlackoutDeserialize('');
+    woInsPayDeserialize('');
     ['sig-c1','sig-c2','sig-c3','sig-h1','sig-h2','sig-pm','sig-ppa',
      'init-1','init-2','init-3','init-4'].forEach(initSig);
     document.addEventListener('click', function(e) {
@@ -4206,26 +4254,127 @@ function calcTotalBalance() {
   var trEl = document.getElementById('total-remaining');
   if (trEl) trEl.value = total ? total.toFixed(2) : '';
 }
-// Insurance payment portion — same maths as the out-of-pocket table above,
-// against its own `i`-prefixed row ids and its own total.
-function calcRowIns(n) {
-  var amtEl = document.getElementById('ipa' + n);
-  var pdEl  = document.getElementById('ipp' + n);
-  if (!amtEl || !pdEl) return;
-  var amount = parseFloat(amtEl.value.replace(/[^0-9.-]/g, '')) || 0;
-  var paid   = parseFloat(pdEl.value.replace(/[^0-9.-]/g, '')) || 0;
-  var pbEl   = document.getElementById('ipb' + n);
-  if (pbEl) pbEl.value = (amount || paid) ? (amount - paid).toFixed(2) : '';
-  calcTotalBalanceIns();
+// Insurance payment portion — same maths as the out-of-pocket table above, but
+// the rows are added and removed on demand, so they live in a serialized hidden
+// field (wo-ins-pay-data) rather than fixed per-row ids. Open balance and the
+// section total are derived, never stored per row.
+var WO_INS_PAY_MIN_ROWS = 2;
+var woInsPayLoading = false;
+
+function woInsPayAddRow(desc, amount, paid) {
+  var tbody = document.getElementById('wo-ins-pay-tbody');
+  if (!tbody) return;
+  var tr = document.createElement('tr');
+  tr.innerHTML =
+    '<td>' +
+      '<select class="wo-ip-desc" style="min-width:130px;font-size:11px;border:1px solid #000;height:17px;">' +
+        '<option value="">Select...</option>' +
+        '<option>Insurance Claim Check</option>' +
+      '</select>' +
+    '</td>' +
+    '<td><textarea class="fi md wo-ip-amt" rows="1"></textarea></td>' +
+    '<td><textarea class="fi md wo-ip-paid" rows="1"></textarea></td>' +
+    '<td>' +
+      '<div style="display:flex;align-items:center;gap:4px;">' +
+        '<textarea class="fi md wo-ip-bal" rows="1" readonly style="background:#f0f0f0;flex:1 1 auto;"></textarea>' +
+        '<button type="button" class="wo-ip-del no-print" onclick="woInsPayDeleteRow(this)" title="Remove this row" style="font-size:10px;background:none;border:none;cursor:pointer;color:#a00;padding:0 2px;">&#x2715;</button>' +
+      '</div>' +
+    '</td>';
+  var sel = tr.querySelector('.wo-ip-desc');
+  if (desc) sel.value = desc;
+  tr.querySelector('.wo-ip-amt').value  = amount || '';
+  tr.querySelector('.wo-ip-paid').value = paid   || '';
+  tr.querySelectorAll('select, textarea').forEach(function(el) {
+    if (el.readOnly) return;
+    var h = function() { woInsPayRecalc(); woInsPaySerialize(); };
+    el.addEventListener('input', h);
+    el.addEventListener('change', h);
+  });
+  tbody.appendChild(tr);
+  woInsPayRecalc();
+  woInsPaySerialize();
 }
-function calcTotalBalanceIns() {
-  var total = 0;
-  for (var i = 1; i <= 5; i++) {
-    var el = document.getElementById('ipb' + i);
-    if (el) total += parseFloat(el.value.replace(/[^0-9.-]/g, '')) || 0;
+
+// Keep at least the two rows the form ships with.
+function woInsPayDeleteRow(btn) {
+  var tbody = document.getElementById('wo-ins-pay-tbody');
+  var tr = btn.closest('tr');
+  if (!tbody || !tr) return;
+  if (tbody.querySelectorAll('tr').length <= WO_INS_PAY_MIN_ROWS) {
+    tr.querySelector('.wo-ip-desc').value = '';
+    tr.querySelector('.wo-ip-amt').value  = '';
+    tr.querySelector('.wo-ip-paid').value = '';
+  } else {
+    tr.remove();
   }
+  woInsPayRecalc();
+  woInsPaySerialize();
+}
+
+function woInsPayRecalc() {
+  var tbody = document.getElementById('wo-ins-pay-tbody');
+  if (!tbody) return;
+  var total = 0;
+  tbody.querySelectorAll('tr').forEach(function(tr) {
+    var amount = parseFloat((tr.querySelector('.wo-ip-amt')  || {value:''}).value.replace(/[^0-9.-]/g, '')) || 0;
+    var paid   = parseFloat((tr.querySelector('.wo-ip-paid') || {value:''}).value.replace(/[^0-9.-]/g, '')) || 0;
+    var balEl  = tr.querySelector('.wo-ip-bal');
+    if (balEl) balEl.value = (amount || paid) ? (amount - paid).toFixed(2) : '';
+    total += amount - paid;
+  });
   var trEl = document.getElementById('total-remaining-ins');
   if (trEl) trEl.value = total ? total.toFixed(2) : '';
+  // Hide the delete control while the table is at its minimum size.
+  var atMin = tbody.querySelectorAll('tr').length <= WO_INS_PAY_MIN_ROWS;
+  tbody.querySelectorAll('.wo-ip-del').forEach(function(b) { b.style.visibility = atMin ? 'hidden' : ''; });
+}
+
+function woInsPaySerialize() {
+  var tbody  = document.getElementById('wo-ins-pay-tbody');
+  var hidden = document.getElementById('wo-ins-pay-data');
+  if (!tbody || !hidden) return;
+  var rows = [];
+  tbody.querySelectorAll('tr').forEach(function(tr) {
+    rows.push({
+      desc:   (tr.querySelector('.wo-ip-desc') || {value:''}).value,
+      amount: (tr.querySelector('.wo-ip-amt')  || {value:''}).value,
+      paid:   (tr.querySelector('.wo-ip-paid') || {value:''}).value
+    });
+  });
+  var next = JSON.stringify(rows);
+  if (next === hidden.value) return;
+  hidden.value = next;
+  // Add Row and the row delete are clicks, which the delegated dirty tracking
+  // does not see.
+  if (!woInsPayLoading && typeof woMarkDirty === 'function') woMarkDirty();
+}
+
+function woInsPayDeserialize(val) {
+  var tbody = document.getElementById('wo-ins-pay-tbody');
+  if (!tbody) return;
+  woInsPayLoading = true;
+  try {
+    tbody.innerHTML = '';
+    var rows = null;
+    if (val) { try { rows = JSON.parse(val); } catch(e) { rows = null; } }
+    if (!Array.isArray(rows)) rows = [];
+    rows.forEach(function(r) { woInsPayAddRow(r.desc || '', r.amount || '', r.paid || ''); });
+    while (tbody.querySelectorAll('tr').length < WO_INS_PAY_MIN_ROWS) woInsPayAddRow();
+  } finally {
+    woInsPayLoading = false;
+  }
+  woInsPayRecalc();
+}
+
+// Work orders saved while this table still had five fixed rows carry ipd/ipa/ipp
+// keys instead of wo-ins-pay-data — fold those into the new shape on load.
+function woInsPayFromLegacy(data) {
+  var rows = [];
+  for (var i = 1; i <= 5; i++) {
+    var d = data['ipd' + i] || '', a = data['ipa' + i] || '', p = data['ipp' + i] || '';
+    if (d || a || p) rows.push({ desc: d, amount: a, paid: p });
+  }
+  return rows.length ? JSON.stringify(rows) : '';
 }
 
 
@@ -9332,7 +9481,7 @@ document.addEventListener("click", function(e){
 // =====================================================================
 // WORK ORDER TAB
 // =====================================================================
-var WO_FIELD_IDS = ['shingle-type', 'shingle-color', 'ridgecap-type', 'starter-type', 'underlayment-type', 'valley-type', 'warranty-sel', 'pd1', 'pa1', 'pp1', 'pb1', 'pd2', 'pa2', 'pp2', 'pb2', 'pd3', 'pa3', 'pp3', 'pb3', 'pd4', 'pa4', 'pp4', 'pb4', 'pd5', 'pa5', 'pp5', 'pb5', 'total-remaining', 'ipd1', 'ipa1', 'ipp1', 'ipb1', 'ipd2', 'ipa2', 'ipp2', 'ipb2', 'ipd3', 'ipa3', 'ipp3', 'ipb3', 'ipd4', 'ipa4', 'ipp4', 'ipb4', 'ipd5', 'ipa5', 'ipp5', 'ipb5', 'total-remaining-ins', 'wo-f1', 'wo-f2', 'wo-f3', 'wo-f4', 'wo-f5', 'wo-f6', 'wo-f7', 'wo-f8', 'wo-f9', 'wo-f10', 'wo-f11', 'wo-f12', 'wo-f13', 'wo-f14', 'wo-f15', 'wo-f16', 'wo-f17', 'wo-f18', 'wo-f19', 'wo-f20', 'wo-f23', 'wo-f24', 'wo-f25', 'wo-f26', 'wo-f27', 'wo-f28', 'wo-f29', 'wo-f30', 'wo-f32', 'wo-f33', 'wo-f34', 'wo-f35', 'wo-f36', 'wo-f37', 'wo-f38', 'wo-f39', 'wo-f40', 'wo-f41', 'wo-f42', 'wo-f43', 'wo-f44', 'wo-f45', 'wo-f46', 'wo-f47', 'wo-f78', 'wo-f79', 'wo-f80', 'wo-f81', 'wo-f82', 'wo-f83', 'wo-f84', 'wo-f85', 'wo-f86', 'wo-f87', 'wo-f88', 'wo-f89', 'wo-f90', 'wo-f91', 'wo-f92', 'wo-f93', 'wo-f94', 'wo-f95', 'wo-f96', 'wo-f97', 'wo-f98', 'wo-f99', 'wo-f100', 'wo-f101', 'wo-f102', 'wo-f103', 'wo-f104', 'wo-f105', 'wo-f106', 'wo-f107', 'wo-f108', 'wo-f109', 'wo-f110', 'wo-f111', 'wo-f112', 'wo-f113', 'wo-f114', 'wo-f115', 'wo-f116', 'wo-f117', 'wo-f118', 'wo-f119', 'wo-f120', 'wo-f121', 'wo-f122', 'wo-f123', 'wo-f124', 'wo-f125', 'wo-f126', 'wo-f127', 'wo-f128', 'wo-f129', 'wo-f130', 'wo-f131', 'wo-f132', 'wo-f133', 'wo-f134', 'wo-ins-est-date', 'wo-trades-data', 'wo-f-hoa-plan', 'wo-blackout-dates', 'wo-vent-de-ridge', 'wo-vent-de-box', 'wo-vent-de-power', 'wo-vent-de-solar', 'wo-vent-de-turbine',
+var WO_FIELD_IDS = ['shingle-type', 'shingle-color', 'ridgecap-type', 'starter-type', 'underlayment-type', 'valley-type', 'warranty-sel', 'pd1', 'pa1', 'pp1', 'pb1', 'pd2', 'pa2', 'pp2', 'pb2', 'pd3', 'pa3', 'pp3', 'pb3', 'pd4', 'pa4', 'pp4', 'pb4', 'pd5', 'pa5', 'pp5', 'pb5', 'total-remaining', 'wo-ins-pay-data', 'total-remaining-ins', 'wo-f1', 'wo-f2', 'wo-f3', 'wo-f4', 'wo-f5', 'wo-f6', 'wo-f7', 'wo-f8', 'wo-f9', 'wo-f10', 'wo-f11', 'wo-f12', 'wo-f13', 'wo-f14', 'wo-f15', 'wo-f16', 'wo-f17', 'wo-f18', 'wo-f19', 'wo-f20', 'wo-f23', 'wo-f24', 'wo-f25', 'wo-f26', 'wo-f27', 'wo-f28', 'wo-f29', 'wo-f30', 'wo-f32', 'wo-f33', 'wo-f34', 'wo-f35', 'wo-f36', 'wo-f37', 'wo-f38', 'wo-f39', 'wo-f40', 'wo-f41', 'wo-f42', 'wo-f43', 'wo-f44', 'wo-f45', 'wo-f46', 'wo-f47', 'wo-f78', 'wo-f79', 'wo-f80', 'wo-f81', 'wo-f82', 'wo-f83', 'wo-f84', 'wo-f85', 'wo-f86', 'wo-f87', 'wo-f88', 'wo-f89', 'wo-f90', 'wo-f91', 'wo-f92', 'wo-f93', 'wo-f94', 'wo-f95', 'wo-f96', 'wo-f97', 'wo-f98', 'wo-f99', 'wo-f100', 'wo-f101', 'wo-f102', 'wo-f103', 'wo-f104', 'wo-f105', 'wo-f106', 'wo-f107', 'wo-f108', 'wo-f109', 'wo-f110', 'wo-f111', 'wo-f112', 'wo-f113', 'wo-f114', 'wo-f115', 'wo-f116', 'wo-f117', 'wo-f118', 'wo-f119', 'wo-f120', 'wo-f121', 'wo-f122', 'wo-f123', 'wo-f124', 'wo-f125', 'wo-f126', 'wo-f127', 'wo-f128', 'wo-f129', 'wo-f130', 'wo-f131', 'wo-f132', 'wo-f133', 'wo-f134', 'wo-ins-est-date', 'wo-trades-data', 'wo-f-hoa-plan', 'wo-blackout-dates', 'wo-vent-de-ridge', 'wo-vent-de-box', 'wo-vent-de-power', 'wo-vent-de-solar', 'wo-vent-de-turbine',
   'wo-shingle-upg', 'wo-ridge-upg', 'wo-starter-upg', 'wo-underlay-upg', 'wo-valley-upg', 'wo-pipeboot-upg'];
 var WO_SIG_IDS   = ['sig-h1', 'sig-h2', 'sig-pm', 'sig-c1', 'sig-c2', 'sig-c3', 'sig-ppa', 'init-1', 'init-2', 'init-3', 'init-4'];
 var WO_SHEET_TAB = "WorkOrders";
@@ -9349,6 +9498,7 @@ function woGetAllFields() {
   // stale table data instead of what's on screen.
   if (typeof woSerializeTrades === 'function') woSerializeTrades();
   if (typeof woBlackoutSerialize === 'function') woBlackoutSerialize();
+  if (typeof woInsPaySerialize === 'function') woInsPaySerialize();
   var data = {};
   WO_FIELD_IDS.forEach(function(id) {
     var el = document.getElementById(id);
@@ -9403,6 +9553,7 @@ function woSetAllFields(data) {
   });
   if (data['wo-trades-data']) woDeserializeTrades(data['wo-trades-data']);
   woBlackoutDeserialize(data['wo-blackout-dates'] || '');
+  woInsPayDeserialize(data['wo-ins-pay-data'] || woInsPayFromLegacy(data));
   // Restore checkbox (.cb span) states
   if (data['_cb_states']) {
     document.querySelectorAll('#tab-workorder .wo-frame-wrap .cb[data-cb-id]').forEach(function(cb) {
@@ -10300,6 +10451,7 @@ function woClear() {
     cb.classList.remove('checked'); cb.textContent = '';
   });
   woBlackoutDeserialize('');
+  woInsPayDeserialize('');
   woStatus('Form cleared.', true);
 }
 
