@@ -2970,7 +2970,7 @@ function saveToPayrollSheet(){
     <table id="wo-blackout-table" style="width:100%;border-collapse:collapse;font-size:11px;font-family:Arial,Helvetica,sans-serif;">
       <thead>
         <tr>
-          <th style="width:130px;text-align:left;padding:3px 6px;border:1px solid #999;background:#f0f0f0;font-weight:600;">Date</th>
+          <th style="width:260px;text-align:left;padding:3px 6px;border:1px solid #999;background:#f0f0f0;font-weight:600;">Date(s)</th>
           <th style="text-align:left;padding:3px 6px;border:1px solid #999;background:#f0f0f0;font-weight:600;">Description</th>
           <th style="width:26px;border:1px solid #999;background:#f0f0f0;"></th>
         </tr>
@@ -9216,10 +9216,12 @@ function woStatus(msg, ok) {
 }
 
 function woGetAllFields() {
-  // Keep the hidden wo-trades-data field in sync with the visible "Other Trades Approved"
-  // table before reading anything — it's otherwise only refreshed by woSave(), so any other
-  // reader (draft autosave, etc.) would see stale trades data instead of what's on screen.
+  // Keep the hidden wo-trades-data and wo-blackout-dates fields in sync with their
+  // visible tables before reading anything — they're otherwise only refreshed by
+  // woSave() / input events, so any other reader (draft autosave, etc.) would see
+  // stale table data instead of what's on screen.
   if (typeof woSerializeTrades === 'function') woSerializeTrades();
+  if (typeof woBlackoutSerialize === 'function') woBlackoutSerialize();
   var data = {};
   WO_FIELD_IDS.forEach(function(id) {
     var el = document.getElementById(id);
@@ -10176,25 +10178,87 @@ function woClear() {
 
 
 // -- BLACKOUT DATES TABLE --
-function woBlackoutAddRow(date, desc) {
+// A row covers either a single day or a run of consecutive days. `end` stays
+// empty for a single day and the end-date input isn't created at all, so
+// single-day rows don't print a stray empty date box next to the real one.
+function woBlackoutAddRow(date, desc, end) {
   var tbody = document.getElementById('wo-blackout-tbody');
   if (!tbody) return;
   var tr = document.createElement('tr');
   tr.innerHTML =
-    '<td style="padding:2px 4px;border:1px solid #ccc;">' +
-      '<input type="date" style="width:120px;font-size:11px;border:none;font-family:Arial,Helvetica,sans-serif;background:transparent;" value="' + (date||'') + '">' +
+    '<td style="padding:2px 4px;border:1px solid #ccc;white-space:nowrap;">' +
+      '<input type="date" class="wo-bd-start" style="width:118px;font-size:11px;border:none;font-family:Arial,Helvetica,sans-serif;background:transparent;" value="' + (date||'') + '">' +
+      '<span class="wo-bd-end-wrap"></span>' +
+      '<button type="button" class="wo-bd-range-btn no-print" onclick="woBlackoutToggleRange(this)" style="font-size:9px;padding:1px 5px;margin-left:5px;background:#e8e8e8;border:1px solid #aaa;border-radius:3px;cursor:pointer;color:#333;vertical-align:middle;"></button>' +
     '</td>' +
     '<td style="padding:2px 4px;border:1px solid #ccc;">' +
-      '<input type="text" style="width:100%;font-size:11px;border:none;font-family:Arial,Helvetica,sans-serif;background:transparent;" value="' + (desc||'').replace(/"/g, '&quot;') + '" placeholder="Description...">' +
+      '<input type="text" class="wo-bd-desc" style="width:100%;font-size:11px;border:none;font-family:Arial,Helvetica,sans-serif;background:transparent;" value="' + (desc||'').replace(/"/g, '&quot;') + '" placeholder="Description...">' +
     '</td>' +
     '<td style="text-align:center;border:1px solid #ccc;">' +
       '<button type="button" onclick="this.closest(\'tr\').remove();woBlackoutSerialize();" style="font-size:10px;background:none;border:none;cursor:pointer;color:#a00;">&#x2715;</button>' +
     '</td>';
-  var inputs = tr.querySelectorAll('input');
-  inputs.forEach(function(inp) { inp.addEventListener('change', woBlackoutSerialize); inp.addEventListener('input', woBlackoutSerialize); });
   tbody.appendChild(tr);
+  woBlackoutSetRange(tr, !!end, end || '');
+  woBlackoutBindRow(tr);
   woBlackoutSerialize();
 }
+
+// Add or remove the row's end-date input.
+function woBlackoutSetRange(tr, on, endVal) {
+  var wrap = tr.querySelector('.wo-bd-end-wrap');
+  var btn  = tr.querySelector('.wo-bd-range-btn');
+  if (!wrap || !btn) return;
+  if (on) {
+    wrap.innerHTML =
+      '<span style="padding:0 4px;color:#555;">&ndash;</span>' +
+      '<input type="date" class="wo-bd-end" style="width:118px;font-size:11px;border:none;font-family:Arial,Helvetica,sans-serif;background:transparent;" value="' + (endVal||'') + '">';
+    btn.innerHTML = '&#x2212; range';
+    btn.title = 'Back to a single date';
+    woBlackoutBindRow(tr);
+  } else {
+    wrap.innerHTML = '';
+    btn.innerHTML = '+ range';
+    btn.title = 'Blackout spans consecutive days';
+  }
+  woBlackoutCheckRow(tr);
+}
+
+function woBlackoutToggleRange(btn) {
+  var tr = btn.closest('tr');
+  if (!tr) return;
+  var on    = !tr.querySelector('.wo-bd-end');
+  var start = tr.querySelector('.wo-bd-start');
+  // Seed the end date from the start so the user only has to bump the day.
+  woBlackoutSetRange(tr, on, on && start ? start.value : '');
+  woBlackoutSerialize();
+  if (on) { var e = tr.querySelector('.wo-bd-end'); if (e) e.focus(); }
+}
+
+function woBlackoutBindRow(tr) {
+  tr.querySelectorAll('input').forEach(function(inp) {
+    if (inp.getAttribute('data-bd-bound')) return;
+    inp.setAttribute('data-bd-bound', '1');
+    var h = function() { woBlackoutCheckRow(tr); woBlackoutSerialize(); };
+    inp.addEventListener('change', h);
+    inp.addEventListener('input', h);
+  });
+}
+
+// An end date before the start would serialize a backwards range. Flag it in
+// place rather than blocking — the row may just be half-filled.
+function woBlackoutCheckRow(tr) {
+  var s = tr.querySelector('.wo-bd-start');
+  var e = tr.querySelector('.wo-bd-end');
+  if (!e) return;
+  if (s && s.value) e.min = s.value; else e.removeAttribute('min');
+  var bad = s && s.value && e.value && e.value < s.value;
+  e.style.outline = bad ? '1px solid #c00' : '';
+  e.title = bad ? 'End date is before the start date' : '';
+}
+
+// True only while rebuilding the table from saved data, so a load doesn't
+// look like a user edit.
+var woBlackoutLoading = false;
 
 function woBlackoutSerialize() {
   var tbody = document.getElementById('wo-blackout-tbody');
@@ -10202,21 +10266,37 @@ function woBlackoutSerialize() {
   if (!tbody || !hidden) return;
   var rows = [];
   tbody.querySelectorAll('tr').forEach(function(tr) {
-    var inputs = tr.querySelectorAll('input[type=date], input[type=text]');
-    rows.push({ date: inputs[0] ? inputs[0].value : '', desc: inputs[1] ? inputs[1].value : '' });
+    var s = tr.querySelector('.wo-bd-start');
+    var e = tr.querySelector('.wo-bd-end');
+    var d = tr.querySelector('.wo-bd-desc');
+    rows.push({ date: s ? s.value : '', end: e ? e.value : '', desc: d ? d.value : '' });
   });
-  hidden.value = JSON.stringify(rows);
+  var next = JSON.stringify(rows);
+  if (next === hidden.value) return;
+  hidden.value = next;
+  // Adding a row, deleting one, and the range toggle are clicks rather than
+  // input events, so the delegated dirty tracking misses them — without this
+  // the unsaved-changes banner and the 90s draft autosave never fire.
+  if (!woBlackoutLoading && typeof woMarkDirty === 'function') woMarkDirty();
 }
 
 function woBlackoutDeserialize(val) {
   var tbody = document.getElementById('wo-blackout-tbody');
   if (!tbody) return;
-  tbody.innerHTML = '';
-  if (!val) { woBlackoutAddRow(); return; }
-  var rows;
-  try { rows = JSON.parse(val); } catch(e) { woBlackoutAddRow(); return; }
-  if (!Array.isArray(rows) || !rows.length) { woBlackoutAddRow(); return; }
-  rows.forEach(function(r) { woBlackoutAddRow(r.date || '', r.desc || ''); });
+  woBlackoutLoading = true;
+  try {
+    tbody.innerHTML = '';
+    var rows = null;
+    if (val) { try { rows = JSON.parse(val); } catch(e) { rows = null; } }
+    if (!Array.isArray(rows) || !rows.length) {
+      woBlackoutAddRow();
+    } else {
+      // Rows saved before ranges existed have no `end` — they load as single days.
+      rows.forEach(function(r) { woBlackoutAddRow(r.date || '', r.desc || '', r.end || ''); });
+    }
+  } finally {
+    woBlackoutLoading = false;
+  }
 }
 
 function woJobTypeChange(val) {
