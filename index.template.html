@@ -3198,28 +3198,32 @@ function saveToPayrollSheet(){
     </div>
   </div>
 
-  <div style="text-align:center; color:red; font-weight:700; font-size:13px; text-decoration:underline; margin-bottom:10px;">
-    HOMEOWNER <span style="font-weight:900;">INSURANCE</span> PAYMENT PORTION
-  </div>
+  <!-- Retail jobs have no insurance portion; applyJobTypeVisibility /
+       woJobTypeChange hides this whole block when Retail is picked. -->
+  <div id="wo-ins-payment-section">
+    <div style="text-align:center; color:red; font-weight:700; font-size:13px; text-decoration:underline; margin-bottom:10px;">
+      HOMEOWNER <span style="font-weight:900;">INSURANCE</span> PAYMENT PORTION
+    </div>
 
-  <input type="hidden" id="wo-ins-pay-data">
-  <table class="pay-table" id="wo-ins-pay-table">
-    <thead>
-      <tr>
-        <th style="width:30%; text-align:left;">DESCRIPTION</th>
-        <th style="width:20%; text-align:left;">AMOUNT</th>
-        <th style="width:22%; text-align:left;">AMOUNT PAID</th>
-        <th style="width:28%; text-align:left;">OPEN BALANCE</th>
-      </tr>
-    </thead>
-    <tbody id="wo-ins-pay-tbody"></tbody>
-  </table>
-  <button type="button" class="no-print" onclick="woInsPayAddRow()" style="margin-top:2px;font-size:10px;padding:2px 8px;background:#e8e8e8;border:1px solid #aaa;border-radius:3px;cursor:pointer;">+ Add Row</button>
+    <input type="hidden" id="wo-ins-pay-data">
+    <table class="pay-table" id="wo-ins-pay-table">
+      <thead>
+        <tr>
+          <th style="width:30%; text-align:left;">DESCRIPTION</th>
+          <th style="width:20%; text-align:left;">AMOUNT</th>
+          <th style="width:22%; text-align:left;">AMOUNT PAID</th>
+          <th style="width:28%; text-align:left;">OPEN BALANCE</th>
+        </tr>
+      </thead>
+      <tbody id="wo-ins-pay-tbody"></tbody>
+    </table>
+    <button type="button" class="no-print" onclick="woInsPayAddRow()" style="margin-top:2px;font-size:10px;padding:2px 8px;background:#e8e8e8;border:1px solid #aaa;border-radius:3px;cursor:pointer;">+ Add Row</button>
 
-  <div style="display:flex; align-items:center; margin:8px 0 12px;">
-    <div style="flex:0 0 72%; text-align:right; font-weight:700; font-size:11px; color:red; text-decoration:underline; padding-right:8px; display:flex; align-items:center; justify-content:flex-end;"><span style="background:#ffff00; padding:1px 4px; print-color-adjust:exact; -webkit-print-color-adjust:exact;">TOTAL REMAINING INSURANCE BALANCE:</span></div>
-    <div style="flex:0 0 28%; padding-left:4px; padding-right:4px;">
-      <textarea id="total-remaining-ins" class="fi md" rows="1" readonly style="background:#B5D342;border-bottom:1px solid #B5D342;font-weight:700;width:100%;text-align:right;"></textarea>
+    <div style="display:flex; align-items:center; margin:8px 0 12px;">
+      <div style="flex:0 0 72%; text-align:right; font-weight:700; font-size:11px; color:red; text-decoration:underline; padding-right:8px; display:flex; align-items:center; justify-content:flex-end;"><span style="background:#ffff00; padding:1px 4px; print-color-adjust:exact; -webkit-print-color-adjust:exact;">TOTAL REMAINING INSURANCE BALANCE:</span></div>
+      <div style="flex:0 0 28%; padding-left:4px; padding-right:4px;">
+        <textarea id="total-remaining-ins" class="fi md" rows="1" readonly style="background:#B5D342;border-bottom:1px solid #B5D342;font-weight:700;width:100%;text-align:right;"></textarea>
+      </div>
     </div>
   </div>
 
@@ -10580,7 +10584,7 @@ function woBlackoutDeserialize(val) {
 
 function woJobTypeChange(val) {
   var isRetail = val === 'Retail';
-  var ids = ['wo-insurance-upgrades','wo-retail-section','wo-page-3','wo-ins-warning','wo-ins-initials','wo-ins-field','wo-mort-loan-fields'];
+  var ids = ['wo-insurance-upgrades','wo-retail-section','wo-page-3','wo-ins-warning','wo-ins-initials','wo-ins-field','wo-mort-loan-fields','wo-ins-payment-section'];
   ids.forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.style.display = isRetail ? 'none' : '';
