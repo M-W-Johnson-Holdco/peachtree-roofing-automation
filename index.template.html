@@ -5585,8 +5585,14 @@ function loadLogo(){var d=store.get("brand_logo");if(d){applyLogo(d);renderLogoP
 
 function loadImages(){
   ["T1","T6","T8"].forEach(function(id){
-    var url=store.get("img_"+id);
-    if(url){imageStore[id]={url:url};renderImgPreview(id,url);var inp=document.getElementById("img-"+id);if(inp)inp.value=url;}
+    var raw=store.get("img_"+id);
+    if(!raw)return;
+    var im=normalizeTmplImage(raw);
+    if(!im){addLog&&addLog("warn","Saved image for "+id+" is not readable \u2014 falling back to the default");return;}
+    imageStore[id]=im;
+    renderImgPreview(id,im.url);
+    var inp=document.getElementById("img-"+id);
+    if(inp)inp.value=raw;
   });
 }
 function renderImgPreview(id,url){
@@ -5709,16 +5715,54 @@ function sendSMS(to,msg){
     return d; // d.conversation.id is the conversation ID
   });
 }
+// A template image can be stored three ways: a plain hosted URL, a bare data:
+// URL, or the {"dataUrl":...,"name":...} object an image picker produces. Only
+// the first was ever handled, so an uploaded image was handed to fetch() as if
+// the whole JSON blob were a URL. Normalise all three to {url,name}.
+function normalizeTmplImage(v){
+  if(!v)return null;
+  if(typeof v==="object"){
+    var u=v.url||v.dataUrl||"";
+    return u?{url:u,name:v.name||""}:null;
+  }
+  var s=String(v).trim();
+  if(!s)return null;
+  if(s.charAt(0)==="{"){
+    try{
+      var o=JSON.parse(s);
+      var u2=o.url||o.dataUrl||"";
+      return u2?{url:u2,name:o.name||""}:null;
+    }catch(e){return null;}
+  }
+  return {url:s,name:""};
+}
+// Data URLs run to hundreds of thousands of characters — never log one whole.
+function tmplImageRef(im){
+  if(im.name)return im.name;
+  if(im.url.indexOf("data:")===0)return im.url.slice(0,32)+"\u2026 ("+im.url.length+" chars)";
+  return im.url;
+}
+function mmsFilename(im,blob){
+  if(im.name)return im.name;
+  if(im.url.indexOf("data:")===0){
+    var ext=(((blob&&blob.type)||"image/jpeg").split("/")[1]||"jpg").split(";")[0];
+    return "image."+ext;
+  }
+  var f=(im.url.split("?")[0].split("/").pop())||"image.jpg";
+  try{f=decodeURIComponent(f);}catch(e){}
+  return f||"image.jpg";
+}
 function sendMMS(to,img){
-  return fetch(img.url).then(function(r){
-    if(!r.ok)throw new Error("Failed to fetch image: "+img.url);
+  var im=normalizeTmplImage(img);
+  if(!im)return Promise.reject(new Error("No usable image configured for this template"));
+  return fetch(im.url).then(function(r){
+    if(!r.ok)throw new Error("Failed to fetch image ("+r.status+"): "+tmplImageRef(im));
     return r.blob();
   }).then(function(blob){
     return getRCToken().then(function(t){
       var fd=new FormData();
       fd.append("json",new Blob([JSON.stringify({from:{phoneNumber:CRED_RC_FROM},to:to.map(function(n){return{phoneNumber:n};}),text:""})],{type:"application/json"}));
-      var filename=img.url.split("/").pop()||"image.jpg";
-      fd.append("attachment",blob,filename);
+      fd.append("attachment",blob,mmsFilename(im,blob));
       return fetch("https://platform.ringcentral.com/restapi/v1.0/account/~/extension/~/mms",{method:"POST",headers:{Authorization:"Bearer "+t},body:fd});
     });
   }).then(function(r){return r.json();}).then(function(d){if(d.errorCode)throw new Error("MMS failed: "+JSON.stringify(d));return d;});
@@ -6164,7 +6208,7 @@ document.addEventListener("click",function(e){
 document.addEventListener("change",function(e){
   var t=e.target;
   if(t.id==="logo-upload"&&t.files[0]){var r=new FileReader();r.onload=function(ev){store.set("brand_logo",ev.target.result);applyLogo(ev.target.result);renderLogoPreview(ev.target.result);};r.readAsDataURL(t.files[0]);return;}
-  if((t.id==="img-T1"||t.id==="img-T6"||t.id==="img-T8")&&t.type==="text"){var id=t.id.replace("img-","");var url=t.value.trim();if(url){imageStore[id]={url:url};store.set("img_"+id,url);renderImgPreview(id,url);}else{clearImg(id);}return;}
+  if((t.id==="img-T1"||t.id==="img-T6"||t.id==="img-T8")&&t.type==="text"){var id=t.id.replace("img-","");var url=t.value.trim();var im=url?normalizeTmplImage(url):null;if(im){imageStore[id]=im;store.set("img_"+id,url);renderImgPreview(id,im.url);}else{clearImg(id);}return;}
 });
 
 document.addEventListener("input",function(e){if(e.target.id==="weather-numbers")updateWeatherPreview();});
