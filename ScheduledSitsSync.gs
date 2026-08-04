@@ -24,12 +24,17 @@
 // 5. Run syncScheduledSits once by hand and check Executions /
 //    Logger output before trusting the trigger.
 //
-// WHICH EMAIL IT PICKS: sent from do-not-reply@mail.acculynx.com, with
-// "PT Scheduled Sits" in the BODY, carrying a .csv attachment, within the
-// last 2 days. The body requirement is enforced in code, not in the Gmail
-// query — Gmail has no body-only operator, so a quoted phrase there would
-// also match the subject line and the attachment filename. The newest
-// qualifying message wins.
+// WHICH EMAIL IT PICKS: sent from do-not-reply@mail.acculynx.com with
+// "PT Scheduled Sits" in the BODY, within the last 2 days; newest wins.
+// The body requirement is enforced in code, not in the Gmail query — Gmail
+// has no body-only operator, so a quoted phrase there would also match the
+// subject line and the attachment filename.
+//
+// WHERE THE CSV COMES FROM: a .csv attachment when one is present, otherwise
+// the "Download CSV" link in the email body is fetched directly. If that link
+// turns out to expire or to require a signed-in session, the run aborts with
+// that reason in the log — unattended fetching would not be possible and the
+// AcuLynx API route would be the alternative.
 //
 // SAFETY: the run aborts without committing if no message qualifies, the
 // attachment is missing, it has lost an expected column, or it has fewer
@@ -47,8 +52,10 @@ var GH_BRANCH  = 'main';
 // matches the subject and the attachment filename. So this query is only a
 // coarse net; REQUIRED_BODY_TEXT below is what actually decides, and it is
 // checked against the message body in code.
-var GMAIL_QUERY = 'from:do-not-reply@mail.acculynx.com "PT Scheduled Sits" ' +
-                  'has:attachment filename:csv newer_than:2d';
+// No has:attachment / filename:csv here on purpose — the report delivers the
+// data behind a "Download CSV" link, so requiring an attachment would match
+// nothing. Attachments are still used when present; see findLatestSitsCsv_.
+var GMAIL_QUERY = 'from:do-not-reply@mail.acculynx.com "PT Scheduled Sits" newer_than:2d';
 
 // The email body must contain this exact phrase (case-insensitive). A message
 // that matches GMAIL_QUERY on its subject or attachment name alone is skipped.
@@ -91,42 +98,84 @@ function findLatestSitsCsv_() {
     return null;
   }
 
-  // Keep the newest CSV attachment whose message body carries the required
-  // phrase. The body check is done here rather than in GMAIL_QUERY because
-  // Gmail cannot restrict a phrase search to the body.
+  // Newest message whose body carries the required phrase. The body check runs
+  // here rather than in GMAIL_QUERY because Gmail cannot restrict a phrase
+  // search to the body.
   var newest = null;
   var rejectedBody = 0;
-  var noAttachment = 0;
 
   threads.forEach(function(thread) {
     thread.getMessages().forEach(function(msg) {
       if (!messageBodyHas_(msg, REQUIRED_BODY_TEXT)) { rejectedBody++; return; }
-
-      var found = false;
-      msg.getAttachments().forEach(function(att) {
-        if (!/\.csv$/i.test(att.getName())) return;
-        found = true;
-        if (!newest || msg.getDate() > newest.date) {
-          newest = { date: msg.getDate(), name: att.getName(), blob: att };
-        }
-      });
-      if (!found) noAttachment++;
+      if (!newest || msg.getDate() > newest.getDate()) newest = msg;
     });
   });
 
   if (rejectedBody) {
     Logger.log('Skipped ' + rejectedBody + ' message(s) without "' + REQUIRED_BODY_TEXT + '" in the body.');
   }
-
   if (!newest) {
-    Logger.log('No message had both "' + REQUIRED_BODY_TEXT + '" in its body and a .csv attachment. ' +
-               '(' + threads.length + ' thread(s) matched the search; ' + noAttachment +
-               ' passed the body check but carried no CSV.)');
+    Logger.log('No message from that sender had "' + REQUIRED_BODY_TEXT + '" in its body. (' +
+               threads.length + ' thread(s) matched the search.)');
+    return null;
+  }
+  Logger.log('Using report emailed ' + newest.getDate());
+
+  // Prefer a real attachment if the report ever starts carrying one.
+  var attached = null;
+  newest.getAttachments().forEach(function(att) {
+    if (!attached && /\.csv$/i.test(att.getName())) attached = att;
+  });
+  if (attached) {
+    Logger.log('Found CSV attachment "' + attached.getName() + '".');
+    return attached.getDataAsString();
+  }
+
+  // Otherwise follow the "Download CSV" link in the body.
+  var link = extractCsvLink_(newest.getBody());
+  if (!link) {
+    Logger.log('ABORT: no CSV attachment and no download link found in the email body.');
+    return null;
+  }
+  Logger.log('No attachment — fetching CSV from the download link.');
+
+  var resp;
+  try {
+    resp = UrlFetchApp.fetch(link, { muteHttpExceptions: true, followRedirects: true });
+  } catch (e) {
+    Logger.log('ABORT: could not fetch the download link — ' + e.message);
+    return null;
+  }
+  if (resp.getResponseCode() !== 200) {
+    Logger.log('ABORT: download link returned HTTP ' + resp.getResponseCode() +
+               '. If the link expires or needs a login, this route will not work unattended.');
     return null;
   }
 
-  Logger.log('Using attachment "' + newest.name + '" from ' + newest.date);
-  return newest.blob.getDataAsString();
+  // A login or error page comes back as HTML, not CSV; csvLooksValid_ rejects
+  // it on the header check, but say so plainly here too.
+  var body = resp.getContentText();
+  if (/^\s*<(!doctype|html)/i.test(body)) {
+    Logger.log('ABORT: download link returned an HTML page, not a CSV — it likely requires a signed-in session.');
+    return null;
+  }
+  return body;
+}
+
+
+// Pulls the CSV download URL out of the email HTML. Prefers the anchor whose
+// visible text is the "Download CSV" button, then any href ending in .csv.
+function extractCsvLink_(html) {
+  if (!html) return null;
+  var re = /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  var m, fallback = null;
+  while ((m = re.exec(html)) !== null) {
+    var href = m[1].replace(/&amp;/g, '&');
+    var text = normalizeText_(m[2].replace(/<[^>]*>/g, ' '));
+    if (text.indexOf('download csv') !== -1) return href;
+    if (!fallback && /\.csv(\?|$)/i.test(href)) fallback = href;
+  }
+  return fallback;
 }
 
 
