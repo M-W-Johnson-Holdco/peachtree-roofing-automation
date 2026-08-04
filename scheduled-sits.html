@@ -153,6 +153,28 @@
   .entry a:hover{border-bottom-color:var(--accent);}
   .entry a:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:2px;}
 
+  /* Job name + rep chip share the remaining width so the chip can wrap
+     under a long name instead of squeezing it. */
+  .entry .body{flex:1;min-width:0;}
+
+  /* Rep chip. Translucent white ground rather than a solid fill so it stays
+     legible on all three day shades (cream, sage, ochre); the rep's colour
+     carries in the text and border. */
+  .chip{
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9px;
+    line-height:1.45;
+    letter-spacing:.02em;
+    padding:0 4px;
+    margin-left:4px;
+    border-radius:3px;
+    border:1px solid currentColor;
+    background:rgba(255,255,255,0.72);
+    white-space:nowrap;
+    vertical-align:1px;
+  }
+
   .more{
     font-family:'IBM Plex Mono',monospace;
     font-size:10.5px;
@@ -247,6 +269,8 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 
 let byDate = {};
 let current = null;
+let repLabels = {};
+let repColors = {};
 
 function pad(n){ return n < 10 ? '0'+n : ''+n; }
 function toKey(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
@@ -259,6 +283,88 @@ function toMinutes(time){
   if (!m) return 0;
   const hour = (Number(m[1]) % 12) + (m[3].toLowerCase() === 'p' ? 12 : 0);
   return hour * 60 + Number(m[2]);
+}
+
+/* ── COMPANY REP CHIPS ───────────────────────────────────────────────
+   The export carries full names ("Dan Sinnott"); the chip shows the name
+   the team actually uses. Everyone is first-name-only unless listed here.
+
+   Edit these two lists when the roster changes -- nothing else. */
+
+// Reps who go by something other than their first name.
+const REP_NICKNAMES = {
+  'Kenneth': 'Kenny',
+  'Cameron': 'Cam'
+};
+
+// First names shared by more than one rep, so the chip always carries a last
+// initial ("Tim B", "Tim J"). Listed explicitly rather than detected from the
+// data, because a given export may contain only one of them -- Tim J is absent
+// from the 8/4 export, and he must still not collide with Tim B tomorrow.
+const REP_SHARED_FIRST_NAMES = ['Tim'];
+
+// Dark, distinct hues that stay legible against cream, sage and ochre cells.
+const REP_COLORS = [
+  '#3F6C9E', '#2E6B4F', '#8A4B2F', '#6B3F7A', '#1F5F6B', '#7A5C2E',
+  '#8A2F4F', '#40548A', '#4F6B2E', '#6B4A2F', '#2F5F8A', '#5F3F6B'
+];
+
+/* "Dan Sinnott" -> "Dan"; "Kenneth Gutzler" -> "Kenny"; "Tim Bresko" -> "Tim B".
+   Falls back to a last initial for any first name that turns out to be shared
+   within the loaded data, so a new duplicate is disambiguated automatically
+   even before anyone updates REP_SHARED_FIRST_NAMES. */
+function buildRepLabels(appointments){
+  const names = [];
+  appointments.forEach(a => { if (a.rep && names.indexOf(a.rep) === -1) names.push(a.rep); });
+
+  const parsed = {};
+  names.forEach(n => {
+    const bits = n.split(/\s+/).filter(Boolean);
+    const first = bits[0] || n;
+    parsed[n] = {
+      raw: first,
+      display: REP_NICKNAMES[first] || first,
+      lastInitial: bits.length > 1 ? bits[bits.length - 1].charAt(0).toUpperCase() : ''
+    };
+  });
+
+  // Which display names are claimed by more than one person in this export?
+  const seen = {};
+  names.forEach(n => {
+    const d = parsed[n].display;
+    seen[d] = (seen[d] || 0) + 1;
+  });
+
+  const labels = {};
+  names.forEach(n => {
+    const p = parsed[n];
+    const needsInitial = REP_SHARED_FIRST_NAMES.indexOf(p.raw) !== -1 || seen[p.display] > 1;
+    labels[n] = (needsInitial && p.lastInitial) ? p.display + ' ' + p.lastInitial : p.display;
+  });
+  return labels;
+}
+
+/* One colour per rep, assigned without anyone maintaining a list.
+
+   The hue starts from a hash of the name so a given rep keeps the same colour
+   from export to export, then probes forward to the next free slot -- hashing
+   alone collided three times across eleven reps, which defeats the point of
+   colouring them. Reps beyond REP_COLORS.length will start to share hues. */
+function buildRepColors(names){
+  const used = {};
+  const out = {};
+  names.slice().sort().forEach(name => {
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    let idx = h % REP_COLORS.length;
+    for (let k = 0; k < REP_COLORS.length; k++) {
+      const cand = (idx + k) % REP_COLORS.length;
+      if (!used[cand]) { idx = cand; break; }
+    }
+    used[idx] = true;
+    out[name] = REP_COLORS[idx];
+  });
+  return out;
 }
 
 /* Minimal CSV reader: handles quoted fields, embedded commas and newlines,
@@ -315,6 +421,7 @@ function rowsToAppointments(rows){
   const iUrl  = col('job name url');
   const iMile = col('current milestone');
   const iStat = col('current status');
+  const iRep  = col('company representative');  // added Aug 2026; older exports lack it
 
   if (iDate === -1 || iName === -1) {
     throw new Error('appointments.csv is missing a "Scheduled Sit Date" or "Job Name" column');
@@ -335,6 +442,7 @@ function rowsToAppointments(rows){
       jobName: (r[iName] || '').trim(),
       milestone: iMile === -1 ? '' : (r[iMile] || '').trim(),
       status: iStat === -1 ? '' : (r[iStat] || '').trim(),
+      rep: iRep === -1 ? '' : (r[iRep] || '').trim(),
       url: iUrl === -1 ? '' : (r[iUrl] || '').trim()
     });
   });
@@ -385,14 +493,28 @@ function render(){
         const t = document.createElement('span');
         t.className = 't';
         t.textContent = String(e.time || '').replace(' ', '');
+        const body = document.createElement('span');
+        body.className = 'body';
+
         const a = document.createElement('a');
         a.href = e.url || '#';
         a.target = '_blank';
         a.rel = 'noopener noreferrer';
         a.textContent = e.jobName || '(unnamed job)';
         a.title = [e.milestone, e.status].filter(Boolean).join(' — ');
+        body.appendChild(a);
+
+        if (e.rep) {
+          const chip = document.createElement('span');
+          chip.className = 'chip';
+          chip.textContent = repLabels[e.rep] || e.rep;
+          chip.style.color = repColors[e.rep] || '#5b5850';
+          chip.title = e.rep;   // full name on hover
+          body.appendChild(chip);
+        }
+
         row.appendChild(t);
-        row.appendChild(a);
+        row.appendChild(body);
         cell.appendChild(row);
       });
       if (entries.length > 4) {
@@ -428,14 +550,26 @@ function init(appointments, skipped){
     statusEl.parentNode.insertBefore(note, statusEl);
   }
 
-  // Open on the month of the latest appointment, so it lands somewhere useful
+  repLabels = buildRepLabels(appointments);
+  repColors = buildRepColors(Object.keys(repLabels));
+
+  /* Land on the current month when it has sits. Opening on the LAST
+     appointment instead would park the calendar on a lone far-out booking --
+     the 8/4 export carries one job in November, which would otherwise greet
+     everyone with an almost-empty November grid. Falls back to the next month
+     that actually has sits, then to the last one on file. */
   const allDates = Object.keys(byDate).sort();
-  if (allDates.length) {
-    const [y, m] = allDates[allDates.length - 1].split('-').map(Number);
-    current = new Date(y, m - 1, 1);
-  } else {
-    const now = new Date();
+  const now = new Date();
+  const monthPrefix = now.getFullYear() + '-' + pad(now.getMonth() + 1);
+  const todayKey = monthPrefix + '-' + pad(now.getDate());
+
+  if (!allDates.length || allDates.some(d => d.indexOf(monthPrefix) === 0)) {
     current = new Date(now.getFullYear(), now.getMonth(), 1);
+  } else {
+    const upcoming = allDates.filter(d => d >= todayKey);
+    const target = upcoming.length ? upcoming[0] : allDates[allDates.length - 1];
+    const [y, m] = target.split('-').map(Number);
+    current = new Date(y, m - 1, 1);
   }
 
   statusEl.style.display = 'none';
