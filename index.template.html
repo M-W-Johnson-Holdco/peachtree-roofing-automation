@@ -5364,6 +5364,20 @@ var FIXED_NUMBERS = ["+17704586405","+16782938467","+17702265514"];
 // send is still allowed on the next run within this many days, and any late send
 // is called out in the log.
 var CATCHUP_DAYS = 3;
+
+// T1 was widened in Aug 2026 from one trigger to three. The two new ones —
+// In Claims Review, and the Submitted as Prospect date — only count from
+// 29 July 2026 forward. Contract/Estimate Signed is deliberately exempt: it
+// is the original trigger and keeps behaving exactly as it always has.
+var T1_NEW_TRIGGER_START = new Date(2026, 6, 29);  // month is 0-based; 6 = July
+
+// Day-granularity "a is on or after b", so a time-of-day on either value
+// cannot flip the comparison.
+function onOrAfterDay(a, b){
+  var x = new Date(a); x.setHours(0,0,0,0);
+  var y = new Date(b); y.setHours(0,0,0,0);
+  return x >= y;
+}
 var PRODUCTION_PHONE = "(770) 226-5514";
 var ESTIMATING_EMAIL = "estimating@peachtreeroof.com";
 var ACCULYNX_PROXY = "https://peachtree-acculynx-proxy.k-liss.workers.dev";
@@ -5391,8 +5405,24 @@ var imageStore = {
 };
 
 var TEMPLATES = [
-  {id:"T1",name:"Welcome",trigger:"Current Status = Contract/Estimate Signed — day of",
-   check:function(row,today){if((row["Current Status"]||"").toLowerCase()!=="contract/estimate signed")return false;var d=pd(row["Current Status Date"]);return d&&sd(d,today);}},
+  {id:"T1",name:"Welcome",trigger:"Current Status = Contract/Estimate Signed, or Current Status = In Claims Review, or Submitted as Prospect Date — day of (the latter two from 7/29/26)",
+   check:function(row,today){
+     var status=(row["Current Status"]||"").toLowerCase();
+     var d=pd(row["Current Status Date"]);
+
+     // Original trigger — unchanged, and with no start-date floor.
+     if(status==="contract/estimate signed"&&d&&sd(d,today))return true;
+
+     // Added Aug 2026, both gated to T1_NEW_TRIGGER_START.
+     if(status==="in claims review"&&d&&sd(d,today)&&onOrAfterDay(d,T1_NEW_TRIGGER_START))return true;
+
+     // Its own date column, so it fires regardless of what the status says.
+     // hget tolerates casing/punctuation drift in the header.
+     var p=pd(hget(row,["Submitted as Prospect Date"]));
+     if(p&&sd(p,today)&&onOrAfterDay(p,T1_NEW_TRIGGER_START))return true;
+
+     return false;
+   }},
   {id:"T2",name:"LGIB Insurance Update",trigger:"Current Status = lgib — day of",
    check:function(row,today){if((row["Current Status"]||"").toLowerCase()!=="lgib")return false;var d=pd(row["Current Status Date"]);return d&&sd(d,today);}},
   {id:"T3",name:"LGIB Materials",trigger:"Current Status = lgib — 2 days after LGIB status date (never sends once WO is scheduled, or if T8 is due)",
