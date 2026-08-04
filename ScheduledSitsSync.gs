@@ -24,9 +24,16 @@
 // 5. Run syncScheduledSits once by hand and check Executions /
 //    Logger output before trusting the trigger.
 //
-// SAFETY: the run aborts without committing if the attachment is
-// missing, is missing its expected columns, or has fewer than
-// MIN_DATA_ROWS rows — so a truncated or empty export can never
+// WHICH EMAIL IT PICKS: sent from do-not-reply@mail.acculynx.com, with
+// "PT Scheduled Sits" in the BODY, carrying a .csv attachment, within the
+// last 2 days. The body requirement is enforced in code, not in the Gmail
+// query — Gmail has no body-only operator, so a quoted phrase there would
+// also match the subject line and the attachment filename. The newest
+// qualifying message wins.
+//
+// SAFETY: the run aborts without committing if no message qualifies, the
+// attachment is missing, it has lost an expected column, or it has fewer
+// than MIN_DATA_ROWS rows — so a truncated or empty export can never
 // replace a good calendar with a blank one.
 // ============================================================
 
@@ -36,9 +43,16 @@ var GH_REPO    = 'peachtree-roofing-automation';
 var GH_PATH    = 'appointments.csv';
 var GH_BRANCH  = 'main';
 
-// Narrow this to the real sender/subject once you've seen one arrive.
-// Check it first in Gmail's search box — it should return only the report.
-var GMAIL_QUERY = 'subject:"Scheduled Sits" has:attachment filename:csv newer_than:2d';
+// Gmail has no operator that searches the body alone — a quoted phrase also
+// matches the subject and the attachment filename. So this query is only a
+// coarse net; REQUIRED_BODY_TEXT below is what actually decides, and it is
+// checked against the message body in code.
+var GMAIL_QUERY = 'from:do-not-reply@mail.acculynx.com "PT Scheduled Sits" ' +
+                  'has:attachment filename:csv newer_than:2d';
+
+// The email body must contain this exact phrase (case-insensitive). A message
+// that matches GMAIL_QUERY on its subject or attachment name alone is skipped.
+var REQUIRED_BODY_TEXT = 'PT Scheduled Sits';
 
 // A healthy export has ~25 rows. Anything under this is treated as broken.
 var MIN_DATA_ROWS = 5;
@@ -77,26 +91,68 @@ function findLatestSitsCsv_() {
     return null;
   }
 
-  // Walk newest-first and take the first CSV attachment found.
+  // Keep the newest CSV attachment whose message body carries the required
+  // phrase. The body check is done here rather than in GMAIL_QUERY because
+  // Gmail cannot restrict a phrase search to the body.
   var newest = null;
+  var rejectedBody = 0;
+  var noAttachment = 0;
+
   threads.forEach(function(thread) {
     thread.getMessages().forEach(function(msg) {
+      if (!messageBodyHas_(msg, REQUIRED_BODY_TEXT)) { rejectedBody++; return; }
+
+      var found = false;
       msg.getAttachments().forEach(function(att) {
         if (!/\.csv$/i.test(att.getName())) return;
+        found = true;
         if (!newest || msg.getDate() > newest.date) {
           newest = { date: msg.getDate(), name: att.getName(), blob: att };
         }
       });
+      if (!found) noAttachment++;
     });
   });
 
+  if (rejectedBody) {
+    Logger.log('Skipped ' + rejectedBody + ' message(s) without "' + REQUIRED_BODY_TEXT + '" in the body.');
+  }
+
   if (!newest) {
-    Logger.log('Matched ' + threads.length + ' thread(s) but none had a .csv attachment.');
+    Logger.log('No message had both "' + REQUIRED_BODY_TEXT + '" in its body and a .csv attachment. ' +
+               '(' + threads.length + ' thread(s) matched the search; ' + noAttachment +
+               ' passed the body check but carried no CSV.)');
     return null;
   }
 
   Logger.log('Using attachment "' + newest.name + '" from ' + newest.date);
   return newest.blob.getDataAsString();
+}
+
+
+// Collapses every run of whitespace to one space and lowercases, so a phrase
+// stays findable when the mail wraps it across lines or splits it with inline
+// markup ("PT <b>Scheduled</b> Sits" strips to "PT  Scheduled  Sits", which
+// would not otherwise match a single-spaced needle).
+function normalizeText_(s) {
+  return String(s || '').replace(/\s+/g, ' ').trim().toLowerCase();
+}
+
+// True when the message body contains `phrase`, ignoring case and spacing.
+// AcuLynx may send HTML-only mail, in which case getPlainBody() can come back
+// empty, so fall back to stripping tags out of the HTML part.
+function messageBodyHas_(msg, phrase) {
+  var needle = normalizeText_(phrase);
+  if (!needle) return false;
+
+  var plain = '';
+  try { plain = msg.getPlainBody(); } catch (e) { plain = ''; }
+  if (normalizeText_(plain).indexOf(needle) !== -1) return true;
+
+  var html = '';
+  try { html = msg.getBody(); } catch (e) { html = ''; }
+  var stripped = String(html || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/gi, ' ');
+  return normalizeText_(stripped).indexOf(needle) !== -1;
 }
 
 
