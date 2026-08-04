@@ -19,10 +19,9 @@
     --accent:#3F6C9E;
     --accent-soft:#EAF1F8;
 
-    /* Day shading by volume: pale green for 1–2, lime for 3+.
-       #B5D342 is the same lime the work order uses for its total labels. */
-    --lo-cell:#E4F0D6;   --lo-ink:#33502A;
-    --hi-cell:#B5D342;   --hi-ink:#31430A;
+    /* Day shading by volume: light orange for 1–2, bright orange for 3+. */
+    --lo-cell:#FDE6C9;   --lo-ink:#6B3B06;
+    --hi-cell:#F79433;   --hi-ink:#48280A;
 
     --radius:10px;
     --shadow:0 1px 2px rgba(31,30,28,0.05), 0 1px 8px rgba(31,30,28,0.04);
@@ -190,16 +189,16 @@
 
   /* Volume shading. Written after .weekend so a busy Saturday still reads
      as busy rather than as a weekend. */
-  .cell.lvl-lo{background:var(--lo-cell);border-color:#A9C68C;}
-  .cell.lvl-hi{background:var(--hi-cell);border-color:#8FAA2C;}
+  .cell.lvl-lo{background:var(--lo-cell);border-color:#EDBE84;}
+  .cell.lvl-hi{background:var(--hi-cell);border-color:#D2761A;}
   /* Day numbers stay --ink on both tints: near-black already has more contrast
      on pale green and lime than a green would, so no override is needed. */
   .cell.lvl-lo .entry a{color:var(--lo-ink);}
   .cell.lvl-hi .entry a{color:var(--hi-ink);}
   .cell.lvl-lo .entry .t,
-  .cell.lvl-hi .entry .t{color:rgba(31,43,15,0.55);}
+  .cell.lvl-hi .entry .t{color:rgba(58,30,2,0.62);}
   .cell.lvl-lo .more,
-  .cell.lvl-hi .more{color:rgba(31,43,15,0.6);}
+  .cell.lvl-hi .more{color:rgba(58,30,2,0.68);}
 
   .cell-top{
     display:flex;
@@ -451,8 +450,8 @@
     <div class="sep"></div>
     <div class="stat"><b id="statReps">0</b> reps out</div>
     <div class="legend">
-      <span><i style="background:var(--lo-cell);border:1px solid #A9C68C"></i>1&ndash;2</span>
-      <span><i style="background:var(--hi-cell);border:1px solid #8FAA2C"></i>3+</span>
+      <span><i style="background:var(--lo-cell);border:1px solid #EDBE84"></i>1&ndash;2</span>
+      <span><i style="background:var(--hi-cell);border:1px solid #D2761A"></i>3+</span>
       <span>click a name to open in AcuLynx</span>
     </div>
   </div>
