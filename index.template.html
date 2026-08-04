@@ -2833,8 +2833,11 @@ function saveToPayrollSheet(){
       <textarea id="wo-f34" class="fi upgrade-cost currency wo-upg-col" rows="1" style="width:100%;box-sizing:border-box;" oninput="calcUpgradesTotal()"></textarea>
     </div>
   </div>
-<div id="wo-insurance-upgrades">
-<!-- WARRANTIES -->
+<!-- WARRANTIES — deliberately OUTSIDE #wo-insurance-upgrades. woJobTypeChange
+     hides that container for Retail jobs, and the warranty dropdowns have to
+     stay selectable on retail work. The per-warranty cost boxes below are
+     .wo-upg-col, which Retail hides separately, so retail still shows the
+     dropdowns without any upgrade pricing. -->
   <div style="margin-bottom:6px;">
     <div style="font-weight:700;font-size:12px;margin-bottom:4px;">WARRANTIES</div>
     <div style="padding-left:20px;">
@@ -2867,6 +2870,7 @@ function saveToPayrollSheet(){
     </div>
   </div>
 
+<div id="wo-insurance-upgrades">
   <div class="total-row">
     <span class="total-label" style="background:#B5D342;font-weight:700;">UPGRADES TOTAL:</span>
     <input id="upgrades-total" readonly>
