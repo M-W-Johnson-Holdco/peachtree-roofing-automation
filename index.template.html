@@ -4967,8 +4967,18 @@ function printDoc() {
     <div style="padding:10px 16px;display:flex;justify-content:flex-end;">
       <a href="scheduled-sits.html" target="_blank" rel="noopener" class="wo-guide-link">&#8599; Open in New Window</a>
     </div>
-    <iframe id="sits-iframe" src="scheduled-sits.html" title="Scheduled Sits calendar"
-            style="width:100%;height:calc(100vh - 160px);border:none;border-radius:8px;background:#F6F4EF;"></iframe>
+    <iframe id="sits-iframe" title="Scheduled Sits calendar"
+            style="width:100%;height:calc(100vh - 160px);border:none;border-radius:8px;background:#F7F5F0;"></iframe>
+    <script>
+      // src is set here rather than in the markup so each portal load pulls a
+      // fresh copy. An iframe keeps serving its cached document through an
+      // ordinary refresh, so calendar changes appeared to "not deploy" until
+      // someone hard-reloaded. The page is ~26KB, so refetching costs nothing.
+      (function(){
+        var f = document.getElementById('sits-iframe');
+        if (f) f.src = 'scheduled-sits.html?t=' + Date.now();
+      })();
+    </script>
   </div>
 
   </div>
