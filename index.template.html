@@ -5405,7 +5405,7 @@ var imageStore = {
 };
 
 var TEMPLATES = [
-  {id:"T1",name:"Welcome",trigger:"Current Status = Contract/Estimate Signed, or Current Status = In Claims Review, or Submitted as Prospect Date — day of (the latter two from 7/29/26)",
+  {id:"T1",name:"Welcome",trigger:"Current Status = Contract/Estimate Signed, or Current Status = In Claims Review, or Prospect Date, or Submitted as Prospect Date — day of (all but the first from 7/29/26)",
    check:function(row,today){
      var status=(row["Current Status"]||"").toLowerCase();
      var d=pd(row["Current Status Date"]);
@@ -5416,10 +5416,16 @@ var TEMPLATES = [
      // Added Aug 2026, both gated to T1_NEW_TRIGGER_START.
      if(status==="in claims review"&&d&&sd(d,today)&&onOrAfterDay(d,T1_NEW_TRIGGER_START))return true;
 
-     // Its own date column, so it fires regardless of what the status says.
-     // hget tolerates casing/punctuation drift in the header.
-     var p=pd(hget(row,["Submitted as Prospect Date"]));
-     if(p&&sd(p,today)&&onOrAfterDay(p,T1_NEW_TRIGGER_START))return true;
+     // Two separate prospect columns, both their own date fields, so each
+     // fires regardless of what Current Status says. The sheet carries
+     // "Prospect Date" (col 7) and "Submitted as Prospect Date" (col 16) --
+     // distinct columns, deliberately both triggers. hget tolerates casing
+     // and punctuation drift in either header.
+     var sp=pd(hget(row,["Submitted as Prospect Date"]));
+     if(sp&&sd(sp,today)&&onOrAfterDay(sp,T1_NEW_TRIGGER_START))return true;
+
+     var pr=pd(hget(row,["Prospect Date"]));
+     if(pr&&sd(pr,today)&&onOrAfterDay(pr,T1_NEW_TRIGGER_START))return true;
 
      return false;
    }},
