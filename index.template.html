@@ -5378,6 +5378,36 @@ function onOrAfterDay(a, b){
   var y = new Date(b); y.setHours(0,0,0,0);
   return x >= y;
 }
+
+// Go-live scope gate, applied per job BEFORE any template is evaluated, so
+// the first runs could not text the entire historical customer base. A job
+// that has already been texted stays in scope regardless.
+//
+// This must mirror the T1 triggers. It previously only knew about
+// Contract/Estimate Signed, so once T1 gained the claims-review and prospect
+// triggers, those jobs were still dropped here and T1 never saw them.
+// Add a T1 trigger without adding it here and it will silently never fire.
+//
+// Built in LOCAL time on purpose: new Date("2026-07-29") parses as UTC
+// midnight, which is 7/28 8:00pm Eastern, pulling in jobs from the day
+// before go-live.
+var GO_LIVE_CUTOFF = new Date(2026, 6, 29, 0, 0, 0, 0);  // month 0-based: 6 = July
+
+function jobEnteredScope(row){
+  var status = (row["Current Status"] || "").toLowerCase();
+  var statusDate = pd(row["Current Status Date"]);
+
+  if((status === "contract/estimate signed" || status === "in claims review")
+     && statusDate && onOrAfterDay(statusDate, GO_LIVE_CUTOFF)) return true;
+
+  var sp = pd(hget(row, ["Submitted as Prospect Date"]));
+  if(sp && onOrAfterDay(sp, GO_LIVE_CUTOFF)) return true;
+
+  var pr = pd(hget(row, ["Prospect Date"]));
+  if(pr && onOrAfterDay(pr, GO_LIVE_CUTOFF)) return true;
+
+  return false;
+}
 var PRODUCTION_PHONE = "(770) 226-5514";
 var ESTIMATING_EMAIL = "estimating@peachtreeroof.com";
 var ACCULYNX_PROXY = "https://peachtree-acculynx-proxy.k-liss.workers.dev";
@@ -6004,15 +6034,9 @@ function processRows(rows,log,today){
     var custPhone=toE164(row["Phone Number"]||"");
     if(!custPhone){addLog("warn","Job "+jobKey+" ("+fullName+") invalid phone, skipping");stats.errors++;return next();}
     var custPhone2=toE164(row["Secondary Phone"]||"");
-    // Build in LOCAL time. new Date("2026-07-29") parses as UTC midnight, which
-    // is 7/28 8:00pm Eastern; the following setHours(0,0,0,0) then snapped it
-    // back to 7/28 local — pulling in jobs signed a day before go-live.
-    var goLiveCutoff=new Date(2026,6,29,0,0,0,0); // month is 0-based: 6 = July
-    var currentStatus=(row["Current Status"]||"").toLowerCase();
-    var statusDate=pd(row["Current Status Date"]);
     var alreadyEligible=log.some(function(entry){return (jobKey&&entry.jobNum===jobKey)||(jobGuidFromUrl&&(entry.jobNum===jobGuidFromUrl||entry.jobGuid===jobGuidFromUrl));});
-    var eligibleNow=currentStatus==="contract/estimate signed"&&statusDate&&statusDate>=goLiveCutoff;
-    if(!alreadyEligible&&!eligibleNow){addLog("skip","Job "+jobKey+" ("+fullName+") — not yet moved to Contract/Estimate Signed on/after 7/29/2026, skipping");stats.skipped++;return next();}
+    var eligibleNow=jobEnteredScope(row);
+    if(!alreadyEligible&&!eligibleNow){addLog("skip","Job "+jobKey+" ("+fullName+") — no T1 trigger (Contract/Estimate Signed, In Claims Review, Prospect Date or Submitted as Prospect Date) on/after 7/29/2026, skipping");stats.skipped++;return next();}
     return processTemplates(row,log,today,jobKey,fullName,custPhone,custPhone2,0).then(function(){updateStats();return next();});
   }
   return next();
