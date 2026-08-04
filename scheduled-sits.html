@@ -219,7 +219,7 @@
 
   <footer>
     <span id="countFooter"></span>
-    <span>Data source: appointments.json &mdash; replace that file to refresh</span>
+    <span>Data source: appointments.csv &mdash; drop in a fresh AcuLynx export to refresh</span>
   </footer>
 
 </div>
@@ -228,9 +228,13 @@
 /* ============================================================
    Scheduled Sits calendar.
 
-   Appointment data lives in appointments.json next to this file --
-   that is the only file you edit to refresh the calendar. Each record:
-   { date: "YYYY-MM-DD", time: "hh:mm AM/PM", jobName, milestone, status, url }
+   Reads appointments.csv next to this file -- the AcuLynx "Scheduled Sits"
+   export, used exactly as downloaded. To refresh the calendar, replace
+   that one file; nothing here needs editing.
+
+   Expected columns (looked up by header name, so column order may change):
+     Current Milestone | Job Name | Scheduled Sit Date | Current Status | Job Name Url
+   Scheduled Sit Date arrives as a single value like "7/27/26 2:00 PM".
    ============================================================ */
 
 const grid = document.getElementById('calendarGrid');
@@ -255,6 +259,87 @@ function toMinutes(time){
   if (!m) return 0;
   const hour = (Number(m[1]) % 12) + (m[3].toLowerCase() === 'p' ? 12 : 0);
   return hour * 60 + Number(m[2]);
+}
+
+/* Minimal CSV reader: handles quoted fields, embedded commas and newlines,
+   and "" escapes -- a job name like "Smith, John" must not split a row. */
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else if (c === '"') {
+      inQuotes = true;
+    } else if (c === ',') {
+      row.push(field); field = '';
+    } else if (c === '\n') {
+      row.push(field); rows.push(row); row = []; field = '';
+    } else if (c !== '\r') {
+      field += c;
+    }
+  }
+  if (field !== '' || row.length) { row.push(field); rows.push(row); }
+
+  // Drop trailing blank lines the export leaves behind
+  return rows.filter(r => r.some(v => v.trim() !== ''));
+}
+
+/* "7/27/26 2:00 PM" -> { date: "2026-07-27", time: "02:00 PM" }.
+   Hours are zero-padded so the time column lines up in the day cells. */
+function parseSitDateTime(raw){
+  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})\s+(\d{1,2}):(\d{2})\s*([AaPp])[Mm]?\.?$/.exec(String(raw).trim());
+  if (!m) return null;
+  let year = Number(m[3]);
+  if (year < 100) year += 2000;
+  return {
+    date: year + '-' + pad(Number(m[1])) + '-' + pad(Number(m[2])),
+    time: pad(Number(m[4])) + ':' + m[5] + ' ' + m[6].toUpperCase() + 'M'
+  };
+}
+
+/* Map the AcuLynx export rows onto the records the calendar renders.
+   Columns are located by header name so a reordered export still works. */
+function rowsToAppointments(rows){
+  if (!rows.length) throw new Error('appointments.csv is empty');
+
+  const header = rows[0].map(h => h.trim().toLowerCase());
+  const col = name => header.indexOf(name);
+  const iDate = col('scheduled sit date');
+  const iName = col('job name');
+  const iUrl  = col('job name url');
+  const iMile = col('current milestone');
+  const iStat = col('current status');
+
+  if (iDate === -1 || iName === -1) {
+    throw new Error('appointments.csv is missing a "Scheduled Sit Date" or "Job Name" column');
+  }
+
+  const appointments = [];
+  const skipped = [];
+
+  rows.slice(1).forEach((r, idx) => {
+    const when = parseSitDateTime(r[iDate] || '');
+    if (!when) {
+      skipped.push('row ' + (idx + 2) + ': ' + (r[iDate] || '(blank date)'));
+      return;
+    }
+    appointments.push({
+      date: when.date,
+      time: when.time,
+      jobName: (r[iName] || '').trim(),
+      milestone: iMile === -1 ? '' : (r[iMile] || '').trim(),
+      status: iStat === -1 ? '' : (r[iStat] || '').trim(),
+      url: iUrl === -1 ? '' : (r[iUrl] || '').trim()
+    });
+  });
+
+  return { appointments, skipped };
 }
 
 function render(){
@@ -325,13 +410,23 @@ function render(){
   countFooter.textContent = totalThisMonth + ' sit' + (totalThisMonth === 1 ? '' : 's') + ' scheduled this month';
 }
 
-function init(appointments){
+function init(appointments, skipped){
   byDate = {};
   appointments.forEach(a => {
     if (!a || !a.date) return;
     if (!byDate[a.date]) byDate[a.date] = [];
     byDate[a.date].push(a);
   });
+
+  // Surface unreadable rows rather than silently dropping appointments
+  if (skipped && skipped.length) {
+    const note = document.createElement('div');
+    note.className = 'status error';
+    note.style.padding = '0 0 12px';
+    note.textContent = skipped.length + ' row(s) in appointments.csv had an unreadable ' +
+      'Scheduled Sit Date and were skipped — ' + skipped.join('; ');
+    statusEl.parentNode.insertBefore(note, statusEl);
+  }
 
   // Open on the month of the latest appointment, so it lands somewhere useful
   const allDates = Object.keys(byDate).sort();
@@ -350,7 +445,7 @@ function init(appointments){
 
 function showError(detail){
   statusEl.className = 'status error';
-  statusEl.innerHTML = 'Could not load <strong>appointments.json</strong>. ' +
+  statusEl.innerHTML = 'Could not load <strong>appointments.csv</strong>. ' +
     'If you opened this file directly from your computer, browsers block reading the ' +
     'data file &mdash; view it on the portal instead.<br><span style="color:#9b968a;">' +
     String(detail) + '</span>';
@@ -367,14 +462,14 @@ document.getElementById('nextBtn').addEventListener('click', () => {
   render();
 });
 
-fetch('appointments.json', { cache: 'no-store' })
+fetch('appointments.csv', { cache: 'no-store' })
   .then(r => {
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
+    return r.text();
   })
-  .then(data => {
-    if (!Array.isArray(data)) throw new Error('appointments.json must contain an array');
-    init(data);
+  .then(text => {
+    const { appointments, skipped } = rowsToAppointments(parseCSV(text));
+    init(appointments, skipped);
   })
   .catch(err => showError(err.message || err));
 </script>
