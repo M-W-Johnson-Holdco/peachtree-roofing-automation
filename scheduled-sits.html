@@ -290,7 +290,108 @@
     font-family:'IBM Plex Mono',monospace;
     font-size:10px;
     color:var(--faint);
+    font-weight:500;
   }
+  .cell.lvl-lo .more, .cell.lvl-hi .more{text-decoration:underline;text-underline-offset:2px;}
+
+  /* Any day with sits opens the day sheet. */
+  .cell.clickable{cursor:pointer;}
+  .cell.clickable:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* ── Day sheet ──────────────────────────────────────────────── */
+  .backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(31,30,28,0.38);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px 16px;
+    z-index:50;
+  }
+  .backdrop[hidden]{display:none;}
+  .sheet{
+    background:var(--card);
+    border:2px solid var(--line-bold);
+    border-radius:14px;
+    box-shadow:0 12px 40px rgba(31,30,28,0.22);
+    width:min(520px,100%);
+    max-height:100%;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .sheet-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    padding:16px 18px 13px;
+    border-bottom:1px solid var(--line);
+  }
+  .sheet-head h2{
+    font-family:'Fraunces',Georgia,serif;
+    font-size:21px;
+    font-weight:600;
+    margin:0;
+    line-height:1.15;
+  }
+  .sheet-head .sub{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--faint);
+    margin-top:3px;
+  }
+  .sheet-close{
+    flex:none;
+    width:30px;height:30px;
+    border:1px solid var(--line);
+    border-radius:50%;
+    background:transparent;
+    color:var(--muted);
+    font-size:17px;
+    line-height:1;
+    cursor:pointer;
+  }
+  .sheet-close:hover{background:var(--accent-soft);color:var(--accent);}
+  .sheet-close:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  .sheet-body{overflow-y:auto;padding:6px 0;}
+  .sit{
+    display:flex;
+    gap:12px;
+    padding:11px 18px;
+    border-bottom:1px solid #F0EDE4;
+  }
+  .sit:last-child{border-bottom:none;}
+  .sit .when{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--muted);
+    min-width:56px;
+    padding-top:2px;
+    white-space:nowrap;
+  }
+  .sit .who{flex:1;min-width:0;}
+  .sit .who a{
+    color:var(--ink);
+    font-weight:600;
+    font-size:13.5px;
+    text-decoration:none;
+    border-bottom:1px solid transparent;
+  }
+  .sit .who a:hover{color:var(--accent);border-bottom-color:var(--accent);}
+  .sit .who a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px;}
+  .sit .meta{
+    margin-top:3px;
+    font-size:11.5px;
+    color:var(--muted);
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    align-items:center;
+  }
+  .sit .meta .dot{color:var(--faint);}
 
   /* ── States ─────────────────────────────────────────────────── */
   .status{
@@ -369,6 +470,19 @@
     </div>
   </div>
 
+  <div class="backdrop" id="dayBackdrop" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <div class="sheet-head">
+        <div>
+          <h2 id="sheetTitle"></h2>
+          <div class="sub" id="sheetSub"></div>
+        </div>
+        <button class="sheet-close" id="sheetClose" aria-label="Close">&times;</button>
+      </div>
+      <div class="sheet-body" id="sheetBody"></div>
+    </div>
+  </div>
+
   <footer>
     <span id="countFooter"></span>
     <span>Data source: appointments.csv &mdash; drop in a fresh AcuLynx export to refresh</span>
@@ -398,6 +512,10 @@ const statusEl = document.getElementById('status');
 const stripEl = document.getElementById('strip');
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+// How many sits a day cell shows before the rest move into the day sheet.
+const CELL_LIMIT = 4;
 
 let byDate = {};
 let current = null;
@@ -657,7 +775,7 @@ function render(){
       const list = document.createElement('div');
       list.className = 'entries';
 
-      entries.slice(0, 4).forEach(e => {
+      entries.slice(0, CELL_LIMIT).forEach(e => {
         const row = document.createElement('div');
         row.className = 'entry';
 
@@ -693,12 +811,32 @@ function render(){
       });
       cell.appendChild(list);
 
-      if (entries.length > 4) {
+      if (entries.length > CELL_LIMIT) {
         const more = document.createElement('div');
         more.className = 'more';
-        more.textContent = '+' + (entries.length - 4) + ' more';
+        more.textContent = '+' + (entries.length - CELL_LIMIT) + ' more';
         cell.appendChild(more);
       }
+
+      /* The cell can only hold CELL_LIMIT rows, so the day itself opens a
+         sheet listing every sit in full -- otherwise the overflow ones were
+         simply unreachable. */
+      cell.classList.add('clickable');
+      cell.tabIndex = 0;
+      cell.setAttribute('role', 'button');
+      cell.setAttribute('aria-label',
+        entries.length + (entries.length === 1 ? ' sit on ' : ' sits on ') +
+        MONTHS[cellDate.getMonth()] + ' ' + cellDate.getDate() + ' — open for detail');
+
+      const openThis = () => openDay(cellDate, entries);
+      cell.addEventListener('click', ev => {
+        // a job link inside the cell should still go straight to AcuLynx
+        if (ev.target.closest('a')) return;
+        openThis();
+      });
+      cell.addEventListener('keydown', ev => {
+        if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openThis(); }
+      });
     }
 
     grid.appendChild(cell);
@@ -714,6 +852,88 @@ function render(){
 
   countFooter.textContent = totalThisMonth + ' sit' + (totalThisMonth === 1 ? '' : 's') + ' scheduled this month';
 }
+
+/* ── DAY SHEET ───────────────────────────────────────────────────────
+   Full detail for one day: every sit, plus the milestone and status that
+   the cell can only carry as a tooltip. */
+const backdrop = document.getElementById('dayBackdrop');
+const sheetBody = document.getElementById('sheetBody');
+let lastFocused = null;
+
+function openDay(date, entries){
+  lastFocused = document.activeElement;
+
+  document.getElementById('sheetTitle').textContent =
+    DAYS[date.getDay()] + ', ' + MONTHS[date.getMonth()] + ' ' + date.getDate();
+  document.getElementById('sheetSub').textContent =
+    entries.length + (entries.length === 1 ? ' scheduled sit' : ' scheduled sits');
+
+  sheetBody.innerHTML = '';
+  entries.forEach(e => {
+    const row = document.createElement('div');
+    row.className = 'sit';
+
+    const when = document.createElement('div');
+    when.className = 'when';
+    when.textContent = shortTime(e.time);
+
+    const who = document.createElement('div');
+    who.className = 'who';
+
+    const a = document.createElement('a');
+    a.href = e.url || '#';
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = e.jobName || '(unnamed job)';
+    who.appendChild(a);
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+
+    if (e.rep) {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.style.marginLeft = '0';
+      chip.textContent = repLabels[e.rep] || e.rep;
+      const c = repColors[e.rep] || '#6E6A62';
+      chip.style.color = c;
+      chip.style.borderColor = tint(c, 0.42);
+      chip.title = e.rep;
+      meta.appendChild(chip);
+    }
+    [e.milestone, e.status].filter(Boolean).forEach((txt, i) => {
+      if (i > 0 || e.rep) {
+        const d = document.createElement('span');
+        d.className = 'dot';
+        d.textContent = '·';
+        meta.appendChild(d);
+      }
+      const s = document.createElement('span');
+      s.textContent = txt;
+      meta.appendChild(s);
+    });
+
+    if (meta.childNodes.length) who.appendChild(meta);
+    row.appendChild(when);
+    row.appendChild(who);
+    sheetBody.appendChild(row);
+  });
+
+  backdrop.hidden = false;
+  document.getElementById('sheetClose').focus();
+}
+
+function closeDay(){
+  backdrop.hidden = true;
+  if (lastFocused && lastFocused.focus) lastFocused.focus();
+  lastFocused = null;
+}
+
+document.getElementById('sheetClose').addEventListener('click', closeDay);
+backdrop.addEventListener('click', ev => { if (ev.target === backdrop) closeDay(); });
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape' && !backdrop.hidden) closeDay();
+});
 
 function init(appointments, skipped){
   byDate = {};
@@ -769,16 +989,14 @@ function showError(detail){
     String(detail) + '</span>';
 }
 
-document.getElementById('prevBtn').addEventListener('click', () => {
+function step(delta){
   if (!current) return;
-  current = new Date(current.getFullYear(), current.getMonth() - 1, 1);
+  if (!backdrop.hidden) closeDay();   // a sheet for last month must not linger
+  current = new Date(current.getFullYear(), current.getMonth() + delta, 1);
   render();
-});
-document.getElementById('nextBtn').addEventListener('click', () => {
-  if (!current) return;
-  current = new Date(current.getFullYear(), current.getMonth() + 1, 1);
-  render();
-});
+}
+document.getElementById('prevBtn').addEventListener('click', () => step(-1));
+document.getElementById('nextBtn').addEventListener('click', () => step(1));
 
 fetch('appointments.csv', { cache: 'no-store' })
   .then(r => {
