@@ -84,12 +84,14 @@ jobs:
           cp wo-offline-guide.html deploy/wo-offline-guide.html
           cp texting-automation-guide.html deploy/texting-automation-guide.html
           cp sales-app-guide.html deploy/sales-app-guide.html
+          cp scheduled-sits.html deploy/scheduled-sits.html
+          cp appointments.json deploy/appointments.json
           cp wo-export-share-icon.png deploy/ 2>/dev/null || true
           cp wo-export-save-to-files.png deploy/ 2>/dev/null || true
           cd deploy
           git init
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html "black new logo.png" login-bg.jpg favicon.png pto-guide.html wo-offline-guide.html texting-automation-guide.html sales-app-guide.html wo-export-share-icon.png wo-export-save-to-files.png
+          git add index.html "black new logo.png" login-bg.jpg favicon.png pto-guide.html wo-offline-guide.html texting-automation-guide.html sales-app-guide.html scheduled-sits.html appointments.json wo-export-share-icon.png wo-export-save-to-files.png
           git commit -m "Deploy [skip ci]"
           git push --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:gh-pages

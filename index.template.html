@@ -345,6 +345,7 @@
     <div class="tab" data-tab="pto">🏖️ PTO</div>
     <div class="tab" data-tab="prodc">🏗️ Production &amp; Claims</div>
     <div class="tab" data-tab="metrics">📊 Company Metrics</div>
+    <div class="tab" data-tab="sits">🗓️ Scheduled Sits</div>
     <div class="tab" data-tab="fieldinspection" onclick="window.open('https://m-w-johnson-holdco.github.io/field-inspection-system/#/login','_blank');return false;">Field Inspection 🔍</div>
   </div>
   <div id="prodc-subtabs">
@@ -4954,6 +4955,14 @@ function printDoc() {
     </div>
   </div>
 
+  <div class="section" id="tab-sits" style="padding:0;">
+    <div style="padding:10px 16px;display:flex;justify-content:flex-end;">
+      <a href="scheduled-sits.html" target="_blank" rel="noopener" class="wo-guide-link">&#8599; Open in New Window</a>
+    </div>
+    <iframe id="sits-iframe" src="scheduled-sits.html" title="Scheduled Sits calendar"
+            style="width:100%;height:calc(100vh - 160px);border:none;border-radius:8px;background:#F6F4EF;"></iframe>
+  </div>
+
   </div>
 
 <script>var currentUser = "";
@@ -4996,11 +5005,11 @@ var store = {
 
 // Tab visibility per role — true = visible
 var ROLE_TABS = {
-  admin:      { dashboard:true,  weather:true,  scheduler:true,  templates:true,  config:true,  logs:true,  commissions:true,  workorder:true,  pto:true,  smartsched:true,  prewo:true,  metrics:true  },
-  production: { dashboard:false, weather:true,  scheduler:false, templates:false, config:false, logs:false, commissions:true,  workorder:true,  pto:true,  smartsched:true,  prewo:true,  metrics:true  },
-  sales:      { dashboard:false, weather:false, scheduler:false, templates:false, config:false, logs:false, commissions:true,  workorder:true,  pto:true,  smartsched:false, prewo:false, metrics:true  },
-  claims:     { dashboard:false, weather:false, scheduler:true,  templates:true,  config:false, logs:true,  commissions:false, workorder:false, pto:true,  smartsched:false, prewo:false, metrics:true  },
-  viewer:     { dashboard:false, weather:false, scheduler:false, templates:false, config:false, logs:false, commissions:true,  workorder:true,  pto:true,  smartsched:false, prewo:false, metrics:true  }
+  admin:      { dashboard:true,  weather:true,  scheduler:true,  templates:true,  config:true,  logs:true,  commissions:true,  workorder:true,  pto:true,  smartsched:true,  prewo:true,  metrics:true,  sits:true  },
+  production: { dashboard:false, weather:true,  scheduler:false, templates:false, config:false, logs:false, commissions:true,  workorder:true,  pto:true,  smartsched:true,  prewo:true,  metrics:true,  sits:true  },
+  sales:      { dashboard:false, weather:false, scheduler:false, templates:false, config:false, logs:false, commissions:true,  workorder:true,  pto:true,  smartsched:false, prewo:false, metrics:true,  sits:true  },
+  claims:     { dashboard:false, weather:false, scheduler:true,  templates:true,  config:false, logs:true,  commissions:false, workorder:false, pto:true,  smartsched:false, prewo:false, metrics:true,  sits:true  },
+  viewer:     { dashboard:false, weather:false, scheduler:false, templates:false, config:false, logs:false, commissions:true,  workorder:true,  pto:true,  smartsched:false, prewo:false, metrics:true,  sits:true  }
 };
 
 var currentUserEmail = "";
@@ -5017,7 +5026,7 @@ function applyRolePermissions(role) {
   var perms = ROLE_TABS[role] || ROLE_TABS["viewer"];
   var tabMap = {
     dashboard: "dashboard",
-    commissions: "commissions", workorder: "workorder", pto: "pto", metrics: "metrics"
+    commissions: "commissions", workorder: "workorder", pto: "pto", metrics: "metrics", sits: "sits"
   };
   var adminTabMap = { templates: "templates", config: "config", logs: "logs" };
   var prodcTabMap = { scheduler: "scheduler", smartsched: "smartsched", weather: "weather", prewo: "prewo" };

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Scheduled Sits Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F4EF;
+    --ink:#232323;
+    --line:#D8D3C7;
+    --accent:#3F6C9E;      /* acculynx-adjacent blue */
+    --vol0:#ECEAE4;
+    --vol12:#AFC6A0;       /* sage */
+    --vol12-text:#2E4222;
+    --vol3:#D99A4E;        /* ochre */
+    --vol3-text:#4A2E08;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      linear-gradient(var(--paper),var(--paper)),
+      repeating-linear-gradient(0deg, rgba(63,108,158,0.035) 0px, rgba(63,108,158,0.035) 1px, transparent 1px, transparent 28px),
+      repeating-linear-gradient(90deg, rgba(63,108,158,0.035) 0px, rgba(63,108,158,0.035) 1px, transparent 1px, transparent 28px);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    padding:24px 20px 40px;
+    min-height:100vh;
+  }
+  .wrap{max-width:1180px;margin:0 auto;}
+
+  .masthead{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:14px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .masthead .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 4px;
+  }
+  .masthead h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(26px,3.4vw,36px);
+    margin:0;
+    line-height:1.05;
+    letter-spacing:-0.01em;
+  }
+  .nav{display:flex;align-items:center;gap:14px;}
+  .nav button{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    border:1px solid var(--ink);
+    background:var(--paper);
+    color:var(--ink);
+    width:34px;height:34px;
+    border-radius:50%;
+    cursor:pointer;
+    transition:background .15s,color .15s;
+  }
+  .nav button:hover{background:var(--ink);color:var(--paper);}
+  .nav .month-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    letter-spacing:.06em;
+    min-width:150px;
+    text-align:center;
+  }
+
+  .legend{
+    display:flex;
+    gap:18px;
+    align-items:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:#5b5850;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .legend .swatch{display:inline-flex;align-items:center;gap:6px;}
+  .legend .dot{width:10px;height:10px;border-radius:2px;display:inline-block;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    border-top:1px solid var(--line);
+    border-left:1px solid var(--line);
+    background:var(--line);
+    gap:1px;
+  }
+  .dow{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    text-align:center;
+    padding:8px 4px;
+  }
+  .cell{
+    background:var(--vol0);
+    min-height:118px;
+    padding:8px 8px 10px;
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+  }
+  .cell.outside{background:var(--paper);}
+  .cell.outside .daynum{color:#c9c4b8;}
+  .cell.vol-0{background:var(--vol0);}
+  .cell.vol-12{background:var(--vol12);}
+  .cell.vol-3{background:var(--vol3);}
+
+  .daynum{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:500;
+    font-size:13px;
+    color:var(--ink);
+  }
+  .cell.vol-12 .daynum{color:var(--vol12-text);}
+  .cell.vol-3 .daynum{color:var(--vol3-text);}
+
+  .entry{font-size:11.5px;line-height:1.35;display:flex;gap:5px;}
+  .entry .t{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:#5b5850;
+    white-space:nowrap;
+    padding-top:1px;
+  }
+  .cell.vol-12 .entry .t{color:#3b4d31;}
+  .cell.vol-3 .entry .t{color:#6b431a;}
+
+  .entry a{
+    color:var(--accent);
+    text-decoration:none;
+    font-weight:500;
+    border-bottom:1px solid transparent;
+  }
+  .entry a:hover{border-bottom-color:var(--accent);}
+  .entry a:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:2px;}
+
+  .more{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:#5b5850;
+    margin-top:auto;
+  }
+
+  .status{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:#5b5850;
+    padding:24px 0;
+  }
+  .status.error{color:#8a2f2f;}
+  .status a{color:var(--accent);}
+
+  footer{
+    margin-top:22px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:#9b968a;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .nav button{transition:none;}
+  }
+
+  @media (max-width:720px){
+    .cell{min-height:96px;padding:6px;}
+    .dow{font-size:9px;padding:6px 2px;}
+    .entry{font-size:10px;}
+    .daynum{font-size:11px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div>
+      <p class="eyebrow">Peachtree Roofing &amp; Exteriors</p>
+      <h1>Scheduled Sits</h1>
+    </div>
+    <div class="nav">
+      <button id="prevBtn" aria-label="Previous month">&#8249;</button>
+      <span class="month-label" id="monthLabel"></span>
+      <button id="nextBtn" aria-label="Next month">&#8250;</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="swatch"><span class="dot" style="background:var(--vol0)"></span>0 sits</span>
+    <span class="swatch"><span class="dot" style="background:var(--vol12)"></span>1&ndash;2 sits</span>
+    <span class="swatch"><span class="dot" style="background:var(--vol3)"></span>3+ sits</span>
+    <span style="margin-left:auto;">Click a name to open the job in AcuLynx</span>
+  </div>
+
+  <div class="status" id="status">Loading appointments&hellip;</div>
+  <div class="grid" id="calendarGrid" style="display:none;"></div>
+
+  <footer>
+    <span id="countFooter"></span>
+    <span>Data source: appointments.json &mdash; replace that file to refresh</span>
+  </footer>
+
+</div>
+
+<script>
+/* ============================================================
+   Scheduled Sits calendar.
+
+   Appointment data lives in appointments.json next to this file --
+   that is the only file you edit to refresh the calendar. Each record:
+   { date: "YYYY-MM-DD", time: "hh:mm AM/PM", jobName, milestone, status, url }
+   ============================================================ */
+
+const grid = document.getElementById('calendarGrid');
+const monthLabel = document.getElementById('monthLabel');
+const countFooter = document.getElementById('countFooter');
+const statusEl = document.getElementById('status');
+
+const DOW = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+let byDate = {};
+let current = null;
+
+function pad(n){ return n < 10 ? '0'+n : ''+n; }
+function toKey(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+
+/* "9:00 AM" -> 540. Sorting the raw time strings compares the hour digits
+   before ever reaching AM/PM, so "02:00 PM" sorts ahead of "12:00 PM" and
+   afternoon sits jump above the morning ones. Compare minutes instead. */
+function toMinutes(time){
+  const m = /^(\d{1,2}):(\d{2})\s*([AaPp])/.exec(String(time).trim());
+  if (!m) return 0;
+  const hour = (Number(m[1]) % 12) + (m[3].toLowerCase() === 'p' ? 12 : 0);
+  return hour * 60 + Number(m[2]);
+}
+
+function render(){
+  grid.innerHTML = '';
+  DOW.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'dow';
+    el.textContent = d.slice(0,3);
+    grid.appendChild(el);
+  });
+
+  const year = current.getFullYear();
+  const month = current.getMonth();
+  const firstOfMonth = new Date(year, month, 1);
+  const startOffset = firstOfMonth.getDay();
+  const gridStart = new Date(year, month, 1 - startOffset);
+
+  let totalThisMonth = 0;
+
+  for (let i = 0; i < 42; i++) {
+    const cellDate = new Date(gridStart);
+    cellDate.setDate(gridStart.getDate() + i);
+    const key = toKey(cellDate);
+    const inMonth = cellDate.getMonth() === month;
+    const entries = (byDate[key] || []).slice().sort((a,b) => toMinutes(a.time) - toMinutes(b.time));
+
+    const cell = document.createElement('div');
+    let volClass = 'vol-0';
+    if (entries.length >= 3) volClass = 'vol-3';
+    else if (entries.length >= 1) volClass = 'vol-12';
+    cell.className = 'cell ' + (inMonth ? volClass : 'outside');
+
+    const num = document.createElement('div');
+    num.className = 'daynum';
+    num.textContent = cellDate.getDate();
+    cell.appendChild(num);
+
+    if (inMonth) {
+      totalThisMonth += entries.length;
+      entries.slice(0, 4).forEach(e => {
+        const row = document.createElement('div');
+        row.className = 'entry';
+        const t = document.createElement('span');
+        t.className = 't';
+        t.textContent = String(e.time || '').replace(' ', '');
+        const a = document.createElement('a');
+        a.href = e.url || '#';
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = e.jobName || '(unnamed job)';
+        a.title = [e.milestone, e.status].filter(Boolean).join(' — ');
+        row.appendChild(t);
+        row.appendChild(a);
+        cell.appendChild(row);
+      });
+      if (entries.length > 4) {
+        const more = document.createElement('div');
+        more.className = 'more';
+        more.textContent = '+' + (entries.length - 4) + ' more';
+        cell.appendChild(more);
+      }
+    }
+
+    grid.appendChild(cell);
+  }
+
+  monthLabel.textContent = MONTHS[month] + ' ' + year;
+  countFooter.textContent = totalThisMonth + ' sit' + (totalThisMonth === 1 ? '' : 's') + ' scheduled this month';
+}
+
+function init(appointments){
+  byDate = {};
+  appointments.forEach(a => {
+    if (!a || !a.date) return;
+    if (!byDate[a.date]) byDate[a.date] = [];
+    byDate[a.date].push(a);
+  });
+
+  // Open on the month of the latest appointment, so it lands somewhere useful
+  const allDates = Object.keys(byDate).sort();
+  if (allDates.length) {
+    const [y, m] = allDates[allDates.length - 1].split('-').map(Number);
+    current = new Date(y, m - 1, 1);
+  } else {
+    const now = new Date();
+    current = new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+
+  statusEl.style.display = 'none';
+  grid.style.display = 'grid';
+  render();
+}
+
+function showError(detail){
+  statusEl.className = 'status error';
+  statusEl.innerHTML = 'Could not load <strong>appointments.json</strong>. ' +
+    'If you opened this file directly from your computer, browsers block reading the ' +
+    'data file &mdash; view it on the portal instead.<br><span style="color:#9b968a;">' +
+    String(detail) + '</span>';
+}
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (!current) return;
+  current = new Date(current.getFullYear(), current.getMonth() - 1, 1);
+  render();
+});
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (!current) return;
+  current = new Date(current.getFullYear(), current.getMonth() + 1, 1);
+  render();
+});
+
+fetch('appointments.json', { cache: 'no-store' })
+  .then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  })
+  .then(data => {
+    if (!Array.isArray(data)) throw new Error('appointments.json must contain an array');
+    init(data);
+  })
+  .catch(err => showError(err.message || err));
+</script>
+</body>
+</html>
