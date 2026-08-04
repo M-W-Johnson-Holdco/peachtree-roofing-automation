@@ -15,12 +15,14 @@
     --muted:#6E6A62;
     --faint:#A7A196;
     --line:#E6E1D6;
+    --line-bold:#C4BCA8;   /* day borders read as drawn rules, not hairlines */
     --accent:#3F6C9E;
     --accent-soft:#EAF1F8;
 
-    /* Volume levels now tint only the little count pill, not the whole day. */
-    --lo-bg:rgba(122,163,99,0.16);   --lo-fg:#3D5A2C;
-    --hi-bg:rgba(198,132,48,0.20);   --hi-fg:#7A4A11;
+    /* Day shading by volume: pale green for 1–2, lime for 3+.
+       #B5D342 is the same lime the work order uses for its total labels. */
+    --lo-cell:#E4F0D6;   --lo-ink:#33502A;
+    --hi-cell:#B5D342;   --hi-ink:#31430A;
 
     --radius:10px;
     --shadow:0 1px 2px rgba(31,30,28,0.05), 0 1px 8px rgba(31,30,28,0.04);
@@ -167,7 +169,7 @@
     min-height:126px;
     padding:8px 9px 10px;
     background:var(--card);
-    border:1px solid var(--line);
+    border:2px solid var(--line-bold);
     border-radius:var(--radius);
     display:flex;
     flex-direction:column;
@@ -177,14 +179,27 @@
   .cell.has-sits:hover{
     box-shadow:var(--shadow-lift);
     transform:translateY(-1px);
-    border-color:#D6CFC0;
+    border-color:#9E957F;
     z-index:2;
   }
-  .cell.weekend{background:#F4F1EA;}
+  .cell.weekend{background:#F1EEE6;}
   .cell.outside{background:transparent;border-color:transparent;}
   .cell.outside .daynum{color:#CFC9BC;}
   /* Days already gone stay readable but recede. */
   .cell.past{opacity:.62;}
+
+  /* Volume shading. Written after .weekend so a busy Saturday still reads
+     as busy rather than as a weekend. */
+  .cell.lvl-lo{background:var(--lo-cell);border-color:#A9C68C;}
+  .cell.lvl-hi{background:var(--hi-cell);border-color:#8FAA2C;}
+  /* Day numbers stay --ink on both tints: near-black already has more contrast
+     on pale green and lime than a green would, so no override is needed. */
+  .cell.lvl-lo .entry a{color:var(--lo-ink);}
+  .cell.lvl-hi .entry a{color:var(--hi-ink);}
+  .cell.lvl-lo .entry .t,
+  .cell.lvl-hi .entry .t{color:rgba(31,43,15,0.55);}
+  .cell.lvl-lo .more,
+  .cell.lvl-hi .more{color:rgba(31,43,15,0.6);}
 
   .cell-top{
     display:flex;
@@ -220,8 +235,9 @@
     padding:3px 6px;
     border-radius:999px;
   }
-  .count.lo{background:var(--lo-bg);color:var(--lo-fg);}
-  .count.hi{background:var(--hi-bg);color:var(--hi-fg);}
+  /* Sits on a tinted day, so it needs its own light ground to stay readable. */
+  .count.lo{background:rgba(255,255,255,0.78);color:var(--lo-ink);}
+  .count.hi{background:rgba(255,255,255,0.75);color:var(--hi-ink);}
 
   .entries{display:flex;flex-direction:column;gap:4px;}
 
@@ -250,8 +266,9 @@
   .entry a:hover{color:var(--accent);border-bottom-color:var(--accent);}
   .entry a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px;}
 
-  /* Rep chip: soft tint of the rep's own colour, no border. Reads as a tag
-     rather than a boxed-in label. */
+  /* Rep chip. A light ground rather than a tint of the rep's own colour,
+     because the chip now sits on cream, pale green or lime depending on how
+     busy the day is, and a coloured tint muddied against the darker limes. */
   .chip{
     display:inline-block;
     font-size:9.5px;
@@ -261,6 +278,8 @@
     padding:0 5px;
     margin-left:5px;
     border-radius:999px;
+    border:1px solid;
+    background:rgba(255,255,255,0.82);
     white-space:nowrap;
     vertical-align:1px;
   }
@@ -331,8 +350,8 @@
     <div class="sep"></div>
     <div class="stat"><b id="statReps">0</b> reps out</div>
     <div class="legend">
-      <span><i style="background:var(--lo-bg)"></i>1&ndash;2</span>
-      <span><i style="background:var(--hi-bg)"></i>3+</span>
+      <span><i style="background:var(--lo-cell);border:1px solid #A9C68C"></i>1&ndash;2</span>
+      <span><i style="background:var(--hi-cell);border:1px solid #8FAA2C"></i>3+</span>
       <span>click a name to open in AcuLynx</span>
     </div>
   </div>
@@ -610,7 +629,7 @@ function render(){
       if (dow === 0 || dow === 6) cls.push('weekend');
       if (key === todayKey) cls.push('today');
       else if (key < todayKey) cls.push('past');
-      if (entries.length) cls.push('has-sits');
+      if (entries.length) cls.push('has-sits', entries.length >= 3 ? 'lvl-hi' : 'lvl-lo');
     }
     cell.className = cls.join(' ');
 
@@ -663,7 +682,7 @@ function render(){
           chip.textContent = repLabels[e.rep] || e.rep;
           const c = repColors[e.rep] || '#6E6A62';
           chip.style.color = c;
-          chip.style.background = tint(c, 0.13);
+          chip.style.borderColor = tint(c, 0.42);
           chip.title = e.rep;   // full name on hover
           body.appendChild(chip);
         }
