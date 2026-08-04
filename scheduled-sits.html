@@ -5,212 +5,307 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Scheduled Sits Calendar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#F6F4EF;
-    --ink:#232323;
-    --line:#D8D3C7;
-    --accent:#3F6C9E;      /* acculynx-adjacent blue */
-    --vol0:#ECEAE4;
-    --vol12:#AFC6A0;       /* sage */
-    --vol12-text:#2E4222;
-    --vol3:#D99A4E;        /* ochre */
-    --vol3-text:#4A2E08;
+    --paper:#F7F5F0;
+    --card:#FFFDFA;
+    --ink:#1F1E1C;
+    --muted:#6E6A62;
+    --faint:#A7A196;
+    --line:#E6E1D6;
+    --accent:#3F6C9E;
+    --accent-soft:#EAF1F8;
+
+    /* Volume levels now tint only the little count pill, not the whole day. */
+    --lo-bg:rgba(122,163,99,0.16);   --lo-fg:#3D5A2C;
+    --hi-bg:rgba(198,132,48,0.20);   --hi-fg:#7A4A11;
+
+    --radius:10px;
+    --shadow:0 1px 2px rgba(31,30,28,0.05), 0 1px 8px rgba(31,30,28,0.04);
+    --shadow-lift:0 2px 6px rgba(31,30,28,0.09), 0 8px 20px rgba(31,30,28,0.07);
   }
+
   *{box-sizing:border-box;}
+
   body{
     margin:0;
-    background:
-      linear-gradient(var(--paper),var(--paper)),
-      repeating-linear-gradient(0deg, rgba(63,108,158,0.035) 0px, rgba(63,108,158,0.035) 1px, transparent 1px, transparent 28px),
-      repeating-linear-gradient(90deg, rgba(63,108,158,0.035) 0px, rgba(63,108,158,0.035) 1px, transparent 1px, transparent 28px);
-    color:var(--ink);
-    font-family:'Inter',system-ui,sans-serif;
-    padding:24px 20px 40px;
-    min-height:100vh;
-  }
-  .wrap{max-width:1180px;margin:0 auto;}
-
-  .masthead{
-    display:flex;
-    align-items:flex-end;
-    justify-content:space-between;
-    border-bottom:2px solid var(--ink);
-    padding-bottom:14px;
-    margin-bottom:22px;
-    flex-wrap:wrap;
-    gap:12px;
-  }
-  .masthead .eyebrow{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    letter-spacing:.12em;
-    text-transform:uppercase;
-    color:var(--accent);
-    margin:0 0 4px;
-  }
-  .masthead h1{
-    font-family:'Fraunces',serif;
-    font-weight:600;
-    font-size:clamp(26px,3.4vw,36px);
-    margin:0;
-    line-height:1.05;
-    letter-spacing:-0.01em;
-  }
-  .nav{display:flex;align-items:center;gap:14px;}
-  .nav button{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:13px;
-    border:1px solid var(--ink);
     background:var(--paper);
     color:var(--ink);
-    width:34px;height:34px;
-    border-radius:50%;
-    cursor:pointer;
-    transition:background .15s,color .15s;
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:26px 22px 44px;
+    min-height:100vh;
   }
-  .nav button:hover{background:var(--ink);color:var(--paper);}
-  .nav .month-label{
+  .wrap{max-width:1220px;margin:0 auto;}
+
+  /* ── Masthead ───────────────────────────────────────────────── */
+  .masthead{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px;
+    margin-bottom:18px;
+  }
+  .eyebrow{
     font-family:'IBM Plex Mono',monospace;
-    font-size:13px;
-    letter-spacing:.06em;
-    min-width:150px;
-    text-align:center;
+    font-size:10.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 5px;
+  }
+  .masthead h1{
+    font-family:'Fraunces',Georgia,serif;
+    font-weight:600;
+    font-size:clamp(27px,3.2vw,38px);
+    margin:0;
+    line-height:1;
+    letter-spacing:-0.015em;
   }
 
-  .legend{
+  /* Month switcher reads as one control rather than three loose pieces. */
+  .nav{
     display:flex;
-    gap:18px;
     align-items:center;
+    gap:2px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:4px;
+    box-shadow:var(--shadow);
+  }
+  .nav button{
+    width:32px;height:32px;
+    display:grid;place-items:center;
+    border:none;
+    border-radius:50%;
+    background:transparent;
+    color:var(--muted);
+    font-size:17px;
+    line-height:1;
+    cursor:pointer;
+    transition:background .15s, color .15s;
+  }
+  .nav button:hover{background:var(--accent-soft);color:var(--accent);}
+  .nav button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .month-label{
+    min-width:158px;
+    text-align:center;
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:.01em;
+  }
+  .month-label .yr{color:var(--faint);font-weight:500;margin-left:5px;}
+
+  /* ── Stats + legend strip ───────────────────────────────────── */
+  .strip{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px 22px;
+    padding:11px 15px;
+    margin-bottom:14px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .stat{display:flex;align-items:baseline;gap:6px;font-size:12.5px;color:var(--muted);}
+  .stat b{
+    font-family:'Fraunces',Georgia,serif;
+    font-size:19px;
+    font-weight:600;
+    color:var(--ink);
+    line-height:1;
+  }
+  .strip .sep{width:1px;align-self:stretch;background:var(--line);}
+  .legend{
+    display:flex;align-items:center;gap:14px;
+    margin-left:auto;
     font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    color:#5b5850;
-    margin-bottom:16px;
+    font-size:10.5px;
+    color:var(--faint);
     flex-wrap:wrap;
   }
-  .legend .swatch{display:inline-flex;align-items:center;gap:6px;}
-  .legend .dot{width:10px;height:10px;border-radius:2px;display:inline-block;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .legend i{
+    width:16px;height:15px;border-radius:5px;
+    display:inline-block;font-style:normal;
+  }
+
+  /* ── Calendar ───────────────────────────────────────────────── */
+  .dow-row{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:7px;
+    margin-bottom:7px;
+  }
+  .dow{
+    text-align:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--faint);
+    padding:2px 0 4px;
+  }
 
   .grid{
     display:grid;
     grid-template-columns:repeat(7,1fr);
-    border-top:1px solid var(--line);
-    border-left:1px solid var(--line);
-    background:var(--line);
-    gap:1px;
+    gap:7px;
   }
-  .dow{
-    background:var(--ink);
-    color:var(--paper);
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    text-align:center;
-    padding:8px 4px;
-  }
+
+  /* Cells are cards now. The old version filled whole days with sage/ochre,
+     which made "how many" the loudest thing on the page and clashed with the
+     rep colours; volume moved to the small pill in the corner instead. */
   .cell{
-    background:var(--vol0);
-    min-height:118px;
-    padding:8px 8px 10px;
+    position:relative;
+    min-height:126px;
+    padding:8px 9px 10px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
     display:flex;
     flex-direction:column;
     gap:5px;
+    transition:box-shadow .16s, transform .16s, border-color .16s;
   }
-  .cell.outside{background:var(--paper);}
-  .cell.outside .daynum{color:#c9c4b8;}
-  .cell.vol-0{background:var(--vol0);}
-  .cell.vol-12{background:var(--vol12);}
-  .cell.vol-3{background:var(--vol3);}
+  .cell.has-sits:hover{
+    box-shadow:var(--shadow-lift);
+    transform:translateY(-1px);
+    border-color:#D6CFC0;
+    z-index:2;
+  }
+  .cell.weekend{background:#F4F1EA;}
+  .cell.outside{background:transparent;border-color:transparent;}
+  .cell.outside .daynum{color:#CFC9BC;}
+  /* Days already gone stay readable but recede. */
+  .cell.past{opacity:.62;}
 
+  .cell-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:6px;
+    min-height:20px;
+  }
   .daynum{
     font-family:'IBM Plex Mono',monospace;
     font-weight:500;
-    font-size:13px;
-    color:var(--ink);
+    font-size:12.5px;
+    color:var(--muted);
   }
-  .cell.vol-12 .daynum{color:var(--vol12-text);}
-  .cell.vol-3 .daynum{color:var(--vol3-text);}
+  .cell.has-sits .daynum{color:var(--ink);}
 
-  .entry{font-size:11.5px;line-height:1.35;display:flex;gap:5px;}
+  /* Today gets the only filled badge on the page, so it is findable instantly. */
+  .cell.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+  .cell.today .daynum{
+    background:var(--accent);
+    color:#fff;
+    border-radius:50%;
+    width:21px;height:21px;
+    display:grid;place-items:center;
+    margin:-1px 0 -1px -2px;
+  }
+
+  .count{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    font-weight:500;
+    line-height:1;
+    padding:3px 6px;
+    border-radius:999px;
+  }
+  .count.lo{background:var(--lo-bg);color:var(--lo-fg);}
+  .count.hi{background:var(--hi-bg);color:var(--hi-fg);}
+
+  .entries{display:flex;flex-direction:column;gap:4px;}
+
+  .entry{
+    display:flex;
+    gap:6px;
+    font-size:11.5px;
+    line-height:1.35;
+  }
   .entry .t{
     font-family:'IBM Plex Mono',monospace;
-    font-size:10.5px;
-    color:#5b5850;
+    font-size:10px;
+    color:var(--faint);
     white-space:nowrap;
-    padding-top:1px;
+    padding-top:1.5px;
+    min-width:31px;
   }
-  .cell.vol-12 .entry .t{color:#3b4d31;}
-  .cell.vol-3 .entry .t{color:#6b431a;}
-
+  .entry .body{flex:1;min-width:0;}
   .entry a{
-    color:var(--accent);
+    color:var(--ink);
     text-decoration:none;
     font-weight:500;
     border-bottom:1px solid transparent;
+    transition:color .12s, border-color .12s;
   }
-  .entry a:hover{border-bottom-color:var(--accent);}
-  .entry a:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:2px;}
+  .entry a:hover{color:var(--accent);border-bottom-color:var(--accent);}
+  .entry a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px;}
 
-  /* Job name + rep chip share the remaining width so the chip can wrap
-     under a long name instead of squeezing it. */
-  .entry .body{flex:1;min-width:0;}
-
-  /* Rep chip. Translucent white ground rather than a solid fill so it stays
-     legible on all three day shades (cream, sage, ochre); the rep's colour
-     carries in the text and border. */
+  /* Rep chip: soft tint of the rep's own colour, no border. Reads as a tag
+     rather than a boxed-in label. */
   .chip{
     display:inline-block;
-    font-family:'IBM Plex Mono',monospace;
-    font-size:9px;
-    line-height:1.45;
-    letter-spacing:.02em;
-    padding:0 4px;
-    margin-left:4px;
-    border-radius:3px;
-    border:1px solid currentColor;
-    background:rgba(255,255,255,0.72);
+    font-size:9.5px;
+    font-weight:600;
+    line-height:1.5;
+    letter-spacing:.01em;
+    padding:0 5px;
+    margin-left:5px;
+    border-radius:999px;
     white-space:nowrap;
     vertical-align:1px;
   }
 
   .more{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10.5px;
-    color:#5b5850;
     margin-top:auto;
+    padding-top:2px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--faint);
   }
 
+  /* ── States ─────────────────────────────────────────────────── */
   .status{
     font-family:'IBM Plex Mono',monospace;
     font-size:12px;
-    color:#5b5850;
-    padding:24px 0;
+    color:var(--muted);
+    padding:28px 2px;
   }
-  .status.error{color:#8a2f2f;}
-  .status a{color:var(--accent);}
+  .status.error{color:#8A2F2F;}
 
   footer{
-    margin-top:22px;
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10.5px;
-    color:#9b968a;
+    margin-top:18px;
     display:flex;
     justify-content:space-between;
     flex-wrap:wrap;
     gap:8px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--faint);
   }
 
   @media (prefers-reduced-motion: reduce){
-    .nav button{transition:none;}
+    .cell, .nav button, .entry a{transition:none;}
+    .cell.has-sits:hover{transform:none;}
   }
 
-  @media (max-width:720px){
-    .cell{min-height:96px;padding:6px;}
-    .dow{font-size:9px;padding:6px 2px;}
-    .entry{font-size:10px;}
-    .daynum{font-size:11px;}
+  /* Below ~760px seven columns cannot hold a name and a chip, so let the
+     calendar scroll sideways rather than crushing every cell. */
+  @media (max-width:760px){
+    body{padding:18px 14px 32px;}
+    .scroller{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px;}
+    .dow-row, .grid{min-width:680px;}
+    .cell{min-height:112px;}
+    .legend{margin-left:0;}
   }
 </style>
 </head>
@@ -229,15 +324,31 @@
     </div>
   </div>
 
-  <div class="legend">
-    <span class="swatch"><span class="dot" style="background:var(--vol0)"></span>0 sits</span>
-    <span class="swatch"><span class="dot" style="background:var(--vol12)"></span>1&ndash;2 sits</span>
-    <span class="swatch"><span class="dot" style="background:var(--vol3)"></span>3+ sits</span>
-    <span style="margin-left:auto;">Click a name to open the job in AcuLynx</span>
+  <div class="strip" id="strip" style="display:none;">
+    <div class="stat"><b id="statTotal">0</b> <span id="statTotalLabel">sits</span></div>
+    <div class="sep"></div>
+    <div class="stat">busiest <b id="statBusy">—</b></div>
+    <div class="sep"></div>
+    <div class="stat"><b id="statReps">0</b> reps out</div>
+    <div class="legend">
+      <span><i style="background:var(--lo-bg)"></i>1&ndash;2</span>
+      <span><i style="background:var(--hi-bg)"></i>3+</span>
+      <span>click a name to open in AcuLynx</span>
+    </div>
   </div>
 
   <div class="status" id="status">Loading appointments&hellip;</div>
-  <div class="grid" id="calendarGrid" style="display:none;"></div>
+
+  <div id="calendarWrap" style="display:none;">
+    <div class="scroller">
+      <div class="dow-row">
+        <div class="dow">Sun</div><div class="dow">Mon</div><div class="dow">Tue</div>
+        <div class="dow">Wed</div><div class="dow">Thu</div><div class="dow">Fri</div>
+        <div class="dow">Sat</div>
+      </div>
+      <div class="grid" id="calendarGrid"></div>
+    </div>
+  </div>
 
   <footer>
     <span id="countFooter"></span>
@@ -255,16 +366,18 @@
    that one file; nothing here needs editing.
 
    Expected columns (looked up by header name, so column order may change):
-     Current Milestone | Job Name | Scheduled Sit Date | Current Status | Job Name Url
+     Current Milestone | Job Name | Scheduled Sit Date | Current Status
+     Company Representative | Job Name Url
    Scheduled Sit Date arrives as a single value like "7/27/26 2:00 PM".
    ============================================================ */
 
 const grid = document.getElementById('calendarGrid');
+const calendarWrap = document.getElementById('calendarWrap');
 const monthLabel = document.getElementById('monthLabel');
 const countFooter = document.getElementById('countFooter');
 const statusEl = document.getElementById('status');
+const stripEl = document.getElementById('strip');
 
-const DOW = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 let byDate = {};
@@ -285,6 +398,24 @@ function toMinutes(time){
   return hour * 60 + Number(m[2]);
 }
 
+/* "02:00 PM" -> "2p", "04:30 PM" -> "4:30p". The old "02:00PM" ate a third of
+   the cell width; dropping the padding and the :00 leaves room for the job
+   name and rep chip to sit on one line. */
+function shortTime(time){
+  const m = /^(\d{1,2}):(\d{2})\s*([AaPp])/.exec(String(time).trim());
+  if (!m) return String(time || '');
+  const hour = Number(m[1]) % 12 || 12;
+  const mer = m[3].toLowerCase();
+  return m[2] === '00' ? hour + mer : hour + ':' + m[2] + mer;
+}
+
+function tint(hex, alpha){
+  const h = String(hex).replace('#','');
+  if (h.length !== 6) return 'rgba(110,106,98,' + alpha + ')';
+  return 'rgba(' + parseInt(h.substr(0,2),16) + ',' + parseInt(h.substr(2,2),16) +
+         ',' + parseInt(h.substr(4,2),16) + ',' + alpha + ')';
+}
+
 /* ── COMPANY REP CHIPS ───────────────────────────────────────────────
    The export carries full names ("Dan Sinnott"); the chip shows the name
    the team actually uses. Everyone is first-name-only unless listed here.
@@ -303,7 +434,7 @@ const REP_NICKNAMES = {
 // from the 8/4 export, and he must still not collide with Tim B tomorrow.
 const REP_SHARED_FIRST_NAMES = ['Tim'];
 
-// Dark, distinct hues that stay legible against cream, sage and ochre cells.
+// Distinct hues, dark enough to stay legible as chip text on a soft tint.
 const REP_COLORS = [
   '#3F6C9E', '#2E6B4F', '#8A4B2F', '#6B3F7A', '#1F5F6B', '#7A5C2E',
   '#8A2F4F', '#40548A', '#4F6B2E', '#6B4A2F', '#2F5F8A', '#5F3F6B'
@@ -396,8 +527,7 @@ function parseCSV(text){
   return rows.filter(r => r.some(v => v.trim() !== ''));
 }
 
-/* "7/27/26 2:00 PM" -> { date: "2026-07-27", time: "02:00 PM" }.
-   Hours are zero-padded so the time column lines up in the day cells. */
+/* "7/27/26 2:00 PM" -> { date: "2026-07-27", time: "02:00 PM" }. */
 function parseSitDateTime(raw){
   const m = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})\s+(\d{1,2}):(\d{2})\s*([AaPp])[Mm]?\.?$/.exec(String(raw).trim());
   if (!m) return null;
@@ -452,47 +582,70 @@ function rowsToAppointments(rows){
 
 function render(){
   grid.innerHTML = '';
-  DOW.forEach(d => {
-    const el = document.createElement('div');
-    el.className = 'dow';
-    el.textContent = d.slice(0,3);
-    grid.appendChild(el);
-  });
 
   const year = current.getFullYear();
   const month = current.getMonth();
-  const firstOfMonth = new Date(year, month, 1);
-  const startOffset = firstOfMonth.getDay();
+  const startOffset = new Date(year, month, 1).getDay();
   const gridStart = new Date(year, month, 1 - startOffset);
+  const todayKey = toKey(new Date());
 
   let totalThisMonth = 0;
+  let busyKey = null, busyCount = 0;
+  const repsThisMonth = {};
 
   for (let i = 0; i < 42; i++) {
     const cellDate = new Date(gridStart);
     cellDate.setDate(gridStart.getDate() + i);
     const key = toKey(cellDate);
     const inMonth = cellDate.getMonth() === month;
-    const entries = (byDate[key] || []).slice().sort((a,b) => toMinutes(a.time) - toMinutes(b.time));
+    const entries = inMonth
+      ? (byDate[key] || []).slice().sort((a,b) => toMinutes(a.time) - toMinutes(b.time))
+      : [];
 
     const cell = document.createElement('div');
-    let volClass = 'vol-0';
-    if (entries.length >= 3) volClass = 'vol-3';
-    else if (entries.length >= 1) volClass = 'vol-12';
-    cell.className = 'cell ' + (inMonth ? volClass : 'outside');
+    const cls = ['cell'];
+    if (!inMonth) cls.push('outside');
+    else {
+      const dow = cellDate.getDay();
+      if (dow === 0 || dow === 6) cls.push('weekend');
+      if (key === todayKey) cls.push('today');
+      else if (key < todayKey) cls.push('past');
+      if (entries.length) cls.push('has-sits');
+    }
+    cell.className = cls.join(' ');
 
-    const num = document.createElement('div');
+    const top = document.createElement('div');
+    top.className = 'cell-top';
+    const num = document.createElement('span');
     num.className = 'daynum';
     num.textContent = cellDate.getDate();
-    cell.appendChild(num);
+    top.appendChild(num);
 
-    if (inMonth) {
+    if (entries.length) {
+      const count = document.createElement('span');
+      count.className = 'count ' + (entries.length >= 3 ? 'hi' : 'lo');
+      count.textContent = entries.length;
+      count.title = entries.length + (entries.length === 1 ? ' sit' : ' sits');
+      top.appendChild(count);
+    }
+    cell.appendChild(top);
+
+    if (entries.length) {
       totalThisMonth += entries.length;
+      if (entries.length > busyCount) { busyCount = entries.length; busyKey = cellDate; }
+      entries.forEach(e => { if (e.rep) repsThisMonth[e.rep] = true; });
+
+      const list = document.createElement('div');
+      list.className = 'entries';
+
       entries.slice(0, 4).forEach(e => {
         const row = document.createElement('div');
         row.className = 'entry';
+
         const t = document.createElement('span');
         t.className = 't';
-        t.textContent = String(e.time || '').replace(' ', '');
+        t.textContent = shortTime(e.time);
+
         const body = document.createElement('span');
         body.className = 'body';
 
@@ -501,22 +654,26 @@ function render(){
         a.target = '_blank';
         a.rel = 'noopener noreferrer';
         a.textContent = e.jobName || '(unnamed job)';
-        a.title = [e.milestone, e.status].filter(Boolean).join(' — ');
+        a.title = [e.jobName, e.milestone, e.status].filter(Boolean).join(' — ');
         body.appendChild(a);
 
         if (e.rep) {
           const chip = document.createElement('span');
           chip.className = 'chip';
           chip.textContent = repLabels[e.rep] || e.rep;
-          chip.style.color = repColors[e.rep] || '#5b5850';
+          const c = repColors[e.rep] || '#6E6A62';
+          chip.style.color = c;
+          chip.style.background = tint(c, 0.13);
           chip.title = e.rep;   // full name on hover
           body.appendChild(chip);
         }
 
         row.appendChild(t);
         row.appendChild(body);
-        cell.appendChild(row);
+        list.appendChild(row);
       });
+      cell.appendChild(list);
+
       if (entries.length > 4) {
         const more = document.createElement('div');
         more.className = 'more';
@@ -528,7 +685,14 @@ function render(){
     grid.appendChild(cell);
   }
 
-  monthLabel.textContent = MONTHS[month] + ' ' + year;
+  monthLabel.innerHTML = MONTHS[month] + ' <span class="yr">' + year + '</span>';
+
+  document.getElementById('statTotal').textContent = totalThisMonth;
+  document.getElementById('statTotalLabel').textContent = totalThisMonth === 1 ? 'sit' : 'sits';
+  document.getElementById('statBusy').textContent =
+    busyKey ? (MONTHS[busyKey.getMonth()].slice(0,3) + ' ' + busyKey.getDate() + ' · ' + busyCount) : '—';
+  document.getElementById('statReps').textContent = Object.keys(repsThisMonth).length;
+
   countFooter.textContent = totalThisMonth + ' sit' + (totalThisMonth === 1 ? '' : 's') + ' scheduled this month';
 }
 
@@ -573,7 +737,8 @@ function init(appointments, skipped){
   }
 
   statusEl.style.display = 'none';
-  grid.style.display = 'grid';
+  stripEl.style.display = 'flex';
+  calendarWrap.style.display = 'block';
   render();
 }
 
@@ -581,7 +746,7 @@ function showError(detail){
   statusEl.className = 'status error';
   statusEl.innerHTML = 'Could not load <strong>appointments.csv</strong>. ' +
     'If you opened this file directly from your computer, browsers block reading the ' +
-    'data file &mdash; view it on the portal instead.<br><span style="color:#9b968a;">' +
+    'data file &mdash; view it on the portal instead.<br><span style="color:#A7A196;">' +
     String(detail) + '</span>';
 }
 
