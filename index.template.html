@@ -10311,48 +10311,84 @@ window.receiveCalcData = function(d) {
       if (sel.options[i].text === targetText) { sel.selectedIndex = i; sel.dispatchEvent(new Event('change')); return; }
     }
   }
+  // Vent field ids in one place, so the clear pass below and the apply pass can
+  // never drift apart.
+  var VENT_FIELDS = {
+    ridge:   {e:'wo-f16', de:'wo-vent-de-ridge',   dn:'wo-f17', cost:'wo-f29'},
+    box:     {e:'wo-f19', de:'wo-vent-de-box',     dn:'wo-f20', cost:'wo-f30'},
+    power:   {e:'wo-f23', de:'wo-vent-de-power',   dn:'wo-f24', cost:'wo-f32'},
+    solar:   {e:'wo-f25', de:'wo-vent-de-solar',   dn:'wo-f26', cost:'wo-f33'},
+    turbine: {e:'wo-f27', de:'wo-vent-de-turbine', dn:'wo-f28', cost:'wo-f34'},
+  };
+
+  function clearField(id) {
+    var el = document.getElementById(id);
+    if (!el || el.value === '') return;
+    el.value = '';
+    el.dispatchEvent(new Event('input', {bubbles:true}));
+  }
+
+  // Applying an option used to only ever WRITE values, never reset them: a
+  // material with no entry, or a charge of 0, left the previously applied
+  // option's number sitting in the field. The first click looked correct because
+  // the form started blank, then switching between saved Options 1/2/3 mixed
+  // their pricing together — worst on the money fields.
+  //
+  // So each apply now resets what it owns first. Two categories:
+  //   - Upgrade charge and vent cost fields are always option-derived and never
+  //     meaningfully typed by hand, so they are cleared unconditionally.
+  //   - Vent counts CAN be typed by hand, and once in the DOM a hand-typed count
+  //     is indistinguishable from one left behind by an earlier option. So we
+  //     remember exactly which ids the previous apply wrote and clear only those,
+  //     which drops stale option data while leaving the user's own entries alone.
+  function clearOptionOwnedFields() {
+    var ids = [];
+    Object.keys(matMap).forEach(function(key) { ids.push(matMap[key].upg); });
+    Object.keys(VENT_FIELDS).forEach(function(k) { ids.push(VENT_FIELDS[k].cost); });
+    (window._woOptionWrittenIds || []).forEach(function(id) {
+      if (ids.indexOf(id) === -1) ids.push(id);
+    });
+    ids.forEach(clearField);
+  }
+
   function applyUpgrades() {
+    clearOptionOwnedFields();
+    var written = [];
+    // Mirrors the previous `if (el && val)` behaviour — a falsy value is skipped
+    // rather than written, since the clear pass has already blanked the field.
+    function setField(id, val) {
+      var el = document.getElementById(id);
+      if (!el || !val) return;
+      el.value = val;
+      if (written.indexOf(id) === -1) written.push(id);
+      el.dispatchEvent(new Event('input', {bubbles:true}));
+    }
     Object.keys(matMap).forEach(function(key) {
       var entry = d[key];
       if (!entry) return;
       var ids = matMap[key];
       setDropdown(ids.sel, normalize(entry.selName));
-      var upgEl = document.getElementById(ids.upg);
-      if (upgEl && entry.hoCharge > 0) { upgEl.value = entry.hoCharge.toFixed(2); upgEl.dispatchEvent(new Event('input')); }
+      if (entry.hoCharge > 0) setField(ids.upg, entry.hoCharge.toFixed(2));
     });
     // Populate vent counts directly from calc data
     var vc = d._ventCounts;
     if (vc) {
-      var vm = {
-        ridge:   {e:'wo-f16', de:'wo-vent-de-ridge',   dn:'wo-f17'},
-        box:     {e:'wo-f19', de:'wo-vent-de-box',      dn:'wo-f20'},
-        power:   {e:'wo-f23', de:'wo-vent-de-power',    dn:'wo-f24'},
-        solar:   {e:'wo-f25', de:'wo-vent-de-solar',    dn:'wo-f26'},
-        turbine: {e:'wo-f27', de:'wo-vent-de-turbine',  dn:'wo-f28'},
-      };
       var ventEntry = d.vent || {};
       var ventUpg = ventEntry.upgCost || 0;
       var ventHO  = ventEntry.hoCharge || 0;
       var ratio   = ventUpg > 0 ? ventHO / ventUpg : (ventHO > 0 ? 1 : 0);
       var perType = ventEntry.perType || {};
-      var ventCostMap = {ridge:'wo-f29', box:'wo-f30', power:'wo-f32', solar:'wo-f33', turbine:'wo-f34'};
-      Object.keys(vm).forEach(function(k) {
-        var f = vm[k], c = vc[k]; if (!c) return;
-        function sv(id,val){var el=document.getElementById(id);if(el&&val){el.value=val;}}
-        sv(f.e, c.exist); sv(f.de, c.desiredExist); sv(f.dn, c.desired);
+      Object.keys(VENT_FIELDS).forEach(function(k) {
+        var f = VENT_FIELDS[k], c = vc[k]; if (!c) return;
+        setField(f.e, c.exist); setField(f.de, c.desiredExist); setField(f.dn, c.desired);
         var typeCost = perType[k] || 0;
-        if (typeCost > 0 && ventCostMap[k]) {
-          var typeHO = ventUpg > 0 ? typeCost * ratio : 0;
-          sv(ventCostMap[k], typeHO.toFixed(2));
-          var upgEl = document.getElementById(ventCostMap[k]);
-          if (upgEl) upgEl.dispatchEvent(new Event('input'));
+        if (typeCost > 0 && f.cost) {
+          setField(f.cost, (ventUpg > 0 ? typeCost * ratio : 0).toFixed(2));
         }
       });
-      if (ventUpg === 0 && ventHO > 0) {
-        var el = document.getElementById('wo-f29');
-        if (el) { el.value = ventHO.toFixed(2); el.dispatchEvent(new Event('input')); }
-      }
+      if (ventUpg === 0 && ventHO > 0) setField('wo-f29', ventHO.toFixed(2));
     }
+    window._woOptionWrittenIds = written;
   }
   function switchToWO() {
     document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
